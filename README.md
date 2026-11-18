@@ -1,9 +1,55 @@
 # TM-WinCare – Windows Optimization & Maintenance Toolkit
 
+[![GitHub Release](https://img.shields.io/github/v/release/tuanmjnh/tm-win-care?style=flat-square&color=blue)](https://github.com/tuanmjnh/tm-win-care/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=flat-square&logo=windows)](https://microsoft.com/windows)
+
 > **TM Windows Support** | Phiên bản: **1.2.0** | Ngày phát hành: **18/11/2026**  
 > Nền tảng mục tiêu: **Windows 10** và **Windows 11** (Home / Pro / Enterprise)
 
-TM-WinCare là bộ công cụ dòng lệnh (Console/CMD Toolkit) portable, chạy trực tiếp trên Windows mà không cần cài đặt phần mềm bên ngoài, không cần database và hoạt động độc lập ngay cả khi máy tính offline. Công cụ được thiết kế chuyên biệt cho kỹ thuật viên IT, quản trị viên hệ thống và người dùng bảo trì máy tính, máy in và mạng nội bộ.
+TM-WinCare là bộ công cụ dòng lệnh (Console Toolkit) tiện ích, chạy trực tiếp trên Windows mà không cần cài đặt phần mềm bên ngoài, không cần database và hoạt động độc lập ngay cả khi máy tính offline. Công cụ tập trung vào việc hậu cài đặt Windows, tối ưu hóa an toàn, khắc phục lỗi hệ thống và xử lý nhanh các tác vụ máy in, mạng LAN nội bộ cho kỹ thuật viên IT.
+
+---
+
+## ⚡ Hướng dẫn sử dụng & Khởi chạy nhanh
+
+### Cách 1: PowerShell Online One-Liner ❤️ (Khuyến nghị)
+
+Không cần tải về hay giải nén, chỉ cần mở PowerShell và chạy:
+
+1. Bấm phím **Start** (hoặc `Win + X`), gõ **PowerShell** và mở **Windows PowerShell** (khuyến nghị chuột phải chọn *Run as administrator*).
+2. Sao chép và dán câu lệnh sau rồi nhấn **Enter**:
+
+```powershell
+irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | iex
+```
+
+*Nếu bị chặn bởi DNS hoặc nhà mạng, hãy dùng lệnh bypass DNS an toàn qua Cloudflare 1.1.1.1 sau:*
+```powershell
+iex (curl.exe -s --doh-url https://1.1.1.1/dns-query https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | Out-String)
+```
+
+---
+
+### Cách 2: Tải file chạy đơn All-In-One (Không cần gõ lệnh)
+
+Dành cho người dùng muốn tải sẵn về máy hoặc copy vào USB:
+
+1. Truy cập mục **[Releases](https://github.com/tuanmjnh/tm-win-care/releases/latest)** của dự án.
+2. Tải về file:
+   - **[`TM-WinCare-AIO.cmd`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/TM-WinCare-AIO.cmd)**: File đơn duy nhất, tự động nhận diện quyền Admin và chạy menu.
+   - Hoặc **[`TM-WinCare-Portable.zip`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/TM-WinCare-Portable.zip)**: Bộ nén đầy đủ cho kỹ thuật viên mang theo USB đi cứu hộ máy offline.
+3. Nhấp đúp chuột vào file `TM-WinCare-AIO.cmd` để bắt đầu.
+
+---
+
+### Cách 3: Chạy từ mã nguồn Git (Offline / Developers)
+
+```powershell
+git clone https://github.com/tuanmjnh/tm-win-care.git
+cd tm-win-care
+.\Start.cmd
+```
 
 ---
 
@@ -18,75 +64,7 @@ TM-WinCare là bộ công cụ dòng lệnh (Console/CMD Toolkit) portable, ch�
 
 ---
 
-## 2. Cấu trúc thư mục
-
-```text
-TM-WinCare/
-├─ Start.cmd                    # Bộ khởi chạy CMD (hỗ trợ UTF-8, phát hiện Admin)
-├─ README.md                    # Tài liệu hướng dẫn sử dụng
-├─ LICENSE                      # Giấy phép phần mềm MIT
-├─ config/
-│  ├─ app.json                  # Cấu hình ứng dụng, phiên bản và các tính năng
-│  └─ tasks.json                # Định nghĩa danh mục tác vụ & mức độ rủi ro
-├─ src/
-│  ├─ Main.ps1                  # Điểm điều phối Menu chính 12 mục
-│  ├─ Core/
-│  │  ├─ Bootstrap.ps1          # Khởi tạo UTF-8, nạp module và cấu hình
-│  │  ├─ Logger.ps1             # Ghi log kép (.log & .jsonl), lọc dữ liệu nhạy cảm
-│  │  ├─ Admin.ps1              # Kiểm tra quyền và tự động nâng quyền Administrator
-│  │  ├─ WindowsInfo.ps1        # Nhận diện phần cứng/OS qua CIM & Registry (Không dùng WMIC)
-│  │  ├─ Compatibility.ps1      # Kiểm tra tương thích Windows 10/11, Home/Pro
-│  │  ├─ Backup.ps1             # Sao lưu Registry (.reg) và Service state trước thay đổi
-│  │  ├─ Restore.ps1            # Công cụ hoàn tác (Rollback) an toàn
-│  │  ├─ Confirm.ps1            # Cổng xác nhận tác vụ (Y/N hoặc từ khóa APPLY)
-│  │  ├─ ErrorHandler.ps1       # Bắt lỗi tập trung và thông báo thân thiện
-│  │  └─ Menu.ps1               # Engine menu console phân cấp
-│  ├─ Modules/
-│  │  ├─ Dashboard/             # Bảng thông tin hệ thống, RAM, CPU, ổ đĩa, Spooler
-│  │  ├─ PostInstall/           # Cấu hình sau cài đặt (đổi tên máy, hiện đuôi file...)
-│  │  ├─ Optimization/          # Auto Optimize theo profile & Custom Optimize
-│  │  ├─ Maintenance/           # Bảo trì ổ đĩa (TRIM SSD, Defrag HDD, CHKDSK)
-│  │  ├─ Repair/                # Sửa chữa Windows (SFC, DISM RestoreHealth, Winsock reset)
-│  │  ├─ Network/               # Cấu hình IP, Gateway, DNS, Port test, SMB inspection
-│  │  ├─ Printer/               # Khởi động Spooler, dọn kẹt in, Local Port, tài khoản scan
-│  │  ├─ Cleanup/               # Dọn rác Windows Temp, WU cache, AI/Dev cache (pip, npm...)
-│  │  ├─ Privacy/               # Bật/tắt nút Copilot, Widgets, mẹo vặt Windows
-│  │  ├─ Accounts/              # Quản lý tài khoản cục bộ, tạo user scan
-│  │  ├─ QuickCommands/         # Thư viện phím tắt mở nhanh các công cụ Windows
-│  │  └─ BackupRestore/         # Giao diện xem và hoàn tác các bản sao lưu
-│  └─ UI/
-│     ├─ Colors.ps1             # Định dạng màu sắc và huy hiệu trạng thái [OK], [WARN], [LỖI]
-│     ├─ Tables.ps1             # Định dạng bảng console và property grid
-│     └─ Prompts.ps1            # Bộ nhập liệu, xác nhận và đọc mật khẩu bảo mật
-├─ data/
-│  ├─ command-catalog/          # Thư viện lệnh nhanh (Quick commands)
-│  ├─ cleanup-catalog/          # Danh mục dọn dẹp hệ thống & công cụ AI/Dev
-│  └─ optimization-profiles/    # Các profile Auto Optimize (Balanced, Laptop, Desktop...)
-├─ Backups/                     # Thư mục lưu các bản sao lưu cấu hình trước khi tinh chỉnh
-├─ Logs/                        # Nhật ký thực thi theo ngày (.log và .jsonl)
-└─ tests/
-   └─ Unit/
-      ├─ CoreTests.ps1          # Kiểm thử tầng lõi (Bootstrap, CIM, Logger, Backup)
-      └─ ModuleTests.ps1        # Kiểm thử các module chức năng
-```
-
----
-
-## 3. Hướng dẫn khởi chạy
-
-### Cách 1: Khởi chạy nhanh qua `Start.cmd` (Khuyến nghị)
-1. Chuột phải vào file `Start.cmd` và chọn **Run as administrator** (hoặc nhấp đúp để chạy chế độ người dùng thông thường).
-2. Chương trình sẽ tự động thiết lập bảng mã UTF-8 (`chcp 65001`), kiểm tra quyền Administrator và khởi chạy PowerShell với cờ `-ExecutionPolicy Bypass`.
-
-### Cách 2: Khởi chạy thủ công qua PowerShell
-Mở PowerShell (5.1 hoặc PowerShell 7) tại thư mục dự án và chạy:
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\Main.ps1
-```
-
----
-
-## 4. Danh mục 12 chức năng chính
+## 2. Danh mục 12 chức năng chính
 
 ```text
 =========================================================
@@ -132,9 +110,72 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\Main.ps1
 
 ---
 
-## 5. Kiểm thử & Đảm bảo chất lượng
+## 3. Cấu trúc thư mục dự án
 
-Dự án đi kèm bộ kiểm thử tự động Pester/PowerShell:
+```text
+tm-win-care/
+├─ Start.cmd                    # Bộ khởi chạy CMD cổ điển
+├─ get.ps1                      # Bộ kéo tải trực tuyến
+├─ README.md                    # Tài liệu hướng dẫn sử dụng
+├─ LICENSE                      # Giấy phép phần mềm MIT
+├─ config/
+│  ├─ app.json                  # Nơi cấu hình định danh & số phiên bản Version
+│  └─ tasks.json                # Danh mục tác vụ và phân cấp rủi ro
+├─ src/
+│  ├─ Main.ps1                  # Điểm điều phối Menu chính 12 mục
+│  ├─ Core/                     # Bootstrap, Admin, Info, Backup, Restore, Logger...
+│  ├─ Modules/                  # 12 module tính năng độc lập
+│  └─ UI/                       # Colors, Tables, Prompts
+├─ data/                        # Command catalog, cleanup catalog, profiles
+├─ scripts/
+│  └─ build.ps1                 # Script đóng gói tự động ra dist/
+├─ dist/                        # Chứa các file AIO độc lập và file nén release
+│  ├─ TM-WinCare-AIO.ps1        # File PowerShell All-In-One (chạy qua irm)
+│  ├─ TM-WinCare-AIO.cmd        # File CMD All-In-One (double-click chạy ngay)
+│  └─ TM-WinCare-Portable.zip   # Gói zip portable đầy đủ
+└─ tests/                       # Bộ kiểm thử Unit test tầng Core và Modules
+```
+
+---
+
+## 4. Hướng dẫn dành cho Quản trị viên & Phát hành phiên bản mới (Release Guide)
+
+### Quản lý phiên bản (Version Management) ở đâu?
+Phiên bản của bộ công cụ được quản lý tại **`config/app.json`**:
+```json
+{
+  "name": "TM-WinCare",
+  "displayName": "TM Windows Support Toolkit",
+  "version": "1.2.0",
+  "releaseDate": "2026-11-18"
+}
+```
+
+### Quy trình đóng gói và phát hành phiên bản mới:
+Khi bạn cập nhật tính năng và muốn ra mắt phiên bản mới (ví dụ `1.2.1`):
+
+1. **Cập nhật số phiên bản**: Mở file `config/app.json` và sửa `"version": "1.2.1"`.
+2. **Đóng gói file release**: Mở PowerShell tại thư mục dự án và chạy:
+   ```powershell
+   pwsh ./scripts/build.ps1
+   ```
+   *Script sẽ tự động đọc `app.json`, nhúng toàn bộ logic mới vào `dist/TM-WinCare-AIO.ps1`, `dist/TM-WinCare-AIO.cmd` và nén `dist/TM-WinCare-v1.2.1-Portable.zip`.*
+3. **Commit & Tạo Git Tag**:
+   ```powershell
+   git add .
+   git commit -m "chore: release version v1.2.1"
+   git push origin main
+   git tag v1.2.1
+   git push origin v1.2.1
+   ```
+4. **Tạo Release trên GitHub**:
+   - Nếu bạn đã bật GitHub Actions, workflow `.github/workflows/release.yml` sẽ **tự động** tạo GitHub Release và đính kèm các file trong `dist/`.
+   - Nếu bạn tạo thủ công trên web GitHub: Vào mục **Releases** > **Draft a new release** > Chọn tag `v1.2.1` > Kéo thả các file trong thư mục `dist/` vào phần đính kèm rồi nhấn **Publish release**.
+
+---
+
+## 5. Kiểm thử tự động (Unit Tests)
+
 ```powershell
 # Chạy bộ kiểm thử tầng Core
 pwsh.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\Unit\CoreTests.ps1

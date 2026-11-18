@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Quick Commands Library
+# TM-WinCare - Quick Commands Library
 # Adheres to Section 7 of TM-WinCare-Architecture-v1.2.md
 
 function Get-QuickCommandsList {

@@ -1,4 +1,4 @@
-﻿# TM-WinCare - State Backup & Rollback Engine
+# TM-WinCare - State Backup & Rollback Engine
 # Adheres to Section 8 of TM-WinCare-Architecture-v1.2.md
 
 $script:BackupDirectory = if ($PSScriptRoot) { Join-Path $PSScriptRoot "../../Backups" } else { Join-Path $env:SystemDrive "TM-WinCare\Backups" }

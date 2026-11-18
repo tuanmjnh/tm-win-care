@@ -9,7 +9,5 @@ Logs/NetworkReport_*.txt
 Backups/*/
 !Backups/.gitkeep
 dist/*.zip
-dist/*.cmd
-dist/*.ps1
 .vscode/
 .idea/

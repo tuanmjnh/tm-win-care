@@ -144,10 +144,13 @@ Write-Host " [OK] Đã tạo thành công: $aioCmdPath" -ForegroundColor Green
 
 # 5. Generate Root Online Launcher get.ps1
 Write-Host "-> Đang tạo file khởi chạy trực tuyến get.ps1..." -ForegroundColor Yellow
+$appConfig = $appJson | ConvertFrom-Json
+$appVersion = $appConfig.version
+
 $getPs1Content = @'
 # TM-WinCare Online Bootstrap Launcher
-# Usage: irm https://raw.githubusercontent.com/<username>/tm-wincare/main/dist/TM-WinCare-AIO.ps1 | iex
-$url = "https://raw.githubusercontent.com/tuanminh/tm-wincare/main/dist/TM-WinCare-AIO.ps1"
+# Usage: irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | iex
+$url = "https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1"
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $content = (Invoke-RestMethod -Uri $url -UseBasicParsing)
@@ -159,9 +162,11 @@ try {
 [System.IO.File]::WriteAllText((Join-Path $rootDir "get.ps1"), $getPs1Content, [System.Text.Encoding]::UTF8)
 
 # 6. Generate Portable ZIP
-Write-Host "-> Đang nén file bản phát hành ZIP..." -ForegroundColor Yellow
-$zipPath = Join-Path $distDir "TM-WinCare-v1.2.0-Portable.zip"
-if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+Write-Host "-> Đang nén file bản phát hành ZIP (v$appVersion)..." -ForegroundColor Yellow
+$zipVersionedPath = Join-Path $distDir "TM-WinCare-v$appVersion-Portable.zip"
+$zipGenericPath = Join-Path $distDir "TM-WinCare-Portable.zip"
+if (Test-Path $zipVersionedPath) { Remove-Item $zipVersionedPath -Force }
+if (Test-Path $zipGenericPath) { Remove-Item $zipGenericPath -Force }
 
 $itemsToZip = @(
     (Join-Path $rootDir "Start.cmd"),
@@ -170,13 +175,16 @@ $itemsToZip = @(
     (Join-Path $rootDir "config"),
     (Join-Path $rootDir "data")
 )
-Compress-Archive -Path $itemsToZip -DestinationPath $zipPath -CompressionLevel Optimal -Force
-Write-Host " [OK] Đã tạo bản phát hành ZIP: $zipPath" -ForegroundColor Green
+Compress-Archive -Path $itemsToZip -DestinationPath $zipVersionedPath -CompressionLevel Optimal -Force
+Copy-Item $zipVersionedPath $zipGenericPath -Force
+Write-Host " [OK] Đã tạo bản phát hành ZIP: $zipVersionedPath" -ForegroundColor Green
 
 Write-Host "=========================================================" -ForegroundColor Cyan
 Write-Host " BUILD THÀNH CÔNG! SẴN SÀNG RELEASE LÊN GITHUB." -ForegroundColor Green
-Write-Host " Các file đã tạo:" -ForegroundColor White
+Write-Host " Phiên bản: v$appVersion" -ForegroundColor Yellow
+Write-Host " Các file đã tạo trong dist/:" -ForegroundColor White
 Write-Host "  1. dist/TM-WinCare-AIO.ps1 (chạy qua irm ... | iex)" -ForegroundColor Cyan
 Write-Host "  2. dist/TM-WinCare-AIO.cmd (chạy 1 file duy nhất)" -ForegroundColor Cyan
-Write-Host "  3. dist/TM-WinCare-v1.2.0-Portable.zip (bản nén)" -ForegroundColor Cyan
+Write-Host "  3. dist/TM-WinCare-v$appVersion-Portable.zip (bản nén)" -ForegroundColor Cyan
+Write-Host "  4. dist/TM-WinCare-Portable.zip (link tải cố định)" -ForegroundColor Cyan
 Write-Host "=========================================================" -ForegroundColor Cyan

@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Optimization Profiles & Engine Logic
+# TM-WinCare - Optimization Profiles & Engine Logic
 # Adheres to Section 3.3.1 & Section 14A of TM-WinCare-Architecture-v1.2.md
 
 function Get-OptimizationProfiles {

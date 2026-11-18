@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Structured Logging (TXT & JSONL)
+# TM-WinCare - Structured Logging (TXT & JSONL)
 # Adheres to Section 11 of TM-WinCare-Architecture-v1.2.md
 
 $script:LogDirectory = if ($PSScriptRoot) { Join-Path $PSScriptRoot "../../Logs" } else { Join-Path $env:TEMP "TM-WinCare\Logs" }

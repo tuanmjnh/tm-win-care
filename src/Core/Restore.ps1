@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Restore & Rollback Engine
+# TM-WinCare - Restore & Rollback Engine
 # Adheres to Section 8 of TM-WinCare-Architecture-v1.2.md
 
 function Get-TMBackupList {
