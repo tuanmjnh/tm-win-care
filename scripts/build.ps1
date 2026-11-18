@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Bundler & Release Packaging Script
+# TM-WinCare - Bundler & Release Packaging Script
 # Generates:
 #   1. dist/TM-WinCare-AIO.ps1 (Single-file script for `irm <url> | iex`)
 #   2. dist/TM-WinCare-AIO.cmd (All-In-One double-clickable CMD script)

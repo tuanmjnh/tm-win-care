@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Application Bootstrap
+# TM-WinCare - Application Bootstrap
 # Adheres to Section 9 & 10 of TM-WinCare-Architecture-v1.2.md
 
 # 1. Force UTF-8 Encoding in Console
