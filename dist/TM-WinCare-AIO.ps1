@@ -1,5 +1,7 @@
 # TM-WinCare - Windows Optimization and Maintenance Toolkit v1.2.0
+try { & chcp.com 65001 | Out-Null } catch {}
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding  = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $global:IsBundledAIO = $true
 $global:TM_CONFIG = @'
@@ -3741,14 +3743,11 @@ function Start-TMApplication {
             0  {
                 Write-InfoMessage "Cảm ơn bạn đã sử dụng TM-WinCare. Tạm biệt!"
                 Write-TMLog -TaskId "EXIT" -TaskName "Thoát ứng dụng" -Status "Info" -Message "Thoát bình thường"
-                break
+                return
             }
         }
     }
 }
 
-if (-not $NonInteractive) {
-    Start-TMApplication
-}
 
 Start-TMApplication

@@ -1,4 +1,4 @@
-# TM-WinCare - Bundler & Release Packaging Script
+﻿# TM-WinCare - Bundler & Release Packaging Script
 # Generates:
 #   1. dist/TM-WinCare-AIO.ps1 (Single-file script for `irm <url> | iex`)
 #   2. dist/TM-WinCare-AIO.cmd (All-In-One double-clickable CMD script)
@@ -66,7 +66,9 @@ Write-Host "-> Đang đóng gói mã nguồn thành Single-file AIO script..." -
 $psBuilder = [System.Text.StringBuilder]::new()
 # Line 1 MUST be clean ASCII with no BOM and no & symbol for Windows PowerShell 5.1 compatibility
 $psBuilder.AppendLine("# TM-WinCare - Windows Optimization and Maintenance Toolkit v$appVersion") | Out-Null
+$psBuilder.AppendLine("try { & chcp.com 65001 | Out-Null } catch {}") | Out-Null
 $psBuilder.AppendLine("[Console]::OutputEncoding = [System.Text.Encoding]::UTF8") | Out-Null
+$psBuilder.AppendLine("[Console]::InputEncoding  = [System.Text.Encoding]::UTF8") | Out-Null
 $psBuilder.AppendLine("`$OutputEncoding = [System.Text.Encoding]::UTF8") | Out-Null
 $psBuilder.AppendLine("`$global:IsBundledAIO = `$true") | Out-Null
 
@@ -91,9 +93,12 @@ foreach ($relPath in $sourceFiles) {
     }
 }
 
-# Append Main Menu caller
+# Append Main Menu caller (stripping param and dot-sourcing)
 $mainContent = Get-Content (Join-Path $rootDir "src/Main.ps1") -Raw -Encoding UTF8
 $filteredMain = ($mainContent -split "`r?`n" | Where-Object { $_ -notmatch '^\s*\.\s*\(' }) -join "`r`n"
+$filteredMain = $filteredMain -replace '(?s)^\s*param\s*\([^)]*\)\s*', ''
+$filteredMain = $filteredMain -replace '(?m)^\s*if\s*\(-not\s*\$NonInteractive\)\s*\{\s*Start-TMApplication\s*\}', ''
+
 $psBuilder.AppendLine("# === MAIN ENTRY POINT ===") | Out-Null
 $psBuilder.AppendLine($filteredMain) | Out-Null
 $psBuilder.AppendLine("Start-TMApplication") | Out-Null

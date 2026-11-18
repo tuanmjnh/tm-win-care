@@ -1,8 +1,10 @@
-# TM-WinCare - Application Bootstrap
+﻿# TM-WinCare - Application Bootstrap
 # Adheres to Section 9 & 10 of TM-WinCare-Architecture-v1.2.md
 
 # 1. Force UTF-8 Encoding in Console
+try { & chcp.com 65001 | Out-Null } catch {}
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding  = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
 # 2. Source Core & UI Modules

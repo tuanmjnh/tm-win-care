@@ -1,4 +1,4 @@
-# TM-WinCare - Main Entry Point
+﻿# TM-WinCare - Main Entry Point
 # TM-WinCare – Windows Optimization & Maintenance Toolkit v1.2
 # Adheres to Section 4.1, 9, 10 of TM-WinCare-Architecture-v1.2.md
 
@@ -73,7 +73,7 @@ function Start-TMApplication {
             0  {
                 Write-InfoMessage "Cảm ơn bạn đã sử dụng TM-WinCare. Tạm biệt!"
                 Write-TMLog -TaskId "EXIT" -TaskName "Thoát ứng dụng" -Status "Info" -Message "Thoát bình thường"
-                break
+                return
             }
         }
     }
