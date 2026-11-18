@@ -68,7 +68,8 @@ function Invoke-LicenseInventoryCheck {
     $winBackupKey = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -ErrorAction SilentlyContinue).BackupProductKeyDefault
     $winOemKey = if ($sls) { $sls.OA3xOriginalProductKey } else { $null }
 
-    $winAllLic = Get-CimInstance SoftwareLicensingProduct -ErrorAction SilentlyContinue | Where-Object { $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' -and $_.PartialProductKey } | Sort-Object LicenseStatus -Descending
+    $allLicProducts = @(Get-CimInstance SoftwareLicensingProduct -Filter "PartialProductKey IS NOT NULL" -ErrorAction SilentlyContinue)
+    $winAllLic = $allLicProducts | Where-Object { $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Sort-Object LicenseStatus -Descending
     $winActiveLic = $winAllLic | Select-Object -First 1
     $winStatus = if ($winActiveLic -and $winActiveLic.LicenseStatus -eq 1) { "Da kich hoat" } else { "Chua kich hoat" }
     $winPartial = if ($winActiveLic -and $winActiveLic.PartialProductKey) { $winActiveLic.PartialProductKey } else { "N/A" }
@@ -81,9 +82,9 @@ function Invoke-LicenseInventoryCheck {
     $winKeySummary = $winFullList -join " | "
 
     # 2. Key Office tren may
-    $offAllLic = @(Get-CimInstance SoftwareLicensingProduct -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*Office*' -and $_.PartialProductKey })
+    $offAllLic = @($allLicProducts | Where-Object { $_.Name -like '*Office*' })
     if ($offAllLic.Count -eq 0) {
-        $offAllLic = @(Get-CimInstance OfficeSoftwareProtectionProduct -ErrorAction SilentlyContinue | Where-Object { $_.PartialProductKey })
+        $offAllLic = @(Get-CimInstance OfficeSoftwareProtectionProduct -Filter "PartialProductKey IS NOT NULL" -ErrorAction SilentlyContinue)
     }
 
     $offRegKeys = @()
@@ -283,7 +284,7 @@ function Invoke-LicenseInventoryCheck {
                 Write-Host "[+] Đã lưu file CSV tại: $csvPath" -ForegroundColor Green
                 Send-ToGoogleSheetsLocal
             }
-            "0" { break }
+            "0" { return }
             default { Write-Host "[!] Vui lòng chọn từ 0 đến 6." -ForegroundColor Yellow }
         }
     }
