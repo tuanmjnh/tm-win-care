@@ -2,10 +2,6 @@
 # TM-WinCare – Windows Optimization & Maintenance Toolkit v1.2
 # Adheres to Section 4.1, 9, 10 of TM-WinCare-Architecture-v1.2.md
 
-param (
-    [switch]$NonInteractive
-)
-
 # 1. Bootstrap Core & UI
 $srcDir = $PSScriptRoot
 . (Join-Path $srcDir "Core/Bootstrap.ps1")
@@ -79,6 +75,4 @@ function Start-TMApplication {
     }
 }
 
-if (-not $NonInteractive) {
-    Start-TMApplication
-}
+Start-TMApplication

@@ -93,11 +93,10 @@ foreach ($relPath in $sourceFiles) {
     }
 }
 
-# Append Main Menu caller (stripping param and dot-sourcing)
+# Append Main Menu caller
 $mainContent = Get-Content (Join-Path $rootDir "src/Main.ps1") -Raw -Encoding UTF8
-$filteredMain = ($mainContent -split "`r?`n" | Where-Object { $_ -notmatch '^\s*\.\s*\(' }) -join "`r`n"
-$filteredMain = $filteredMain -replace '(?s)^\s*param\s*\([^)]*\)\s*', ''
-$filteredMain = $filteredMain -replace '(?m)^\s*if\s*\(-not\s*\$NonInteractive\)\s*\{\s*Start-TMApplication\s*\}', ''
+$filteredMain = ($mainContent -split "`r?`n" | Where-Object { $_ -notmatch '^\s*\.\s*\(' -and $_ -notmatch '^\s*Start-TMApplication\s*$' }) -join "`r`n"
+$filteredMain = $filteredMain -replace '(?s)param\s*\([^)]*\)', ''
 
 $psBuilder.AppendLine("# === MAIN ENTRY POINT ===") | Out-Null
 $psBuilder.AppendLine($filteredMain) | Out-Null
