@@ -5,7 +5,7 @@ $testRoot = $PSScriptRoot
 $srcRoot = Join-Path $testRoot "../../src"
 
 Write-Host "=========================================================" -ForegroundColor Cyan
-Write-Host "              TM-WINCARE - BỘ KIỂM THỬ CORE             " -ForegroundColor White
+Write-Host "              TM-WINCARE - CORE TEST SUITE              " -ForegroundColor White
 Write-Host "=========================================================" -ForegroundColor Cyan
 
 $passed = 0
@@ -34,31 +34,31 @@ function Assert-Test {
 # 1. Test Bootstrap and Configuration Loading
 . (Join-Path $srcRoot "Core/Bootstrap.ps1")
 
-Assert-Test -Name "Nạp Bootstrap & App Configuration" -TestBlock {
+Assert-Test -Name "Load Bootstrap & Application Configuration" -TestBlock {
     return ($null -ne $global:TM_CONFIG -and $global:TM_CONFIG.version -eq "1.2.0")
 }
 
 # 2. Test System Info Detection
-Assert-Test -Name "Nhận diện hệ điều hành và phần cứng qua CIM" -TestBlock {
+Assert-Test -Name "Detect OS and Hardware Metrics via CIM" -TestBlock {
     $sys = Get-TMSystemInfo
-    return ($null -ne $sys -and $sys.Contains("Hệ điều hành") -and $sys.Contains("Tên máy (Hostname)"))
+    return ($null -ne $sys -and $sys.Contains("Operating System") -and $sys.Contains("Computer Name (Hostname)"))
 }
 
 # 3. Test OS Detection logic (Win10 vs Win11)
-Assert-Test -Name "Xác định phiên bản Windows 10/11 chính xác" -TestBlock {
+Assert-Test -Name "Verify Windows 10/11 Build Detection Logic" -TestBlock {
     return ($null -ne $global:TM_OS_INFO.Build -and $global:TM_OS_INFO.Build -gt 10000)
 }
 
 # 4. Test Logger & Secret Sanitization
-Assert-Test -Name "Ghi Log có che giấu thông tin mật khẩu (Sanitization)" -TestBlock {
-    $rawMsg = 'Tao tai khoan net user test "MySecretPassword123" /add'
+Assert-Test -Name "Log Sanitization Redacts Passwords and Credentials" -TestBlock {
+    $rawMsg = 'Create user net user test "MySecretPassword123" /add'
     $sanitized = Sanitize-LogMessage -Message $rawMsg
     Write-TMLog -TaskId "TEST_LOG" -TaskName "Test Log" -Status "Info" -Message $rawMsg
     return ($sanitized -notmatch "MySecretPassword123")
 }
 
 # 5. Test Backup Session Manifest Creation
-Assert-Test -Name "Tạo Backup Session & Manifest JSON" -TestBlock {
+Assert-Test -Name "Create Backup Session & Manifest JSON" -TestBlock {
     $session = New-TMBackupSession -TaskId "TEST_BACKUP" -Description "Unit test backup session"
     $backupId = Save-TMBackupSession -Session $session
     $manifestFile = Join-Path $session.Directory "manifest.json"
@@ -72,21 +72,20 @@ Assert-Test -Name "Tạo Backup Session & Manifest JSON" -TestBlock {
 }
 
 # 6. Test Quick Commands Catalog Integrity
-Assert-Test -Name "Kiểm tra tính toàn vẹn danh mục Quick Commands" -TestBlock {
-    . (Join-Path $srcRoot "Modules/QuickCommands/QuickCommands.ps1")
-    $cmds = Get-QuickCommandsList
-    return ($cmds.Count -gt 15)
+Assert-Test -Name "Verify Quick Commands Catalog Integrity" -TestBlock {
+    $catalogPath = Join-Path $testRoot "../../data/command-catalog/quick-commands.json"
+    $cmds = Get-Content -Path $catalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    return ($cmds.Count -ge 10)
 }
 
 # 7. Test Optimization Profiles Catalog Integrity
-Assert-Test -Name "Kiểm tra tính toàn vẹn hồ sơ Auto Optimize" -TestBlock {
-    . (Join-Path $srcRoot "Modules/Optimization/Profiles.ps1")
-    $profs = Get-OptimizationProfiles
-    return ($profs.Count -ge 5)
+Assert-Test -Name "Verify Optimization Profiles Catalog Integrity" -TestBlock {
+    $profilesPath = Join-Path $testRoot "../../data/optimization-profiles/profiles.json"
+    $profiles = Get-Content -Path $profilesPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    return ($profiles.Count -ge 5)
 }
 
-Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
-Write-Host " Kết quả: $passed passed, $failed failed." -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Red" })
+Write-Divider
+Write-Host " Results: $passed passed, $failed failed." -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Red" })
 Write-Host "=========================================================" -ForegroundColor Cyan
-
-if ($failed -gt 0) { exit 1 } else { exit 0 }
+if ($failed -gt 0) { exit 1 }

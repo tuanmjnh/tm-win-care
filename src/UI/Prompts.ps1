@@ -3,7 +3,7 @@
 
 function Read-MenuSelection {
     param (
-        [string]$PromptText = "Lựa chọn của bạn",
+        [string]$PromptText = "Select an option",
         [int]$Min = 0,
         [int]$Max = 99
     )
@@ -17,7 +17,7 @@ function Read-MenuSelection {
                 return $num
             }
         }
-        Write-ErrorMessage "Vui lòng nhập một số hợp lệ từ $Min đến $Max."
+        Write-ErrorMessage "Please enter a valid number between $Min and $Max."
     }
 }
 
@@ -30,28 +30,28 @@ function Confirm-Action {
     )
     Write-Host ""
     Write-Host "=========================================================" -ForegroundColor Yellow
-    Write-Host " XÁC NHẬN THỰC HIỆN TÁC VỤ: $TaskName" -ForegroundColor White
-    Write-Host " Mức độ rủi ro: $RiskLevel" -ForegroundColor Yellow
+    Write-Host " CONFIRM ACTION: $TaskName" -ForegroundColor White
+    Write-Host " Risk Level: $RiskLevel" -ForegroundColor Yellow
     if ($ImpactDescription) {
-        Write-Host " Ảnh hưởng:" -ForegroundColor Gray
+        Write-Host " Impact:" -ForegroundColor Gray
         Write-Host "   $ImpactDescription" -ForegroundColor Gray
     }
     Write-Host "=========================================================" -ForegroundColor Yellow
 
     if ($RequiresKeyword -or $RiskLevel -eq "high") {
-        Write-Host " Tác vụ có rủi ro cao. Nhập 'APPLY' để xác nhận thực hiện, hoặc bấm phím khác để hủy:" -ForegroundColor Red -NoNewline
+        Write-Host " High-risk action. Type 'APPLY' to confirm, or press any other key to cancel: " -ForegroundColor Red -NoNewline
         $ans = Read-Host
         return ($ans.Trim() -eq "APPLY")
     }
 
-    Write-Host " Bạn có chắc chắn muốn tiếp tục? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Are you sure you want to proceed? (Y/N): " -ForegroundColor Cyan -NoNewline
     $ans = Read-Host
     return ($ans.Trim().ToUpper() -eq "Y")
 }
 
 function Read-SecurePassword {
     param (
-        [string]$PromptText = "Nhập mật khẩu"
+        [string]$PromptText = "Enter password"
     )
     Write-Host " $($PromptText): " -ForegroundColor Cyan -NoNewline
     $sec = Read-Host -AsSecureString
@@ -60,7 +60,7 @@ function Read-SecurePassword {
 
 function Pause-Screen {
     param (
-        [string]$Message = "Nhấn Enter để quay lại menu..."
+        [string]$Message = "Press Enter to return to menu..."
     )
     Write-Host ""
     Write-Host " $Message" -ForegroundColor DarkGray

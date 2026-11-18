@@ -41,4 +41,4 @@ if (Test-Path $configPath) {
 $null = Get-TMSystemInfo
 
 # 5. Log startup
-Write-TMLog -TaskId "INIT" -TaskName "Khởi động ứng dụng" -Status "Started" -Message "TM-WinCare v$($global:TM_CONFIG.version) khởi động thành công"
+Write-TMLog -TaskId "INIT" -TaskName "App Startup" -Status "Started" -Message "TM-WinCare v$($global:TM_CONFIG.version) initialized successfully"

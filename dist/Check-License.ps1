@@ -1,11 +1,11 @@
 # TM-WinCare - License and IT Inventory Tool
-# TM-WinCare - Windows & Office License Management (IT Inventory)
+# TM-WinCare - License and IT Inventory Tool
 # Decodes Full 25-character Windows Key & Office Key, Mainboard Serial, UUID, Sync to Google Sheets / Form
 
 function Invoke-LicenseInventoryCheck {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-    # ==================== CAU HINH LINK GOOGLE SHEETS / FORM ====================
+    # ==================== GOOGLE SHEETS / FORM CONFIGURATION ====================
     $WEB_APP_URL      = "https://script.google.com/macros/s/AKfycbyY0fbv2IehFvC8oLCi9sFIYI_HHXNyF2WEfCBdKDOwkW-5MmjFyBacjqbHXfj4R5YI0w/exec"
     $GOOGLE_FORM_URL  = "https://docs.google.com/forms/d/e/1FAIpQLSfrIXm1b_mpo0A_L0Ns4IUOElJSeAqYcOYtMY6REThZP8phKQ/viewform"
     $PREFILL_TEMPLATE = "https://docs.google.com/forms/d/e/1FAIpQLSfrIXm1b_mpo0A_L0Ns4IUOElJSeAqYcOYtMY6REThZP8phKQ/viewform?usp=pp_url&entry.149006453=__TEN_MAY__&entry.2097722978=__UUID__&entry.172201661=__MODEL__&entry.218557984=__SERIAL__&entry.2007771510=__WIN_VER__&entry.901102999=Da+kich+hoat&entry.1856982139=__WIN_KEY__&entry.610740607=__OFF_VER__&entry.695594658=Da+kich+hoat&entry.1357205106=__OFF_KEY__&entry.1710584041=__GHI_CHU__"
@@ -44,7 +44,7 @@ function Invoke-LicenseInventoryCheck {
         }
     }
 
-    Write-Host "`n[*] Đang quét phần cứng và giải mã toàn bộ Key Windows / Office..." -ForegroundColor Cyan
+    Write-Host "`n[*] Scanning hardware and decoding Windows & Office Product Keys..." -ForegroundColor Cyan
 
     $cs = Get-CimInstance Win32_ComputerSystemProduct -ErrorAction SilentlyContinue
     $bb = Get-CimInstance Win32_BaseBoard -ErrorAction SilentlyContinue
@@ -59,17 +59,17 @@ function Invoke-LicenseInventoryCheck {
     $allLicProducts = @(Get-CimInstance SoftwareLicensingProduct -Filter "PartialProductKey IS NOT NULL" -ErrorAction SilentlyContinue)
     $winAllLic = $allLicProducts | Where-Object { $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Sort-Object LicenseStatus -Descending
     $winActiveLic = $winAllLic | Select-Object -First 1
-    $winStatus = if ($winActiveLic -and $winActiveLic.LicenseStatus -eq 1) { "Da kich hoat" } else { "Chua kich hoat" }
+    $winStatus = if ($winActiveLic -and $winActiveLic.LicenseStatus -eq 1) { "Activated" } else { "Unactivated" }
     $winPartial = if ($winActiveLic -and $winActiveLic.PartialProductKey) { $winActiveLic.PartialProductKey } else { "N/A" }
 
     $winFullList = @()
     if ($winRegKey) { $winFullList += "Active: $winRegKey" }
     if ($winBackupKey -and $winBackupKey -ne $winRegKey) { $winFullList += "Backup: $winBackupKey" }
     if ($winOemKey) { $winFullList += "OEM-BIOS: $winOemKey" }
-    if ($winFullList.Count -eq 0) { $winFullList += "5-Cuoi: $winPartial" }
+    if ($winFullList.Count -eq 0) { $winFullList += "Last-5: $winPartial" }
     $winKeySummary = $winFullList -join " | "
 
-    # 2. Key Office tren may
+    # 2. Key Office
     $offAllLic = @($allLicProducts | Where-Object { $_.Name -like '*Office*' })
     if ($offAllLic.Count -eq 0) {
         $offAllLic = @(Get-CimInstance OfficeSoftwareProtectionProduct -Filter "PartialProductKey IS NOT NULL" -ErrorAction SilentlyContinue)
@@ -94,7 +94,7 @@ function Invoke-LicenseInventoryCheck {
 
         foreach ($item in ($offAllLic | Sort-Object LicenseStatus -Descending)) {
             $cleanName = ($item.Name -replace 'Office \d+, ', '' -replace ' edition', '' -replace 'Microsoft ', '').Trim()
-            $st = if ($item.LicenseStatus -eq 1) { "Da kich hoat" } else { "Chua kich hoat" }
+            $st = if ($item.LicenseStatus -eq 1) { "Activated" } else { "Unactivated" }
             $pk = $item.PartialProductKey
 
             $matchedFull = $offRegKeys | Where-Object { $_ -like "*$pk" } | Select-Object -First 1
@@ -105,11 +105,11 @@ function Invoke-LicenseInventoryCheck {
             $offKeys += $keyDisplay
         }
         $offNameSummary = ($offNames | Select-Object -Unique) -join " | "
-        $offStatusSummary = if ($offStatuses -contains "Da kich hoat") { "Da kich hoat" } else { "Chua kich hoat" }
+        $offStatusSummary = if ($offStatuses -contains "Activated") { "Activated" } else { "Unactivated" }
         $offKeySummary = $offKeys -join " | "
     } else {
-        $offNameSummary = "Chua cai"
-        $offStatusSummary = "Chua kich hoat"
+        $offNameSummary = "Not Installed"
+        $offStatusSummary = "Unactivated"
         $offKeySummary = "N/A"
     }
 
@@ -131,19 +131,19 @@ function Invoke-LicenseInventoryCheck {
     }
 
     function Show-TerminalInfoLocal {
-        Write-Host "`n================ THÔNG TIN MÁY & TOÀN BỘ BẢN QUYỀN KEY ================" -ForegroundColor Green
-        Write-Host ("  Thời gian check   : {0}" -f $dataObj.Thoi_Gian_Check)
-        Write-Host ("  Tên máy           : {0}" -f $dataObj.Ten_May) -ForegroundColor Yellow
+        Write-Host "`n================ SYSTEM INVENTORY & LICENSE KEY OVERVIEW ================" -ForegroundColor Green
+        Write-Host ("  Timestamp         : {0}" -f $dataObj.Thoi_Gian_Check)
+        Write-Host ("  Computer Name     : {0}" -f $dataObj.Ten_May) -ForegroundColor Yellow
         Write-Host ("  UUID Mainboard    : {0}" -f $dataObj.UUID_Mainboard)
         Write-Host ("  Model Mainboard   : {0}" -f $dataObj.Model_Mainboard)
         Write-Host ("  Serial Mainboard  : {0}" -f $dataObj.Serial_Mainboard)
-        Write-Host ("  Phiên bản Windows : {0}" -f $dataObj.Phien_Ban_Win)
-        Write-Host ("  Trạng thái Win    : {0}" -f $dataObj.Trang_Thai_Win)
-        Write-Host ("  Full Key Windows  : {0}" -f $dataObj.Key_Win_5_Cuoi) -ForegroundColor Cyan
-        Write-Host ("  Phiên bản Office  : {0}" -f $dataObj.Phien_Ban_Office)
-        Write-Host ("  Trạng thái Office : {0}" -f $dataObj.Trang_Thai_Office)
-        Write-Host ("  Các Key Office    : {0}" -f $dataObj.Key_Office_5_Cuoi) -ForegroundColor Cyan
-        Write-Host "========================================================================" -ForegroundColor Green
+        Write-Host ("  Windows OS        : {0}" -f $dataObj.Phien_Ban_Win)
+        Write-Host ("  Windows Status    : {0}" -f $dataObj.Trang_Thai_Win)
+        Write-Host ("  Full Windows Key  : {0}" -f $dataObj.Key_Win_5_Cuoi) -ForegroundColor Cyan
+        Write-Host ("  Office Edition    : {0}" -f $dataObj.Phien_Ban_Office)
+        Write-Host ("  Office Status     : {0}" -f $dataObj.Trang_Thai_Office)
+        Write-Host ("  Office Keys       : {0}" -f $dataObj.Key_Office_5_Cuoi) -ForegroundColor Cyan
+        Write-Host "=========================================================================" -ForegroundColor Green
     }
 
     function Get-ExportFolder {
@@ -160,63 +160,63 @@ function Invoke-LicenseInventoryCheck {
         $txtPath = Join-Path $folder ("Info_" + $dataObj.Ten_May + ".txt")
         $jsonPath = Join-Path $folder ("Info_" + $dataObj.Ten_May + ".json")
 
-        Write-Host "`nChọn định dạng xuất file (lưu tại $folder):" -ForegroundColor Cyan
-        Write-Host "  [1] Xuất/Cộng dồn vào file CSV (IT_Inventory_List.csv)"
-        Write-Host "  [2] Xuất file TXT chi tiết (Info_$($dataObj.Ten_May).txt)"
-        Write-Host "  [3] Xuất file JSON (Info_$($dataObj.Ten_May).json)"
-        $sub = Read-Host "Chọn (1/2/3)"
+        Write-Host "`nSelect export format (saving to $folder):" -ForegroundColor Cyan
+        Write-Host "  [1] Append to CSV inventory table (IT_Inventory_List.csv)"
+        Write-Host "  [2] Export detailed TXT report (Info_$($dataObj.Ten_May).txt)"
+        Write-Host "  [3] Export JSON file (Info_$($dataObj.Ten_May).json)"
+        $sub = Read-Host "Choice (1/2/3)"
 
         switch ($sub) {
             "1" {
                 [PSCustomObject]$dataObj | Export-Csv -Path $csvPath -Append -NoTypeInformation -Encoding UTF8
-                Write-Host "[+] Đã lưu cộng dồn vào: $csvPath" -ForegroundColor Green
+                Write-Host "[+] Appended to CSV inventory: $csvPath" -ForegroundColor Green
             }
             "2" {
                 $dataObj.GetEnumerator() | ForEach-Object { "{0,-20}: {1}" -f $_.Key, $_.Value } | Out-File -FilePath $txtPath -Encoding UTF8
-                Write-Host "[+] Đã xuất file TXT: $txtPath" -ForegroundColor Green
+                Write-Host "[+] Exported TXT report: $txtPath" -ForegroundColor Green
             }
             "3" {
                 $dataObj | ConvertTo-Json | Out-File -FilePath $jsonPath -Encoding UTF8
-                Write-Host "[+] Đã xuất file JSON: $jsonPath" -ForegroundColor Green
+                Write-Host "[+] Exported JSON: $jsonPath" -ForegroundColor Green
             }
-            default { Write-Host "[!] Lựa chọn không hợp lệ." -ForegroundColor Red }
+            default { Write-Host "[!] Invalid selection." -ForegroundColor Red }
         }
     }
 
     function Send-ToGoogleSheetsLocal {
-        $pin = Read-Host "Nhập mã PIN bảo mật để đồng bộ"
+        $pin = Read-Host "Enter secret security PIN to authorize sync"
         $dataObj.Secret_PIN = $pin
 
-        $note = Read-Host "`nNhập ghi chú cho máy này (Bấm Enter để bỏ qua)"
+        $note = Read-Host "`nEnter notes for this machine (Press Enter to skip)"
         $dataObj.Ghi_Chu = $note
         $payload = $dataObj | ConvertTo-Json -Compress
 
-        Write-Host "[*] Đang đồng bộ dữ liệu lên Google Sheets..." -ForegroundColor Yellow
+        Write-Host "[*] Syncing inventory data to Google Sheets..." -ForegroundColor Yellow
         try {
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $res = Invoke-RestMethod -Uri $WEB_APP_URL -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($payload)) -ContentType "text/plain; charset=utf-8"
             if ($res.status -eq "updated") {
-                Write-Host "[+] THÀNH CÔNG! Đã cập nhật đè lên dòng #$($res.row) của máy $($dataObj.Ten_May) trên Google Sheets." -ForegroundColor Green
+                Write-Host "[+] SUCCESS! Overwritten record on row #$($res.row) for $($dataObj.Ten_May) in Google Sheets." -ForegroundColor Green
             } elseif ($res.status -eq "inserted") {
-                Write-Host "[+] THÀNH CÔNG! Đã thêm mới máy $($dataObj.Ten_May) vào Google Sheets." -ForegroundColor Green
+                Write-Host "[+] SUCCESS! Added new entry for $($dataObj.Ten_May) to Google Sheets." -ForegroundColor Green
             } elseif ($res.status -eq "error") {
-                Write-Host "[!] LỖI TỪ GOOGLE APPS SCRIPT: $($res.message)" -ForegroundColor Red
+                Write-Host "[!] GOOGLE APPS SCRIPT ERROR: $($res.message)" -ForegroundColor Red
             } else {
-                Write-Host "[+] Đã gửi dữ liệu! Phản hồi: $($res | ConvertTo-Json -Compress)" -ForegroundColor Green
+                Write-Host "[+] Sent data! Response: $($res | ConvertTo-Json -Compress)" -ForegroundColor Green
             }
         } catch {
-            Write-Host "[!] LỖI KẾT NỐI WEB APP: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "[!] CONNECTION ERROR: $($_.Exception.Message)" -ForegroundColor Red
         }
     }
 
     function Open-GoogleFormLocal {
-        Write-Host "`nChọn chế độ mở Google Form:" -ForegroundColor Cyan
-        Write-Host "  [1] Mở Google Form và Copy sẵn thông tin máy vào Clipboard"
-        Write-Host "  [2] Mở Google Form trống"
-        $fChoice = Read-Host "Chọn (1/2)"
+        Write-Host "`nSelect Google Form mode:" -ForegroundColor Cyan
+        Write-Host "  [1] Open Google Form and copy device info to Clipboard"
+        Write-Host "  [2] Open blank Google Form"
+        $fChoice = Read-Host "Choice (1/2)"
 
         if ($fChoice -eq "1" -and $PREFILL_TEMPLATE -ne "") {
-            $note = Read-Host "Nhập ghi chú kèm theo trên Form (Bấm Enter để bỏ qua)"
+            $note = Read-Host "Enter additional notes for Form (Press Enter to skip)"
             $url = $PREFILL_TEMPLATE
             $url = $url.Replace("__TEN_MAY__", [uri]::EscapeDataString($dataObj.Ten_May))
             $url = $url.Replace("__UUID__", [uri]::EscapeDataString($dataObj.UUID_Mainboard))
@@ -232,12 +232,12 @@ function Invoke-LicenseInventoryCheck {
             $url = $regex.Replace($url, [uri]::EscapeDataString($dataObj.Trang_Thai_Win), 1)
             $url = $regex.Replace($url, [uri]::EscapeDataString($dataObj.Trang_Thai_Office), 1)
 
-            Write-Host "[*] Đang mở Google Form (Đã điền sẵn thông tin máy)..." -ForegroundColor Green
+            Write-Host "[*] Opening Google Form (prefilled with device specs)..." -ForegroundColor Green
             Start-Process $url
         } else {
-            $clipText = "Tên máy: $($dataObj.Ten_May) | UUID: $($dataObj.UUID_Mainboard) | Main: $($dataObj.Model_Mainboard) | Serial: $($dataObj.Serial_Mainboard) | Win: $($dataObj.Phien_Ban_Win) ($($dataObj.Trang_Thai_Win) - $($dataObj.Key_Win_5_Cuoi)) | Office: $($dataObj.Phien_Ban_Office) ($($dataObj.Trang_Thai_Office) - $($dataObj.Key_Office_5_Cuoi))"
+            $clipText = "Computer: $($dataObj.Ten_May) | UUID: $($dataObj.UUID_Mainboard) | Main: $($dataObj.Model_Mainboard) | Serial: $($dataObj.Serial_Mainboard) | Win: $($dataObj.Phien_Ban_Win) ($($dataObj.Trang_Thai_Win) - $($dataObj.Key_Win_5_Cuoi)) | Office: $($dataObj.Phien_Ban_Office) ($($dataObj.Trang_Thai_Office) - $($dataObj.Key_Office_5_Cuoi))"
             Set-Clipboard -Value $clipText
-            Write-Host "[+] Đã copy toàn bộ thông tin máy vào Clipboard!" -ForegroundColor Cyan
+            Write-Host "[+] Copied device information summary to Clipboard!" -ForegroundColor Cyan
             Start-Process $GOOGLE_FORM_URL
         }
     }
@@ -245,16 +245,16 @@ function Invoke-LicenseInventoryCheck {
     Show-TerminalInfoLocal
 
     while ($true) {
-        Write-Host "`n==================== MENU QUẢN LÝ BẢN QUYỀN ====================" -ForegroundColor Cyan
-        Write-Host "  [1] In lại thông tin bản quyền và phần cứng"
-        Write-Host "  [2] Xuất dữ liệu ra File (CSV / TXT / JSON)"
-        Write-Host "  [3] Đồng bộ trực tiếp lên Google Sheets (Auto API)"
-        Write-Host "  [4] Mở Google Form (Tự động điền sẵn)"
-        Write-Host "  [5] Mở bảng Google Sheets quản lý"
-        Write-Host "  [6] Chạy tất cả: Xuất CSV + Đồng bộ Google Sheets"
-        Write-Host "  [0] Quay lại Menu chính"
-        Write-Host "=================================================================" -ForegroundColor Cyan
-        $choice = Read-Host "Nhập lựa chọn của bạn (0-6)"
+        Write-Host "`n==================== LICENSE & INVENTORY MENU ====================" -ForegroundColor Cyan
+        Write-Host "  [1] Display License & Hardware Information"
+        Write-Host "  [2] Export Data to File (CSV / TXT / JSON)"
+        Write-Host "  [3] Sync to Google Sheets (Direct API)"
+        Write-Host "  [4] Open Google Form (Prefilled with Machine Info)"
+        Write-Host "  [5] Open Google Sheets Inventory Spreadsheet"
+        Write-Host "  [6] Run All: Export CSV + Sync Google Sheets"
+        Write-Host "  [0] Return to Main Menu"
+        Write-Host "==================================================================" -ForegroundColor Cyan
+        $choice = Read-Host "Enter your choice (0-6)"
 
         switch ($choice) {
             "1" { Show-TerminalInfoLocal }
@@ -262,18 +262,18 @@ function Invoke-LicenseInventoryCheck {
             "3" { Send-ToGoogleSheetsLocal }
             "4" { Open-GoogleFormLocal }
             "5" {
-                Write-Host "[*] Đang mở Google Sheets..." -ForegroundColor Green
+                Write-Host "[*] Opening Google Sheets..." -ForegroundColor Green
                 Start-Process $GOOGLE_SHEET_URL
             }
             "6" {
                 $folder = Get-ExportFolder
                 $csvPath = Join-Path $folder "IT_Inventory_List.csv"
                 [PSCustomObject]$dataObj | Export-Csv -Path $csvPath -Append -NoTypeInformation -Encoding UTF8
-                Write-Host "[+] Đã lưu file CSV tại: $csvPath" -ForegroundColor Green
+                Write-Host "[+] Saved CSV record to: $csvPath" -ForegroundColor Green
                 Send-ToGoogleSheetsLocal
             }
             "0" { return }
-            default { Write-Host "[!] Vui lòng chọn từ 0 đến 6." -ForegroundColor Yellow }
+            default { Write-Host "[!] Please select between 0 and 6." -ForegroundColor Yellow }
         }
     }
 }

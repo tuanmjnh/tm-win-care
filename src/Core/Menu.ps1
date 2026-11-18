@@ -5,7 +5,7 @@ function Show-TMMenu {
     param (
         [string]$Title,
         [array]$MenuItems,
-        [string]$ExitLabel = "Quay lại"
+        [string]$ExitLabel = "Back"
     )
 
     while ($true) {
@@ -23,7 +23,7 @@ function Show-TMMenu {
         Write-Host "$ExitLabel" -ForegroundColor Yellow
         Write-Divider
 
-        $selection = Read-MenuSelection -PromptText "Chọn chức năng" -Min 0 -Max $MenuItems.Count
+        $selection = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max $MenuItems.Count
         if ($selection -eq 0) {
             break
         }
@@ -33,7 +33,7 @@ function Show-TMMenu {
             try {
                 & $chosen.Action
             } catch {
-                Write-ErrorMessage "Lỗi thực thi mục menu: $($_.Exception.Message)"
+                Write-ErrorMessage "Menu item execution error: $($_.Exception.Message)"
             }
         }
     }

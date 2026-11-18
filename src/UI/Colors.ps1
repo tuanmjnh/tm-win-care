@@ -39,24 +39,24 @@ function Write-Success {
 
 function Write-WarningMessage {
     param ([string]$Message)
-    Write-Host "[CẢNH BÁO] " -ForegroundColor Yellow -NoNewline
+    Write-Host "[WARNING] " -ForegroundColor Yellow -NoNewline
     Write-Host $Message -ForegroundColor Yellow
 }
 
 function Write-ErrorMessage {
     param ([string]$Message)
-    Write-Host "[LỖI] " -ForegroundColor Red -NoNewline
+    Write-Host "[ERROR] " -ForegroundColor Red -NoNewline
     Write-Host $Message -ForegroundColor Red
 }
 
 function Write-InfoMessage {
     param ([string]$Message)
-    Write-Host "[THÔNG TIN] " -ForegroundColor Cyan -NoNewline
+    Write-Host "[INFO] " -ForegroundColor Cyan -NoNewline
     Write-Host $Message -ForegroundColor Gray
 }
 
 function Write-SkipMessage {
     param ([string]$Message)
-    Write-Host "[BỎ QUA] " -ForegroundColor DarkYellow -NoNewline
+    Write-Host "[SKIPPED] " -ForegroundColor DarkYellow -NoNewline
     Write-Host $Message -ForegroundColor DarkGray
 }

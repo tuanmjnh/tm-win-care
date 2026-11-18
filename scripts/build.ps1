@@ -1,4 +1,4 @@
-# TM-WinCare - Bundler & Release Packaging Script
+﻿# TM-WinCare - Bundler & Release Packaging Script
 # Generates:
 #   1. dist/TM-WinCare-AIO.ps1 (Single-file script for `irm <url> | iex`)
 #   2. dist/TM-WinCare-AIO.cmd (All-In-One double-clickable CMD script)
@@ -121,15 +121,16 @@ where pwsh.exe >nul 2>nul && set "PS_EXE=pwsh.exe"
 net session >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo =========================================================
-    echo         TM-WINCARE - KHỞI CHẠY TIỆN ÍCH HỆ THỐNG
+    echo         TM-WINCARE - WINDOWS TOOLKIT LAUNCHER
     echo =========================================================
-    echo  [LƯU Ý] Bạn đang chạy với quyền người dùng thông thường.
-    echo  Một số tác vụ quản trị sẽ yêu cầu quyền Administrator.
+    echo  [NOTICE] Currently running under standard user privileges.
+    echo  System maintenance and optimization functions require
+    echo  elevated Administrator rights.
     echo.
-    echo  [1] Tiếp tục với quyền thường
-    echo  [2] Khởi động lại với quyền Administrator (Khuyến nghị)
+    echo  [1] Continue with standard privileges (Read-Only / Basic)
+    echo  [2] Restart with Administrator privileges (Recommended)
     echo =========================================================
-    set /p "ADMIN_CHOICE= Lựa chọn của bạn [1-2] (Mặc định 2): "
+    set /p "ADMIN_CHOICE= Select choice [1-2] (Default 2): "
     if "!ADMIN_CHOICE!"=="" set "ADMIN_CHOICE=2"
     if "!ADMIN_CHOICE!"=="2" (
         powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd.exe -ArgumentList '/c \"\"%~f0\"\"' -Verb RunAs"
@@ -162,7 +163,7 @@ $checkLicCmdHeader = @'
 @echo off
 chcp 65001 >nul
 setlocal
-title TM-WinCare - Quan Ly Ban Quyen Windows & Office (IT Inventory)
+title TM-WinCare - Windows & Office License Management (IT Inventory)
 set "PS_EXE=powershell.exe"
 where pwsh.exe >nul 2>nul && set "PS_EXE=pwsh.exe"
 %PS_EXE% -NoProfile -ExecutionPolicy Bypass -Command "$c=[System.IO.File]::ReadAllText('%~f0', [System.Text.Encoding]::UTF8); $i=$c.IndexOf('#_POWERSHELL_START_#'); Invoke-Expression $c.Substring($i)"

@@ -9,11 +9,11 @@ function Test-IsAdmin {
 
 function Assert-Admin {
     param (
-        [string]$ActionName = "thao tác này"
+        [string]$ActionName = "this action"
     )
     if (-not (Test-IsAdmin)) {
-        Write-ErrorMessage "Bạn cần chạy với quyền Quản trị viên (Run as Administrator) để thực hiện $ActionName."
-        Write-InfoMessage "Vui lòng đóng công cụ và chuột phải vào Start.cmd -> chọn 'Run as administrator'."
+        Write-ErrorMessage "Administrator privileges required to perform $ActionName."
+        Write-InfoMessage "Please restart the tool as Administrator (right click -> 'Run as administrator')."
         return $false
     }
     return $true
@@ -21,12 +21,12 @@ function Assert-Admin {
 
 function Request-Elevation {
     param (
-        [string]$Reason = "thực hiện các tác vụ quản trị hệ thống"
+        [string]$Reason = "perform system administration tasks"
     )
     if (Test-IsAdmin) { return $true }
 
-    Write-WarningMessage "Yêu cầu nâng quyền Administrator để $Reason."
-    Write-Host " Bạn có muốn mở phiên làm việc mới với quyền Administrator không? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-WarningMessage "Administrator elevation required to $Reason."
+    Write-Host " Would you like to restart in an elevated Administrator session? (Y/N): " -ForegroundColor Cyan -NoNewline
     $ans = Read-Host
     if ($ans.Trim().ToUpper() -eq "Y") {
         $startCmd = Join-Path $PSScriptRoot "../../Start.cmd"

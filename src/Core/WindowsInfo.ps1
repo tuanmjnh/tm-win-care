@@ -24,31 +24,31 @@ function Get-TMSystemInfo {
         # Check Windows 10 EOL
         $eolNotice = ""
         if (-not $isWin11 -and $buildNumber -le 19045) {
-            $eolNotice = " [Hết hỗ trợ tiêu chuẩn 14/10/2025]"
+            $eolNotice = " [Standard EOL: Oct 14, 2025]"
         }
 
-        $info["Hệ điều hành"] = "$osFamily $displayVersion (Build $buildNumber)$eolNotice"
-        $info["Phiên bản chi tiết"] = $osCaption
-        $info["Kiến trúc"] = $osCim.OSArchitecture
-        $info["Tên máy (Hostname)"] = [System.Environment]::MachineName
-        $info["Người dùng hiện tại"] = "$([System.Environment]::UserDomainName)\$([System.Environment]::UserName)"
-        $info["Quyền Administrator"] = if (Test-IsAdmin) { "Có (Elevated)" } else { "Không (Standard User)" }
+        $info["Operating System"] = "$osFamily $displayVersion (Build $buildNumber)$eolNotice"
+        $info["OS Edition"] = $osCaption
+        $info["Architecture"] = $osCim.OSArchitecture
+        $info["Computer Name (Hostname)"] = [System.Environment]::MachineName
+        $info["Current User"] = "$([System.Environment]::UserDomainName)\$([System.Environment]::UserName)"
+        $info["Administrator Privilege"] = if (Test-IsAdmin) { "Yes (Elevated)" } else { "No (Standard User)" }
     } catch {
-        $info["Hệ điều hành"] = "Windows (Không thể đọc CIM: $($_.Exception.Message))"
+        $info["Operating System"] = "Windows (Unable to read CIM: $($_.Exception.Message))"
     }
 
     # 2. Hardware: CPU & RAM
     try {
         $cpu = Get-CimInstance -ClassName Win32_Processor -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($cpu) {
-            $info["Bộ vi xử lý (CPU)"] = $cpu.Name.Trim()
+            $info["Processor (CPU)"] = $cpu.Name.Trim()
         }
 
         $totalMem = [math]::Round($osCim.TotalVisibleMemorySize / 1MB, 1)
         $freeMem = [math]::Round($osCim.FreePhysicalMemory / 1MB, 1)
         $usedMem = [math]::Round($totalMem - $freeMem, 1)
         $pctMem = [math]::Round(($usedMem / $totalMem) * 100, 0)
-        $info["Bộ nhớ RAM"] = "$usedMem GB / $totalMem GB ($pctMem% đang dùng - $freeMem GB trống)"
+        $info["RAM Memory"] = "$usedMem GB / $totalMem GB ($pctMem% used - $freeMem GB free)"
     } catch {}
 
     # 3. Storage
@@ -59,40 +59,40 @@ function Get-TMSystemInfo {
             $totalGB = [math]::Round($d.Size / 1GB, 1)
             $freeGB = [math]::Round($d.FreeSpace / 1GB, 1)
             $pctFree = if ($totalGB -gt 0) { [math]::Round(($freeGB / $totalGB) * 100, 0) } else { 0 }
-            $driveSummaries += "$($d.DeviceID) ($freeGB GB trống / $totalGB GB - $pctFree%)"
+            $driveSummaries += "$($d.DeviceID) ($freeGB GB free / $totalGB GB - $pctFree%)"
         }
-        $info["Ổ đĩa lưu trữ"] = $driveSummaries -join ", "
+        $info["Storage Drives"] = $driveSummaries -join ", "
     } catch {}
 
     # 4. Network Status
     try {
         $net = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "*Wi-Fi*","*Ethernet*","*LAN*" -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -notlike "169.254*" } | Select-Object -First 1
         if ($net) {
-            $info["Địa chỉ IPv4"] = "$($net.IPAddress) ($($net.InterfaceAlias))"
+            $info["IPv4 Address"] = "$($net.IPAddress) ($($net.InterfaceAlias))"
         } else {
-            $info["Địa chỉ IPv4"] = "Không phát hiện card mạng LAN/Wi-Fi đang kết nối"
+            $info["IPv4 Address"] = "No active LAN or Wi-Fi adapter detected"
         }
     } catch {
-        $info["Địa chỉ IPv4"] = "Không thể lấy thông tin mạng"
+        $info["IPv4 Address"] = "Unable to read network info"
     }
 
     # 5. Security & Services
     try {
         $spooler = Get-Service -Name Spooler -ErrorAction SilentlyContinue
-        $info["Print Spooler"] = if ($spooler) { "$($spooler.Status) (Khởi động: $($spooler.StartType))" } else { "Không tìm thấy" }
+        $info["Print Spooler"] = if ($spooler) { "$($spooler.Status) (Startup: $($spooler.StartType))" } else { "Not Found" }
     } catch {}
 
     try {
         $printers = Get-Printer -ErrorAction SilentlyContinue
         $printerCount = if ($printers) { @($printers).Count } else { 0 }
-        $info["Số lượng máy in đã cài"] = "$printerCount máy in"
+        $info["Installed Printers"] = "$printerCount printers"
     } catch {
-        $info["Số lượng máy in đã cài"] = "Không thể đọc danh sách máy in"
+        $info["Installed Printers"] = "Unable to read printers"
     }
 
     try {
         $defenderSvc = Get-Service -Name WinDefend -ErrorAction SilentlyContinue
-        $info["Microsoft Defender"] = if ($defenderSvc -and $defenderSvc.Status -eq "Running") { "Đang chạy (Hoạt động)" } else { "Tắt hoặc không khả dụng" }
+        $info["Microsoft Defender"] = if ($defenderSvc -and $defenderSvc.Status -eq "Running") { "Running (Active)" } else { "Disabled or Unavailable" }
     } catch {}
 
     # Store global OS info

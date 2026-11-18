@@ -9,14 +9,14 @@ function Handle-TMException {
         [string]$Context = ""
     )
     $msg = $Exception.Message
-    Write-ErrorMessage "Đã xảy ra lỗi trong quá trình thực hiện [$TaskId] $TaskName"
+    Write-ErrorMessage "An error occurred while executing [$TaskId] $TaskName"
     if ($Context) {
-        Write-InfoMessage "Ngữ cảnh: $Context"
+        Write-InfoMessage "Context: $Context"
     }
-    Write-Host "  Chi tiết lỗi: $msg" -ForegroundColor Red
+    Write-Host "  Error details: $msg" -ForegroundColor Red
 
     # Log error
-    Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Failed" -Message "Lỗi: $msg ($Context)"
+    Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Failed" -Message "Error: $msg ($Context)"
 }
 
 function Invoke-TMSafeBlock {

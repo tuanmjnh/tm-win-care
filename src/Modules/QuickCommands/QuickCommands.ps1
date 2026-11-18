@@ -15,13 +15,13 @@ function Get-QuickCommandsList {
 function Show-TMQuickCommandsMenu {
     $commands = Get-QuickCommandsList
     if (-not $commands -or $commands.Count -eq 0) {
-        Write-ErrorMessage "Không tìm thấy danh mục Quick Commands."
+        Write-ErrorMessage "Quick Commands catalog not found."
         Pause-Screen
         return
     }
 
     while ($true) {
-        Write-Header -Title "THƯ VIỆN LỆNH NHANH (QUICK COMMANDS)"
+        Write-Header -Title "QUICK COMMANDS & APPLET LAUNCHER"
         for ($i = 0; $i -lt $commands.Count; $i++) {
             $cmd = $commands[$i]
             $num = ($i + 1).ToString().PadLeft(2)
@@ -33,10 +33,10 @@ function Show-TMQuickCommandsMenu {
             Write-Host "$($cmd.name)" -ForegroundColor White
         }
 
-        Write-Host "  [ 0] Quay lại" -ForegroundColor Yellow
+        Write-Host "  [ 0] Back" -ForegroundColor Yellow
         Write-Divider
 
-        $sel = Read-MenuSelection -PromptText "Chọn lệnh cần chạy" -Min 0 -Max $commands.Count
+        $sel = Read-MenuSelection -PromptText "Select command to execute" -Min 0 -Max $commands.Count
         if ($sel -eq 0) { break }
 
         $chosen = $commands[$sel - 1]
@@ -47,30 +47,30 @@ function Show-TMQuickCommandsMenu {
 function Invoke-QuickCommandItem {
     param ($CommandItem)
 
-    Write-SubHeader "THỰC THI LỆNH: $($CommandItem.name)"
-    Write-InfoMessage "Nhóm chức năng: $($CommandItem.group)"
-    Write-Host " Mô tả: $($CommandItem.description)" -ForegroundColor Gray
-    Write-Host " Câu lệnh: " -ForegroundColor White -NoNewline
+    Write-SubHeader "EXECUTE COMMAND: $($CommandItem.name)"
+    Write-InfoMessage "Category : $($CommandItem.group)"
+    Write-Host " Description : $($CommandItem.description)" -ForegroundColor Gray
+    Write-Host " Command Line: " -ForegroundColor White -NoNewline
     Write-Host "$($CommandItem.command)" -ForegroundColor Cyan
 
     if ($CommandItem.requiresAdmin -and -not (Test-IsAdmin)) {
-        Write-ErrorMessage "Lệnh này yêu cầu quyền Administrator để thực thi đầy đủ."
-        if (-not (Request-Elevation -Reason "chạy lệnh '$($CommandItem.name)'")) {
+        Write-ErrorMessage "This command requires Administrator privileges."
+        if (-not (Request-Elevation -Reason "execute '$($CommandItem.name)'")) {
             Pause-Screen
             return
         }
     }
 
     Write-Host ""
-    Write-Host "  [1] Chạy lệnh ngay (Run)" -ForegroundColor Cyan
-    Write-Host "  [2] Sao chép câu lệnh vào Clipboard (Copy)" -ForegroundColor Cyan
-    Write-Host "  [0] Bỏ qua" -ForegroundColor Yellow
+    Write-Host "  [1] Execute command now" -ForegroundColor Cyan
+    Write-Host "  [2] Copy command string to Clipboard" -ForegroundColor Cyan
+    Write-Host "  [0] Cancel" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn thao tác" -Min 0 -Max 2
+    $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 2
     switch ($sel) {
         1 {
-            Write-InfoMessage "Đang thực thi: $($CommandItem.command)..."
+            Write-InfoMessage "Executing: $($CommandItem.command)..."
             Write-Host ""
             if ($CommandItem.type -eq "process") {
                 try {
@@ -82,24 +82,23 @@ function Invoke-QuickCommandItem {
                     } else {
                         Start-Process -FilePath $exe
                     }
-                    Write-Success "Đã khởi chạy công cụ: $exe"
+                    Write-Success "Process started: $exe"
                 } catch {
                     Handle-TMException -TaskId $CommandItem.id -TaskName $CommandItem.name -Exception $_.Exception
                 }
             } else {
-                # CLI command
                 & cmd.exe /c $CommandItem.command
-                Write-Success "Lệnh hoàn tất với Exit Code: $LASTEXITCODE"
+                Write-Success "Command completed with Exit Code: $LASTEXITCODE"
             }
-            Write-TMLog -TaskId $CommandItem.id -TaskName $CommandItem.name -Status "Success" -Message "Đã chạy $($CommandItem.command)"
+            Write-TMLog -TaskId $CommandItem.id -TaskName $CommandItem.name -Status "Success" -Message "Executed $($CommandItem.command)"
             Pause-Screen
         }
         2 {
             try {
                 Set-Clipboard -Value $CommandItem.command
-                Write-Success "Đã sao chép câu lệnh vào bộ nhớ tạm (Clipboard)!"
+                Write-Success "Command copied to Clipboard!"
             } catch {
-                Write-WarningMessage "Không thể sao chép tự động: $($_.Exception.Message)"
+                Write-WarningMessage "Could not copy automatically: $($_.Exception.Message)"
             }
             Pause-Screen
         }

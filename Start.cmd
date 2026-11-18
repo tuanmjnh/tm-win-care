@@ -8,8 +8,8 @@ cd /d "%~dp0"
 
 :: Check if src\Main.ps1 exists
 if not exist "src\Main.ps1" (
-    echo [LỖI] Không tìm thấy file src\Main.ps1.
-    echo Vui lòng giải nén toàn bộ thư mục TM-WinCare trước khi chạy.
+    echo [ERROR] Cannot find src\Main.ps1.
+    echo Please extract the entire TM-WinCare folder before running.
     pause
     exit /b 1
 )
@@ -25,16 +25,16 @@ if %ERRORLEVEL% equ 0 (
 net session >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo =========================================================
-    echo         TM-WINCARE - KHỞI CHẠY TIỆN ÍCH HỆ THỐNG
+    echo         TM-WINCARE - WINDOWS TOOLKIT LAUNCHER
     echo =========================================================
-    echo  [LƯU Ý] Bạn đang chạy với quyền người dùng thông thường.
-    echo  Một số chức năng bảo trì và cấu hình hệ thống sẽ yêu cầu
-    echo  quyền Quản trị viên (Administrator).
+    echo  [NOTICE] Currently running under standard user privileges.
+    echo  System maintenance and optimization functions require
+    echo  elevated Administrator rights.
     echo.
-    echo  [1] Tiếp tục với quyền hiện tại (Chỉ đọc & thao tác cơ bản)
-    echo  [2] Khởi động lại với quyền Quản trị viên (Khuyến nghị)
+    echo  [1] Continue with standard privileges (Read-Only / Basic)
+    echo  [2] Restart with Administrator privileges (Recommended)
     echo =========================================================
-    set /p "ADMIN_CHOICE= Lựa chọn của bạn [1-2] (Mặc định 2): "
+    set /p "ADMIN_CHOICE= Select choice [1-2] (Default 2): "
     if "!ADMIN_CHOICE!"=="" set "ADMIN_CHOICE=2"
     if "!ADMIN_CHOICE!"=="2" (
         powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd.exe -ArgumentList '/c \"\"%~f0\"\"' -Verb RunAs"

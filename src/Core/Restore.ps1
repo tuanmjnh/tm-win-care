@@ -29,34 +29,33 @@ function Invoke-TMRollback {
     param (
         [string]$BackupId
     )
-    if (-not (Assert-Admin "khôi phục sao lưu")) { return $false }
+    if (-not (Assert-Admin "restore backup")) { return $false }
 
     $backupRoot = if ($PSScriptRoot) { Join-Path $PSScriptRoot "../../Backups" } else { Join-Path $env:SystemDrive "TM-WinCare\Backups" }
     $backupDir = Join-Path $backupRoot $BackupId
     $manifestPath = Join-Path $backupDir "manifest.json"
     if (-not (Test-Path $manifestPath)) {
-        Write-ErrorMessage "Không tìm thấy file manifest của bản sao lưu: $BackupId"
+        Write-ErrorMessage "Backup manifest file not found for: $BackupId"
         return $false
     }
 
     try {
         $manifest = Get-Content -Path $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        Write-SubHeader "KHÔI PHỤC BẢN SAO LƯU: $BackupId ($($manifest.description))"
+        Write-SubHeader "RESTORE BACKUP SNAPSHOT: $BackupId ($($manifest.description))"
 
         # 1. Rollback Registry
         if ($manifest.registry) {
             foreach ($item in $manifest.registry) {
-                Write-InfoMessage "Khôi phục Registry: $($item.path) -> $($item.name)"
+                Write-InfoMessage "Restoring Registry: $($item.path) -> $($item.name)"
                 if ($item.existed) {
                     if (-not (Test-Path $item.path)) {
                         New-Item -Path $item.path -Force | Out-Null
                     }
                     Set-ItemProperty -Path $item.path -Name $item.name -Value $item.oldValue -Force
-                    Write-Success "Đã khôi phục giá trị: $($item.name) = $($item.oldValue)"
+                    Write-Success "Restored value: $($item.name) = $($item.oldValue)"
                 } else {
-                    # If it did not exist before, remove it
                     Remove-ItemProperty -Path $item.path -Name $item.name -ErrorAction SilentlyContinue
-                    Write-Success "Đã xóa thuộc tính được thêm mới: $($item.name)"
+                    Write-Success "Removed newly added property: $($item.name)"
                 }
             }
         }
@@ -64,7 +63,7 @@ function Invoke-TMRollback {
         # 2. Rollback Services
         if ($manifest.services) {
             foreach ($svc in $manifest.services) {
-                Write-InfoMessage "Khôi phục Service: $($svc.name) -> $($svc.startMode)"
+                Write-InfoMessage "Restoring Service: $($svc.name) -> $($svc.startMode)"
                 try {
                     $startType = switch ($svc.startMode) {
                         "Auto" { "Automatic" }
@@ -76,19 +75,19 @@ function Invoke-TMRollback {
                     if ($svc.status -eq "Running") {
                         Start-Service -Name $svc.name -ErrorAction SilentlyContinue
                     }
-                    Write-Success "Đã khôi phục dịch vụ: $($svc.name)"
+                    Write-Success "Restored service: $($svc.name)"
                 } catch {
-                    Write-ErrorMessage "Không thể khôi phục dịch vụ $($svc.name): $($_.Exception.Message)"
+                    Write-ErrorMessage "Unable to restore service $($svc.name): $($_.Exception.Message)"
                 }
             }
         }
 
-        Write-TMLog -TaskId "ROLLBACK" -TaskName "Khôi phục sao lưu" -Status "Success" -Message "Đã khôi phục bản sao lưu $BackupId"
-        Write-Success "Quá trình hoàn tác bản sao lưu $BackupId đã hoàn thành thành công!"
+        Write-TMLog -TaskId "ROLLBACK" -TaskName "Rollback Backup" -Status "Success" -Message "Restored backup $BackupId"
+        Write-Success "Rollback of snapshot $BackupId completed successfully!"
         return $true
     } catch {
-        Write-ErrorMessage "Lỗi trong quá trình khôi phục: $($_.Exception.Message)"
-        Write-TMLog -TaskId "ROLLBACK" -TaskName "Khôi phục sao lưu" -Status "Failed" -Message "Lỗi: $($_.Exception.Message)"
+        Write-ErrorMessage "Error during rollback: $($_.Exception.Message)"
+        Write-TMLog -TaskId "ROLLBACK" -TaskName "Rollback Backup" -Status "Failed" -Message $_.Exception.Message
         return $false
     }
 }

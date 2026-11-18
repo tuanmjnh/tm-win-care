@@ -10,13 +10,13 @@ function Show-PropertyGrid {
         $val = $Properties[$key]
         $displayKey = ($key.ToString() + ":").PadRight($KeyWidth)
         Write-Host "  $displayKey " -ForegroundColor Cyan -NoNewline
-        if ($val -is [string] -and ($val -match "OK|Đang chạy|Hoạt động|Bật|Đã kích hoạt|Khỏe mạnh")) {
+        if ($val -is [string] -and ($val -match "OK|Running|Active|Enabled|Activated|Healthy|Good")) {
             Write-Host $val -ForegroundColor Green
         }
-        elseif ($val -is [string] -and ($val -match "Cảnh báo|Hết hạn|Gần đầy|Tắt|Dừng")) {
+        elseif ($val -is [string] -and ($val -match "Warning|Expired|Low|Disabled|Stopped|Degraded")) {
             Write-Host $val -ForegroundColor Yellow
         }
-        elseif ($val -is [string] -and ($val -match "Lỗi|Hỏng|Không kết nối")) {
+        elseif ($val -is [string] -and ($val -match "Error|Failed|Corrupt|Disconnected|Critical")) {
             Write-Host $val -ForegroundColor Red
         }
         else {
@@ -33,7 +33,7 @@ function Show-TableList {
         [array]$Widths
     )
     if (-not $Items -or $Items.Count -eq 0) {
-        Write-Host "  (Không có dữ liệu)" -ForegroundColor DarkGray
+        Write-Host "  (No data available)" -ForegroundColor DarkGray
         return
     }
 

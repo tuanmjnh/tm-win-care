@@ -5,7 +5,7 @@ $testRoot = $PSScriptRoot
 $srcRoot = Join-Path $testRoot "../../src"
 
 Write-Host "=========================================================" -ForegroundColor Cyan
-Write-Host "            TM-WINCARE - BỘ KIỂM THỬ MODULES            " -ForegroundColor White
+Write-Host "           TM-WINCARE - MODULES TEST SUITE              " -ForegroundColor White
 Write-Host "=========================================================" -ForegroundColor Cyan
 
 . (Join-Path $srcRoot "Core/Bootstrap.ps1")
@@ -47,14 +47,14 @@ function Assert-ModuleTest {
 }
 
 # 1. Test System Cleanup Catalog
-Assert-ModuleTest -Name "Kiểm tra danh mục System Cleanup JSON" -TestBlock {
+Assert-ModuleTest -Name "Verify System Cleanup Catalog JSON" -TestBlock {
     $catalogPath = Join-Path $testRoot "../../data/cleanup-catalog/system-cleanup.json"
     $items = Get-Content -Path $catalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
     return ($items.Count -ge 5)
 }
 
 # 2. Test AI & Developer Cleanup Catalog
-Assert-ModuleTest -Name "Kiểm tra danh mục AI & Dev Cleanup JSON" -TestBlock {
+Assert-ModuleTest -Name "Verify AI & Dev Cleanup Catalog JSON" -TestBlock {
     $catalogPath = Join-Path $testRoot "../../data/cleanup-catalog/aidev-cleanup.json"
     $items = Get-Content -Path $catalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
     # Verify Ollama has safety preservation
@@ -63,25 +63,25 @@ Assert-ModuleTest -Name "Kiểm tra danh mục AI & Dev Cleanup JSON" -TestBlock
 }
 
 # 3. Test Network Overview logic
-Assert-ModuleTest -Name "Kiểm tra truy vấn cấu hình mạng" -TestBlock {
+Assert-ModuleTest -Name "Query Active Network Adapters" -TestBlock {
     $adapters = Get-NetAdapter -ErrorAction SilentlyContinue
     return ($null -ne $adapters)
 }
 
 # 4. Test Volume query logic
-Assert-ModuleTest -Name "Kiểm tra truy vấn ổ đĩa lưu trữ" -TestBlock {
+Assert-ModuleTest -Name "Query Storage Volumes & Health" -TestBlock {
     $vols = Get-Volume -ErrorAction SilentlyContinue | Where-Object { $null -ne $_.DriveLetter }
     return ($vols.Count -ge 1)
 }
 
 # 5. Test Spooler Health function
-Assert-ModuleTest -Name "Kiểm tra trạng thái Print Spooler" -TestBlock {
+Assert-ModuleTest -Name "Inspect Print Spooler Service Status" -TestBlock {
     $spooler = Get-Service -Name Spooler -ErrorAction SilentlyContinue
     return ($null -ne $spooler)
 }
 
 Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
-Write-Host " Kết quả: $passed passed, $failed failed." -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Red" })
+Write-Host " Results: $passed passed, $failed failed." -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Red" })
 Write-Host "=========================================================" -ForegroundColor Cyan
 
 if ($failed -gt 0) { exit 1 } else { exit 0 }

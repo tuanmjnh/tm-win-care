@@ -4,55 +4,62 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=flat-square&logo=windows)](https://microsoft.com/windows)
 
-> **TM Windows Support** | Phiên bản: **1.2.0** | Ngày phát hành: **18/11/2026**  
-> Nền tảng mục tiêu: **Windows 10** và **Windows 11** (Home / Pro / Enterprise)
+> **Language / Ngôn ngữ:** **English (Default)** | [🇻🇳 Tiếng Việt (Tài liệu hướng dẫn Tiếng Việt)](docs/README.vi.md)  
+> **Platform Target:** **Windows 10** and **Windows 11** (Home / Pro / Enterprise)  
+> **Version:** **1.2.0** | **Safe by Default • Zero Dependencies • Offline Capable**
 
-TM-WinCare là bộ công cụ dòng lệnh (Console Toolkit) tiện ích, chạy trực tiếp trên Windows mà không cần cài đặt phần mềm bên ngoài, không cần database và hoạt động độc lập ngay cả khi máy tính offline. Công cụ tập trung vào việc hậu cài đặt Windows, tối ưu hóa an toàn, khắc phục lỗi hệ thống và xử lý nhanh các tác vụ máy in, mạng LAN nội bộ cho kỹ thuật viên IT.
+TM-WinCare is an open-source, zero-dependency console toolkit designed for IT administrators, power users, and developers. It streamlines Windows post-installation setup, safe performance tuning, automated system repairs, LAN networking diagnostics, printer troubleshooting, and local AI/developer cache management.
 
 ---
 
-## ⚡ Hướng dẫn sử dụng & Khởi chạy nhanh
+## ⚡ Quick Start & Execution Methods
 
-### Cách 1: PowerShell Online One-Liner ❤️ (Khuyến nghị)
+### Method 1: PowerShell Online One-Liner ❤️ (Recommended)
 
-Không cần tải về hay giải nén, chỉ cần mở PowerShell và dán câu lệnh:
+Run directly from Windows PowerShell without downloading or extracting any files. Open PowerShell (as Administrator) and paste:
 
-#### 🔹 1. Khởi chạy toàn bộ bộ công cụ TM-WinCare (12 Module):
+#### 🔹 1. Launch the Full TM-WinCare Toolkit (All 12 Modules):
+```powershell
+irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/get.ps1 | iex
+```
+
+*Direct single-file script URL:*
 ```powershell
 irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | iex
 ```
 
-*Dự phòng khi bị chặn DNS / ISP:*
+*DNS/ISP Bypassing Fallback (using Cloudflare 1.1.1.1 DoH):*
 ```powershell
 iex (curl.exe -s --doh-url https://1.1.1.1/dns-query https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | Out-String)
 ```
 
-#### 🔹 2. Khởi chạy nhanh công cụ Quản lý Bản quyền Windows & Office (IT Inventory Full Key):
-Dành riêng cho kỹ thuật viên muốn kiểm tra nhanh Key bản quyền (Full 25 ký tự), Model/Serial máy và đồng bộ lên Google Sheets/Form:
+#### 🔹 2. Fast Launch: Windows & Office License & IT Inventory Tool:
+Instantly decodes 25-character product keys, motherboard serial, UUID, and syncs directly to Google Sheets or Form:
 ```powershell
 irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/Check-License.ps1 | iex
 ```
 
-*Dự phòng khi bị chặn DNS / ISP:*
+*DNS/ISP Bypassing Fallback:*
 ```powershell
 iex (curl.exe -s --doh-url https://1.1.1.1/dns-query https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/Check-License.ps1 | Out-String)
 ```
 
 ---
 
-### Cách 2: Tải file chạy đơn All-In-One (Không cần gõ lệnh)
+### Method 2: Standalone Double-Click Executable (No Commands Needed)
 
-Dành cho người dùng muốn tải sẵn về máy hoặc copy vào USB:
+Ideal for field technicians carrying tools on a USB drive:
 
-1. Truy cập mục **[Releases](https://github.com/tuanmjnh/tm-win-care/releases/latest)** của dự án.
-2. Tải về file:
-   - **[`TM-WinCare-AIO.cmd`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/TM-WinCare-AIO.cmd)**: File đơn duy nhất, tự động nhận diện quyền Admin và chạy menu.
-   - Hoặc **[`TM-WinCare-Portable.zip`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/TM-WinCare-Portable.zip)**: Bộ nén đầy đủ cho kỹ thuật viên mang theo USB đi cứu hộ máy offline.
-3. Nhấp đúp chuột vào file `TM-WinCare-AIO.cmd` để bắt đầu.
+1. Navigate to the **[Releases](https://github.com/tuanmjnh/tm-win-care/releases/latest)** page.
+2. Download your preferred package:
+   - **[`TM-WinCare-AIO.cmd`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/TM-WinCare-AIO.cmd)**: Single-file launcher. Automatically requests elevation and runs the full toolkit.
+   - **[`Check-License.cmd`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/Check-License.cmd)**: Standalone 1-click license decoder & IT inventory synchronizer.
+   - **[`TM-WinCare-v1.2.0-Portable.zip`](https://github.com/tuanmjnh/tm-win-care/releases/latest/download/TM-WinCare-v1.2.0-Portable.zip)**: Full offline portable archive with modular code and catalog data.
+3. Double-click `TM-WinCare-AIO.cmd` to start.
 
 ---
 
-### Cách 3: Chạy từ mã nguồn Git (Offline / Developers)
+### Method 3: Clone from Source (Offline & Developers)
 
 ```powershell
 git clone https://github.com/tuanmjnh/tm-win-care.git
@@ -62,139 +69,101 @@ cd tm-win-care
 
 ---
 
-## 1. Triết lý thiết kế (Core Principles)
+## 🛡️ Core Design Principles
 
-- **Safe by default**: Mặc định chỉ kiểm tra (Audit/Read-only) hoặc áp dụng các cấu hình an toàn, ít rủi ro.
-- **Không tối ưu mù**: Tuyệt đối **không** tự ý tắt Windows Defender, Windows Security, Tường lửa (Firewall), Tamper Protection hay Windows Update.
-- **Có giải thích & cảnh báo**: Luôn hiển thị rõ tác dụng, phạm vi ảnh hưởng và yêu cầu khởi động lại trước khi chạy bất kỳ thay đổi nào.
-- **Tự động sao lưu & Hỗ trợ hoàn tác (Rollback)**: Tự động xuất Registry key và ghi nhận trạng thái dịch vụ vào thư mục `Backups/` trước khi thay đổi để có thể khôi phục bất cứ lúc nào.
-- **Không hard-code mật khẩu**: Khi tạo tài khoản (ví dụ tài khoản scan máy in), hệ thống yêu cầu nhập mật khẩu bảo mật hai lần (`-AsSecureString`), không bao giờ ghi mật khẩu rõ vào log hay code.
-- **Bảo vệ dữ liệu AI & Developer**: Phân biệt rạch ròi giữa cache có thể tải lại với model weights (Ollama, Hugging Face), project source code, conversation history, Docker volumes và WSL virtual disks (.vhdx).
+- **Safe by Default**: Inspect and audit first before applying changes.
+- **No Blind De-bloating**: Never breaks Windows Defender, Windows Firewall, Tamper Protection, or Windows Update.
+- **Explain & Confirm**: Clear explanations and risk ratings before modifying system state.
+- **Automatic State Backups & Rollback**: Registry modifications and service states are automatically snapshotted in `Backups/` before applying optimizations.
+- **No Hardcoded Credentials**: Passwords for local accounts (e.g. Scan-to-folder accounts) are read using `-AsSecureString` and never stored in plain text or logs.
+- **AI & Developer Environment Safety**: Distinguishes between disposable caches (pip, uv, npm, Docker buildkit) and critical assets (Ollama weights, Hugging Face models, WSL virtual disks, and project source code).
 
 ---
 
-## 2. Danh mục 12 chức năng chính
+## 📋 Toolkit Modules Overview
 
 ```text
 =========================================================
                  TM-WINDOWS TOOLKIT                      
       Windows Optimization & Maintenance Toolkit         
 =========================================================
-  Hệ điều hành: Windows 11 Build 26100 | Quyền: [ADMIN]
+  Operating System: Windows 11 Build 26100 | Privilege: [ADMIN]
 ---------------------------------------------------------
-  [ 1] Dashboard / Thông tin hệ thống
-  [ 2] Windows Post-Install
-  [ 3] Auto Optimize / Custom Optimize
+  [ 1] Dashboard / System Information
+  [ 2] Windows Post-Install & Activation
+  [ 3] Auto Optimize / Custom Profiles
   [ 4] Disk & System Maintenance
   [ 5] Windows Repair (SFC / DISM / CHKDSK)
   [ 6] Network & LAN Support
-  [ 7] Printer Support
-  [ 8] AI & Developer Cleanup
+  [ 7] Printer & Spooler Support
+  [ 8] AI & Developer Environment Cleanup
   [ 9] Privacy, Notifications & Copilot
-  [10] Tài khoản & quyền truy cập
-  [11] Quick Commands
-  [12] Backup & Restore
-  [ 0] Thoát
+  [10] Accounts & Access Management
+  [11] Quick Diagnostic Commands
+  [12] Backup & State Restore
+  [ 0] Exit
 =========================================================
 ```
 
-1. **Dashboard / Thông tin hệ thống**: Đọc thời gian thực thông tin CPU, RAM, dung lượng phân vùng ổ đĩa, card mạng, IP, trạng thái Microsoft Defender, Print Spooler và số lượng máy in đã cài. Hỗ trợ xuất báo cáo ra file TXT / JSON.
-2. **Windows Post-Install**: Đổi tên máy tính (Rename Computer), bật/tắt đuôi mở rộng file (`.exe`, `.txt`), hiện file ẩn, kiểm tra phần cứng thiếu driver (`Win32_PnPEntity`), mở nhanh các công cụ thiết lập Ngày giờ, Kích hoạt Windows, Startup và Nguồn điện.
-3. **Auto Optimize / Custom Optimize**:
-   - *Audit Only*: Chỉ quét và phân tích tình trạng mà không thay đổi hệ thống.
-   - *Balanced*: Tối ưu hiệu ứng thị giác thừa, dọn dẹp file tạm, SSD ReTrim, giữ nguyên toàn bộ dịch vụ bảo mật.
-   - *Desktop Performance*: Tối ưu phản hồi cho máy tính bàn cắm điện.
-   - *Low Resource / HDD*: Tối ưu cho máy RAM thấp hoặc dùng ổ cứng HDD.
-   - *Laptop Balanced*: Cân bằng thời lượng pin và nhiệt độ cho laptop.
-   - *Services Manager*: Hiển thị trạng thái `SysMain`, `WSearch`, `Ndu` kèm khuyến cáo bảo mật của Microsoft.
-4. **Disk & System Maintenance**: Kiểm tra chi tiết ổ đĩa HDD/SSD, chạy Optimize-Volume (TRIM cho SSD, Defrag cho HDD), CHKDSK các chế độ (Read-only, `/scan`, `/f`, `/r`), SFC scannow và DISM.
-5. **Windows Repair**: Sửa chữa kho linh kiện Component Store bằng DISM RestoreHealth kết hợp SFC Scannow tuần tự, dọn dẹp WinSxS qua `DISM StartComponentCleanup`, đặt lại Winsock và TCP/IP stack.
-6. **Network & LAN Support**: Xem chi tiết IP, Gateway, DNS, MAC address; Flush DNS; Renew DHCP; kiểm tra Ping; phân giải tên miền (Nslookup); kiểm tra cổng TCP (Test-NetConnection cho port 80, 443, 445 SMB, 135 RPC, 9100 Print); kiểm tra trạng thái SMB signing an toàn.
-7. **Printer Support**: Liệt kê danh sách máy in; mở Print Server Properties (`printui /s /t2`); khởi động lại Print Spooler; xóa hàng đợi in kẹt (dừng Spooler -> xóa file tạm -> khởi động lại -> xác minh); kiểm tra kết nối UNC máy in chia sẻ; tạo tài khoản scan máy in bảo mật; hỗ trợ tạo kết nối qua Local Port (`\\Server\Share`); hướng dẫn khắc phục lỗi Access Denied (0x0000011b).
-8. **AI & Developer Cleanup**: Nhận diện môi trường AI/Dev (Python, pip, uv, Node.js, npm, pnpm, Docker, WSL, Ollama); dọn dẹp an toàn các package cache; liệt kê mô hình Ollama (tuyệt đối không xóa tự động); dọn Docker build cache (không xóa volume); dọn log tạm của VS Code / Cursor.
-9. **Privacy, Notifications & Copilot**: Bật/tắt nút Copilot trên Taskbar; ẩn/hiện Widgets trên Windows 11; tắt gợi ý và quảng cáo mẹo vặt của Windows; mở nhanh trang quản lý thông báo.
-10. **Tài khoản & quyền truy cập**: Liệt kê tài khoản local (`Get-LocalUser`); tạo tài khoản scan; mở giao diện `lusrmgr.msc`, `netplwiz` và Credential Manager.
-11. **Quick Commands**: Thư viện hơn 20 câu lệnh quản trị phổ biến (winver, msinfo32, devmgmt, diskmgmt, services, perfmon, ncpa.cpl, sfc, dism...) hỗ trợ chạy trực tiếp hoặc sao chép vào Clipboard.
-12. **Backup & Restore**: Quản lý lịch sử các bản sao lưu, xem chi tiết manifest JSON, thực hiện hoàn tác (Rollback) khôi phục lại các giá trị Registry và dịch vụ về trạng thái ban đầu.
+### Module Highlights:
+1. **Dashboard**: Complete hardware and OS inspection (CPU, RAM, storage, IP, Spooler, Defender).
+2. **Post-Install**: Hostname renaming, File Explorer view options, missing driver diagnostics, and license management.
+3. **Auto Optimize**: Balanced, Desktop Performance, Low Resource/HDD, and Laptop Balanced profiles.
+4. **Disk Maintenance**: Logical volumes, SSD Re-Trim, and CHKDSK modes (`/scan`, `/f`, `/r`).
+5. **System Repair**: Sequential DISM Component Store repair (`/RestoreHealth`) followed by SFC (`/scannow`).
+6. **Network Support**: IP overview, DNS flushing, DHCP renew, TCP port testing (SMB 445, RAW 9100), and SMB configuration review.
+7. **Printer Support**: Print Spooler restart, stuck queue clearing, network UNC diagnostics, Scan-to-folder account generator, and Local Port creation wizard.
+8. **AI & Developer Cleanup**: Purge pip, uv, npm caches, prune pnpm store, inspect Ollama LLM models, Docker builder pruning, and IDE logs.
+9. **Privacy & Components**: Toggle Copilot button, taskbar widgets, and disable promotional suggestions.
+10. **Accounts**: Local user inventory, user management, and Credential Manager shortcuts.
+11. **Quick Commands**: Fast launcher for 20+ Windows diagnostic applets (devmgmt, diskmgmt, perfmon, ncpa, etc.).
+12. **Backup & Restore**: View snapshot manifests and perform 1-click state rollback.
 
 ---
 
-## 3. Cấu trúc thư mục dự án
+## 🔑 Fast License & IT Inventory Feature (`Check_License_Pro`)
 
-```text
+A dedicated utility tailored for IT technicians deploying or auditing company workstations:
+- Decodes **full 25-character product keys** for Windows and Microsoft Office from Registry, DigitalProductId, BackupProductKey, and BIOS ACPI MSDM tables.
+- Retrieves Motherboard UUID, Model, and Serial Number via CIM.
+- Exports records to **CSV (Appended)**, **TXT**, and **JSON**.
+- **Syncs directly to Google Sheets API** or opens prefilled **Google Forms** for instant enterprise IT inventory tracking.
+
+---
+
+## 🛠️ Project Structure
+
+```
 tm-win-care/
-├─ Start.cmd                    # Bộ khởi chạy CMD cổ điển
-├─ get.ps1                      # Bộ kéo tải trực tuyến
-├─ README.md                    # Tài liệu hướng dẫn sử dụng
-├─ LICENSE                      # Giấy phép phần mềm MIT
-├─ config/
-│  ├─ app.json                  # Nơi cấu hình định danh & số phiên bản Version
-│  └─ tasks.json                # Danh mục tác vụ và phân cấp rủi ro
-├─ src/
-│  ├─ Main.ps1                  # Điểm điều phối Menu chính 12 mục
-│  ├─ Core/                     # Bootstrap, Admin, Info, Backup, Restore, Logger...
-│  ├─ Modules/                  # 12 module tính năng độc lập
-│  └─ UI/                       # Colors, Tables, Prompts
-├─ data/                        # Command catalog, cleanup catalog, profiles
-├─ scripts/
-│  └─ build.ps1                 # Script đóng gói tự động ra dist/
-├─ dist/                        # Chứa các file AIO độc lập và file nén release
-│  ├─ TM-WinCare-AIO.ps1        # File PowerShell All-In-One (chạy qua irm)
-│  ├─ TM-WinCare-AIO.cmd        # File CMD All-In-One (double-click chạy ngay)
-│  └─ TM-WinCare-Portable.zip   # Gói zip portable đầy đủ
-└─ tests/                       # Bộ kiểm thử Unit test tầng Core và Modules
+├── config/              # Application settings (app.json)
+├── data/                # JSON catalogs (quick-commands, profiles, cleanup targets)
+├── dist/                # Packaged distribution files (AIO scripts, ZIP)
+├── docs/                # Architecture specifications & Vietnamese documentation
+│   ├── README.vi.md     # Tài liệu Tiếng Việt
+│   └── TM-WinCare-Architecture-v1.2.md
+├── scripts/             # Build and packaging script (build.ps1)
+├── src/
+│   ├── Core/            # Bootstrap, Logger, Admin, Backup, Restore, Menu
+│   ├── UI/              # Colors, Tables, Prompts
+│   ├── Modules/         # 12 functional toolkit modules
+│   └── Main.ps1         # Application entry point
+├── tests/Unit/          # Automated test suite (CoreTests, ModuleTests)
+├── Start.cmd            # Offline Windows batch launcher
+├── get.ps1              # Online bootstrap launcher
+└── README.md            # Primary documentation (English)
 ```
 
 ---
 
-## 4. Hướng dẫn dành cho Quản trị viên & Phát hành phiên bản mới (Release Guide)
+## 🧪 Testing & Verification
 
-### Quản lý phiên bản (Version Management) ở đâu?
-Phiên bản của bộ công cụ được quản lý tại **`config/app.json`**:
-```json
-{
-  "name": "TM-WinCare",
-  "displayName": "TM Windows Support Toolkit",
-  "version": "1.2.0",
-  "releaseDate": "2026-11-18"
-}
-```
-
-### Quy trình đóng gói và phát hành phiên bản mới:
-Khi bạn cập nhật tính năng và muốn ra mắt phiên bản mới (ví dụ `1.2.1`):
-
-1. **Cập nhật số phiên bản**: Mở file `config/app.json` và sửa `"version": "1.2.1"`.
-2. **Đóng gói file release**: Mở PowerShell tại thư mục dự án và chạy:
-   ```powershell
-   pwsh ./scripts/build.ps1
-   ```
-   *Script sẽ tự động đọc `app.json`, nhúng toàn bộ logic mới vào `dist/TM-WinCare-AIO.ps1`, `dist/TM-WinCare-AIO.cmd` và nén `dist/TM-WinCare-v1.2.1-Portable.zip`.*
-3. **Commit & Tạo Git Tag**:
-   ```powershell
-   git add .
-   git commit -m "chore: release version v1.2.1"
-   git push origin main
-   git tag v1.2.1
-   git push origin v1.2.1
-   ```
-4. **Tạo Release trên GitHub**:
-   - Nếu bạn đã bật GitHub Actions, workflow `.github/workflows/release.yml` sẽ **tự động** tạo GitHub Release và đính kèm các file trong `dist/`.
-   - Nếu bạn tạo thủ công trên web GitHub: Vào mục **Releases** > **Draft a new release** > Chọn tag `v1.2.1` > Kéo thả các file trong thư mục `dist/` vào phần đính kèm rồi nhấn **Publish release**.
-
----
-
-## 5. Kiểm thử tự động (Unit Tests)
-
+Run the built-in automated test suite:
 ```powershell
-# Chạy bộ kiểm thử tầng Core
-pwsh.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\Unit\CoreTests.ps1
-
-# Chạy bộ kiểm thử tầng Modules
-pwsh.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\Unit\ModuleTests.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& { & .\tests\Unit\CoreTests.ps1; & .\tests\Unit\ModuleTests.ps1 }"
 ```
 
 ---
 
-## 6. Giấy phép
+## 📄 License
 
-Phát hành dưới giấy phép mã nguồn mở **MIT License**.
+This project is licensed under the [MIT License](LICENSE).

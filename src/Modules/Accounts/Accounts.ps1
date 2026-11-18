@@ -3,38 +3,38 @@
 
 function Show-TMAccountsMenu {
     $menuItems = @(
-        @{ Label = "Danh sách tài khoản người dùng cục bộ (Local Users)"; Action = { Show-LocalUsersList } },
-        @{ Label = "Tạo tài khoản scan máy in (Scan-to-Folder)"; Action = { Invoke-CreateScanAccount } },
-        @{ Label = "Mở Quản lý Người dùng & Nhóm (lusrmgr.msc)"; Action = { Start-Process "lusrmgr.msc" } },
-        @{ Label = "Mở Cấu hình Tài khoản Nhanh (netplwiz)"; Action = { Start-Process "netplwiz.exe" } },
-        @{ Label = "Mở Quản lý Mật khẩu Mạng (Credential Manager)"; Action = { Start-Process "control.exe" "/name Microsoft.CredentialManager" } }
+        @{ Label = "List Local User Accounts (Get-LocalUser)"; Action = { Show-LocalUsersList } },
+        @{ Label = "Create Scan-to-Folder Dedicated Local User"; Action = { Invoke-CreateScanAccount } },
+        @{ Label = "Open Local Users and Groups Console (lusrmgr.msc)"; Action = { Start-Process "lusrmgr.msc" } },
+        @{ Label = "Open User Accounts Management (netplwiz)"; Action = { Start-Process "netplwiz.exe" } },
+        @{ Label = "Open Windows Credential Manager (control credman)"; Action = { Start-Process "control.exe" "/name Microsoft.CredentialManager" } }
     )
-    Show-TMMenu -Title "TÀI KHOẢN & QUYỀN TRUY CẬP (ACCOUNTS & ACCESS)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "ACCOUNTS & ACCESS MANAGEMENT" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-LocalUsersList {
-    Write-SubHeader "DANH SÁCH TÀI KHOẢN CỤC BỘ TRÊN MÁY"
+    Write-SubHeader "LOCAL USER ACCOUNTS ON THIS PC"
     try {
         if (Test-CmdletAvailable "Get-LocalUser") {
             $users = Get-LocalUser
             $list = @()
             foreach ($u in $users) {
                 $list += [PSCustomObject]@{
-                    TenUser = $u.Name
-                    TrangThai = if ($u.Enabled) { "Bật" } else { "Tắt" }
-                    MatKhauKhongHetHan = if ($u.PasswordNeverExpires) { "Có" } else { "Không" }
-                    MoTa = $u.Description
+                    Username = $u.Name
+                    Status = if ($u.Enabled) { "Enabled" } else { "Disabled" }
+                    PasswordNeverExpires = if ($u.PasswordNeverExpires) { "Yes" } else { "No" }
+                    Description = $u.Description
                 }
             }
-            $headers = @("Tên tài khoản", "Trạng thái", "Pass không hết hạn", "Mô tả")
-            $props = @("TenUser", "TrangThai", "MatKhauKhongHetHan", "MoTa")
-            $widths = @(22, 12, 22, 25)
+            $headers = @("Username", "Status", "Password Never Expires", "Description")
+            $props = @("Username", "Status", "PasswordNeverExpires", "Description")
+            $widths = @(22, 12, 24, 25)
             Show-TableList -Items $list -Headers $headers -PropertyNames $props -Widths $widths
         } else {
             & net.exe user
         }
     } catch {
-        Handle-TMException -TaskId "ACC_LIST" -TaskName "Liệt kê tài khoản" -Exception $_.Exception
+        Handle-TMException -TaskId "ACC_LIST" -TaskName "List Accounts" -Exception $_.Exception
     }
     Pause-Screen
 }

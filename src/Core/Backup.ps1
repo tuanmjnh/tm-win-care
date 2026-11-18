@@ -70,7 +70,7 @@ function Backup-RegistryValue {
         }
         return $true
     } catch {
-        Write-ErrorMessage "Không thể sao lưu Registry: $($_.Exception.Message)"
+        Write-ErrorMessage "Unable to backup Registry: $($_.Exception.Message)"
         return $false
     }
 }
@@ -90,7 +90,7 @@ function Backup-ServiceState {
         }
         return $true
     } catch {
-        Write-ErrorMessage "Không thể sao lưu trạng thái Service $ServiceName : $($_.Exception.Message)"
+        Write-ErrorMessage "Unable to backup service state for $ServiceName : $($_.Exception.Message)"
         return $false
     }
 }
@@ -103,10 +103,10 @@ function Save-TMBackupSession {
         $manifestPath = Join-Path $Session.Directory "manifest.json"
         $json = $Session.Manifest | ConvertTo-Json -Depth 5
         Set-Content -Path $manifestPath -Value $json -Encoding UTF8 -Force
-        Write-Success "Đã tạo bản sao lưu an toàn: $($Session.Id)"
+        Write-Success "Created state backup snapshot: $($Session.Id)"
         return $Session.Id
     } catch {
-        Write-ErrorMessage "Lỗi khi lưu manifest backup: $($_.Exception.Message)"
+        Write-ErrorMessage "Failed to save backup manifest: $($_.Exception.Message)"
         return $null
     }
 }

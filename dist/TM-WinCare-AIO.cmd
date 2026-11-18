@@ -10,15 +10,16 @@ where pwsh.exe >nul 2>nul && set "PS_EXE=pwsh.exe"
 net session >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo =========================================================
-    echo         TM-WINCARE - KHỞI CHẠY TIỆN ÍCH HỆ THỐNG
+    echo         TM-WINCARE - WINDOWS TOOLKIT LAUNCHER
     echo =========================================================
-    echo  [LƯU Ý] Bạn đang chạy với quyền người dùng thông thường.
-    echo  Một số tác vụ quản trị sẽ yêu cầu quyền Administrator.
+    echo  [NOTICE] Currently running under standard user privileges.
+    echo  System maintenance and optimization functions require
+    echo  elevated Administrator rights.
     echo.
-    echo  [1] Tiếp tục với quyền thường
-    echo  [2] Khởi động lại với quyền Administrator (Khuyến nghị)
+    echo  [1] Continue with standard privileges (Read-Only / Basic)
+    echo  [2] Restart with Administrator privileges (Recommended)
     echo =========================================================
-    set /p "ADMIN_CHOICE= Lựa chọn của bạn [1-2] (Mặc định 2): "
+    set /p "ADMIN_CHOICE= Select choice [1-2] (Default 2): "
     if "!ADMIN_CHOICE!"=="" set "ADMIN_CHOICE=2"
     if "!ADMIN_CHOICE!"=="2" (
         powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd.exe -ArgumentList '/c \"\"%~f0\"\"' -Verb RunAs"
@@ -43,7 +44,7 @@ $global:TM_CONFIG = @'
   "displayName": "TM Windows Support Toolkit",
   "version": "1.2.0",
   "releaseDate": "2026-11-18",
-  "defaultLocale": "vi-VN",
+  "defaultLocale": "en-US",
   "supportedOS": ["10", "11"],
   "minimumBuild": 19041,
   "safeByDefault": true,
@@ -82,8 +83,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_WINVER",
     "group": "System",
-    "name": "Xem phiên bản Windows (winver)",
-    "description": "Hiển thị hộp thoại About Windows với edition, version và build number",
+    "name": "Check Windows Version (winver)",
+    "description": "Displays About Windows dialog with OS edition, version, and build number",
     "command": "winver",
     "type": "process",
     "requiresAdmin": false,
@@ -93,8 +94,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_MSINFO32",
     "group": "System",
-    "name": "Thông tin hệ thống chi tiết (msinfo32)",
-    "description": "Mở công cụ System Information hiển thị phần cứng, driver, components",
+    "name": "Detailed System Information (msinfo32)",
+    "description": "Opens System Information tool showing hardware, drivers, and components",
     "command": "msinfo32",
     "type": "process",
     "requiresAdmin": false,
@@ -104,8 +105,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_DXDIAG",
     "group": "System",
-    "name": "Chẩn đoán DirectX (dxdiag)",
-    "description": "Kiểm tra DirectX, card màn hình (GPU), âm thanh và driver",
+    "name": "DirectX Diagnostic Tool (dxdiag)",
+    "description": "Checks DirectX, GPU display adapters, audio devices, and display drivers",
     "command": "dxdiag",
     "type": "process",
     "requiresAdmin": false,
@@ -115,8 +116,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_DEVMGMT",
     "group": "System",
-    "name": "Quản lý thiết bị (devmgmt.msc)",
-    "description": "Mở Device Manager để kiểm tra driver, thiết bị thiếu hoặc bị lỗi",
+    "name": "Device Manager (devmgmt.msc)",
+    "description": "Opens Device Manager to inspect drivers, missing devices, and hardware status",
     "command": "devmgmt.msc",
     "type": "process",
     "requiresAdmin": true,
@@ -126,8 +127,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_DISKMGMT",
     "group": "System",
-    "name": "Quản lý phân vùng ổ đĩa (diskmgmt.msc)",
-    "description": "Mở Disk Management để chia ổ, format, gán ký tự ổ đĩa",
+    "name": "Disk Management (diskmgmt.msc)",
+    "description": "Opens Disk Management to manage partitions, format volumes, and assign drive letters",
     "command": "diskmgmt.msc",
     "type": "process",
     "requiresAdmin": true,
@@ -137,8 +138,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_SERVICES",
     "group": "System",
-    "name": "Quản lý dịch vụ Windows (services.msc)",
-    "description": "Mở danh sách Services hệ thống Windows",
+    "name": "Windows Services Manager (services.msc)",
+    "description": "Opens Windows background services console",
     "command": "services.msc",
     "type": "process",
     "requiresAdmin": true,
@@ -148,8 +149,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_EVENTVWR",
     "group": "System",
-    "name": "Xem nhật ký sự kiện (eventvwr.msc)",
-    "description": "Mở Event Viewer để kiểm tra lỗi ứng dụng và hệ thống",
+    "name": "Event Viewer (eventvwr.msc)",
+    "description": "Opens Event Viewer to diagnose system, application, and security logs",
     "command": "eventvwr.msc",
     "type": "process",
     "requiresAdmin": true,
@@ -159,8 +160,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_PERFMON_REL",
     "group": "System",
-    "name": "Giám sát độ ổn định hệ thống (perfmon /rel)",
-    "description": "Mở Reliability Monitor xem lịch sử crash app, update và lỗi Windows",
+    "name": "Reliability Monitor (perfmon /rel)",
+    "description": "Opens Reliability Monitor showing app crashes, updates, and OS failure history",
     "command": "perfmon /rel",
     "type": "process",
     "requiresAdmin": false,
@@ -170,8 +171,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "SYS_TASKMGR",
     "group": "System",
-    "name": "Trình quản lý tác vụ (taskmgr)",
-    "description": "Mở Task Manager để kiểm tra CPU, RAM, Disk, Network và tiến trình",
+    "name": "Task Manager (taskmgr)",
+    "description": "Opens Task Manager to monitor CPU, RAM, Disk, Network, and running processes",
     "command": "taskmgr",
     "type": "process",
     "requiresAdmin": false,
@@ -181,8 +182,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "DISK_DFRGUI",
     "group": "Disk",
-    "name": "Tối ưu hóa ổ đĩa giao diện (dfrgui.exe)",
-    "description": "Mở Optimize Drives của Windows (TRIM cho SSD, Defrag cho HDD)",
+    "name": "Optimize Drives GUI (dfrgui.exe)",
+    "description": "Opens Windows Drive Optimizer (TRIM for SSDs, Defragmentation for HDDs)",
     "command": "dfrgui.exe",
     "type": "process",
     "requiresAdmin": true,
@@ -192,8 +193,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "PRINT_PRINTUI",
     "group": "Printer",
-    "name": "Quản lý Driver máy in (printui /s /t2)",
-    "description": "Mở Print Server Properties trực tiếp tại tab Drivers để gỡ/cài driver máy in",
+    "name": "Printer Driver Server Properties (printui /s /t2)",
+    "description": "Opens Print Server Properties directly on Drivers tab to add or remove drivers",
     "command": "rundll32.exe printui.dll,PrintUIEntry /s /t2",
     "type": "process",
     "requiresAdmin": true,
@@ -203,8 +204,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "PRINT_CONTROL",
     "group": "Printer",
-    "name": "Mở Devices and Printers cổ điển",
-    "description": "Mở danh sách máy in và máy quét trong Control Panel",
+    "name": "Classic Devices and Printers",
+    "description": "Opens classic Control Panel Devices and Printers applet",
     "command": "control printers",
     "type": "process",
     "requiresAdmin": false,
@@ -214,8 +215,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "NET_NCPA",
     "group": "Network",
-    "name": "Quản lý Card mạng (ncpa.cpl)",
-    "description": "Mở Network Connections để đặt IP tĩnh, DNS, bật/tắt card mạng",
+    "name": "Network Connections (ncpa.cpl)",
+    "description": "Opens Network Connections to configure static IP, DNS, or toggle adapters",
     "command": "ncpa.cpl",
     "type": "process",
     "requiresAdmin": true,
@@ -225,8 +226,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "NET_CREDMAN",
     "group": "Network",
-    "name": "Quản lý tài khoản mạng (Credential Manager)",
-    "description": "Mở Credential Manager để lưu tài khoản/mật khẩu chia sẻ mạng LAN",
+    "name": "Credential Manager (control credman)",
+    "description": "Opens Windows Credential Manager to manage saved LAN share credentials",
     "command": "control /name Microsoft.CredentialManager",
     "type": "process",
     "requiresAdmin": false,
@@ -236,8 +237,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "NET_INETCPL",
     "group": "Network",
-    "name": "Tùy chọn mạng Internet (inetcpl.cpl)",
-    "description": "Mở Internet Properties cấu hình Proxy, TLS, Security zones",
+    "name": "Internet Options (inetcpl.cpl)",
+    "description": "Opens Internet Properties to configure Proxy, TLS protocols, and Security zones",
     "command": "inetcpl.cpl",
     "type": "process",
     "requiresAdmin": false,
@@ -247,8 +248,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "NET_IPCONFIG",
     "group": "Network",
-    "name": "Xem cấu hình mạng chi tiết (ipconfig /all)",
-    "description": "Hiển thị IP, Subnet, Gateway, DHCP, DNS, MAC address",
+    "name": "View Full Network Configuration (ipconfig /all)",
+    "description": "Displays detailed IP, Subnet, Gateway, DHCP, DNS, and MAC addresses",
     "command": "ipconfig /all",
     "type": "cli",
     "requiresAdmin": false,
@@ -258,8 +259,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "NET_GPUPDATE",
     "group": "Network",
-    "name": "Cập nhật Group Policy (gpupdate /force)",
-    "description": "Áp dụng ngay các chính sách nhóm bảo mật và máy in",
+    "name": "Force Group Policy Update (gpupdate /force)",
+    "description": "Applies domain security and policy changes immediately",
     "command": "gpupdate /force",
     "type": "cli",
     "requiresAdmin": true,
@@ -269,8 +270,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "REPAIR_SFC_VERIFY",
     "group": "Repair",
-    "name": "Xác minh file hệ thống (sfc /verifyonly)",
-    "description": "Kiểm tra tính toàn vẹn file hệ thống, chỉ báo cáo không sửa",
+    "name": "Verify System File Integrity (sfc /verifyonly)",
+    "description": "Scans Windows system files and reports integrity violations without modifying",
     "command": "sfc /verifyonly",
     "type": "cli",
     "requiresAdmin": true,
@@ -280,8 +281,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "REPAIR_SFC_SCAN",
     "group": "Repair",
-    "name": "Quét và sửa file hệ thống (sfc /scannow)",
-    "description": "Quét và tự động thay thế file hệ thống bị hỏng bằng bản sao từ cache",
+    "name": "Scan and Repair System Files (sfc /scannow)",
+    "description": "Scans and replaces corrupt system files using cached local copies",
     "command": "sfc /scannow",
     "type": "cli",
     "requiresAdmin": true,
@@ -291,8 +292,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "REPAIR_DISM_CHECK",
     "group": "Repair",
-    "name": "DISM kiểm tra nhanh (CheckHealth)",
-    "description": "Kiểm tra xem component store có bị đánh dấu hỏng hóc hay không",
+    "name": "DISM Quick Health Check (CheckHealth)",
+    "description": "Checks whether the component store corruption flag has been set",
     "command": "DISM /Online /Cleanup-Image /CheckHealth",
     "type": "cli",
     "requiresAdmin": true,
@@ -302,8 +303,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "REPAIR_DISM_SCAN",
     "group": "Repair",
-    "name": "DISM quét sâu (ScanHealth)",
-    "description": "Quét toàn diện kho linh kiện Windows Component Store",
+    "name": "DISM Deep Health Scan (ScanHealth)",
+    "description": "Performs comprehensive scan of Windows Component Store for corruption",
     "command": "DISM /Online /Cleanup-Image /ScanHealth",
     "type": "cli",
     "requiresAdmin": true,
@@ -313,8 +314,8 @@ $global:TM_EMBEDDED_QUICK_COMMANDS = @'
   {
     "id": "REPAIR_DISM_RESTORE",
     "group": "Repair",
-    "name": "DISM khôi phục (RestoreHealth)",
-    "description": "Tải và thay thế các component bị lỗi từ nguồn Windows Update",
+    "name": "DISM Restore Health (RestoreHealth)",
+    "description": "Repairs Windows Component Store using Windows Update repair sources",
     "command": "DISM /Online /Cleanup-Image /RestoreHealth",
     "type": "cli",
     "requiresAdmin": true,
@@ -328,61 +329,61 @@ $global:TM_EMBEDDED_OPTIMIZATION_PROFILES = @'
 [
   {
     "id": "audit",
-    "name": "Audit Only (Chỉ kiểm tra & báo cáo)",
-    "description": "Quét toàn bộ cấu hình, dịch vụ, ứng dụng khởi động và gợi ý mà không thay đổi bất kỳ thiết lập nào.",
-    "target": "Mọi loại máy",
+    "name": "Audit Only (Inspection & Report)",
+    "description": "Scans system configuration, running services, startup programs, and generates recommendations without altering any settings.",
+    "target": "All Systems",
     "actions": [
-      { "id": "AUDIT_STARTUP", "name": "Kiểm tra ứng dụng khởi động (Startup)", "action": "audit" },
-      { "id": "AUDIT_SERVICES", "name": "Kiểm tra dịch vụ tiêu thụ tài nguyên", "action": "audit" },
-      { "id": "AUDIT_TEMP", "name": "Đo dung lượng thư mục rác và file tạm", "action": "audit" },
-      { "id": "AUDIT_DISK", "name": "Kiểm tra dung lượng và loại ổ cứng", "action": "audit" }
+      { "id": "AUDIT_STARTUP", "name": "Audit startup applications", "action": "audit" },
+      { "id": "AUDIT_SERVICES", "name": "Audit resource-heavy background services", "action": "audit" },
+      { "id": "AUDIT_TEMP", "name": "Measure temporary and junk file sizes", "action": "audit" },
+      { "id": "AUDIT_DISK", "name": "Inspect disk storage capacity and media types", "action": "audit" }
     ]
   },
   {
     "id": "balanced",
-    "name": "Balanced (Khuyến nghị cho máy phổ thông)",
-    "description": "Cân bằng hiệu năng và độ ổn định. Tối ưu hiệu ứng thị giác thừa, dọn dẹp file tạm, tắt startup không thiết yếu. Giữ nguyên toàn bộ dịch vụ bảo mật.",
-    "target": "Máy làm việc văn phòng, cá nhân phổ thông",
+    "name": "Balanced (Recommended for General Use)",
+    "description": "Balances performance and system stability. Disables unnecessary animations, cleans temp files, and audits startup apps. Retains all core security services.",
+    "target": "Standard Office & Home PC",
     "actions": [
-      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp Temp người dùng và Windows an toàn", "action": "clean_temp" },
-      { "id": "VISUAL_BALANCED", "name": "Giảm hiệu ứng animation không cần thiết, giữ mịn font chữ", "action": "visual_balanced" },
-      { "id": "AUDIT_STARTUP_RECOMMEND", "name": "Rà soát và đề xuất tắt ứng dụng chạy ngầm không cần thiết", "action": "startup_recommend" },
-      { "id": "TRIM_SSD", "name": "Chạy ReTrim tối ưu SSD nếu có", "action": "trim_ssd" }
+      { "id": "CLEAN_SAFE_TEMP", "name": "Clean safe user and Windows temporary files", "action": "clean_temp" },
+      { "id": "VISUAL_BALANCED", "name": "Disable window animations while preserving smooth font rendering", "action": "visual_balanced" },
+      { "id": "AUDIT_STARTUP_RECOMMEND", "name": "Audit and recommend disabling unnecessary third-party startup apps", "action": "startup_recommend" },
+      { "id": "TRIM_SSD", "name": "Run ReTrim optimization on SSD volumes", "action": "trim_ssd" }
     ]
   },
   {
     "id": "desktop_perf",
-    "name": "Desktop Performance (Máy bàn hiệu năng cao)",
-    "description": "Tối ưu hóa độ phản hồi tối đa cho máy tính để bàn cắm nguồn trực tiếp. Giữ nguyên Defender/Firewall/Windows Update.",
-    "target": "Máy tính bàn (Desktop) ưu tiên phản hồi nhanh",
+    "name": "Desktop Performance (High-Performance Workstation)",
+    "description": "Optimizes system responsiveness for mains-powered desktop PCs. Preserves Windows Defender, Firewall, and Windows Update.",
+    "target": "Desktop Workstations prioritizing speed",
     "actions": [
-      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp Temp người dùng và Windows an toàn", "action": "clean_temp" },
-      { "id": "POWER_HIGH_PERF", "name": "Đề xuất chế độ nguồn High Performance (khi cắm điện)", "action": "power_high_perf" },
-      { "id": "VISUAL_PERFORMANCE", "name": "Tối ưu visual effects cho hiệu năng cao", "action": "visual_perf" },
-      { "id": "TRIM_SSD", "name": "Chạy ReTrim tối ưu SSD", "action": "trim_ssd" }
+      { "id": "CLEAN_SAFE_TEMP", "name": "Clean safe user and Windows temporary files", "action": "clean_temp" },
+      { "id": "POWER_HIGH_PERF", "name": "Suggest High Performance power scheme for AC power", "action": "power_high_perf" },
+      { "id": "VISUAL_PERFORMANCE", "name": "Tune visual effects for maximum responsiveness", "action": "visual_perf" },
+      { "id": "TRIM_SSD", "name": "Run ReTrim optimization on SSD volumes", "action": "trim_ssd" }
     ]
   },
   {
     "id": "low_resource_hdd",
-    "name": "Low Resource / HDD (Máy cấu hình thấp hoặc dùng HDD)",
-    "description": "Đo mức sử dụng tài nguyên trước. Giảm tải animation, gợi ý giảm phạm vi Search indexing, dọn dẹp bộ nhớ đệm, tối ưu phân mảnh HDD.",
-    "target": "Máy cũ, RAM dưới 8GB hoặc ổ đĩa cơ HDD",
+    "name": "Low Resource / HDD (Budget PC or Mechanical Drive)",
+    "description": "Reduces visual overhead, suggests search indexing limits, clears temporary caches, and checks HDD fragmentation.",
+    "target": "Legacy PCs, systems with < 8GB RAM or mechanical HDDs",
     "actions": [
-      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp file tạm an toàn", "action": "clean_temp" },
-      { "id": "VISUAL_MINIMAL", "name": "Chuyển giao diện sang Best Performance (giữ font smoothing)", "action": "visual_minimal" },
-      { "id": "ANALYZE_HDD", "name": "Phân tích tình trạng phân mảnh ổ C: (HDD)", "action": "analyze_hdd" },
-      { "id": "STARTUP_MINIMAL", "name": "Khuyến nghị tắt tối đa startup bên thứ ba", "action": "startup_minimal" }
+      { "id": "CLEAN_SAFE_TEMP", "name": "Clean temporary files safely", "action": "clean_temp" },
+      { "id": "VISUAL_MINIMAL", "name": "Switch visual effects to Best Performance (keeping font smoothing)", "action": "visual_minimal" },
+      { "id": "ANALYZE_HDD", "name": "Analyze fragmentation status on drive C: (HDD)", "action": "analyze_hdd" },
+      { "id": "STARTUP_MINIMAL", "name": "Recommend disabling non-essential third-party startup entries", "action": "startup_minimal" }
     ]
   },
   {
     "id": "laptop_balanced",
-    "name": "Laptop Balanced (Laptop giữ thời lượng pin)",
-    "description": "Cân bằng hiệu năng và pin. Không ép High Performance khi dùng pin. Tối ưu bộ nhớ đệm và dọn rác an toàn.",
-    "target": "Laptop và thiết bị di động",
+    "name": "Laptop Balanced (Battery-Conscious Optimization)",
+    "description": "Maintains energy efficiency while cleaning junk files and trimming unnecessary animations. Never forces high power drain on battery.",
+    "target": "Laptops & portable devices",
     "actions": [
-      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp Temp an toàn", "action": "clean_temp" },
-      { "id": "VISUAL_BALANCED", "name": "Giảm bớt animation thừa", "action": "visual_balanced" },
-      { "id": "BATTERY_AWARE_POWER", "name": "Giữ Balanced Power Plan", "action": "power_balanced" }
+      { "id": "CLEAN_SAFE_TEMP", "name": "Clean safe temporary files", "action": "clean_temp" },
+      { "id": "VISUAL_BALANCED", "name": "Disable window animation overhead", "action": "visual_balanced" },
+      { "id": "BATTERY_AWARE_POWER", "name": "Maintain Balanced Power Scheme", "action": "power_balanced" }
     ]
   }
 ]
@@ -393,7 +394,7 @@ $global:TM_EMBEDDED_SYSTEM_CLEANUP = @'
   {
     "id": "CLEAN_USER_TEMP",
     "name": "User Temp (%TEMP%)",
-    "description": "File tạm sinh ra từ các ứng dụng của người dùng hiện tại",
+    "description": "Temporary files generated by running applications of the current user",
     "pathType": "env",
     "targetPath": "%TEMP%",
     "requiresAdmin": false,
@@ -404,8 +405,8 @@ $global:TM_EMBEDDED_SYSTEM_CLEANUP = @'
   },
   {
     "id": "CLEAN_WIN_TEMP",
-    "name": "Windows Temp (%WINDIR%\\Temp)",
-    "description": "File tạm của các dịch vụ hệ thống và bộ cài đặt",
+    "name": "Windows System Temp (%WINDIR%\\Temp)",
+    "description": "Temporary installation and system service files",
     "pathType": "env",
     "targetPath": "%WINDIR%\\Temp",
     "requiresAdmin": true,
@@ -416,8 +417,8 @@ $global:TM_EMBEDDED_SYSTEM_CLEANUP = @'
   },
   {
     "id": "CLEAN_RECYCLE_BIN",
-    "name": "Thùng rác (Recycle Bin)",
-    "description": "Dọn sạch các file đã xóa tạm vào thùng rác trên tất cả các ổ đĩa",
+    "name": "Recycle Bin",
+    "description": "Empty deleted files in Recycle Bin across all drives",
     "pathType": "special",
     "targetPath": "RecycleBin",
     "requiresAdmin": false,
@@ -429,7 +430,7 @@ $global:TM_EMBEDDED_SYSTEM_CLEANUP = @'
   {
     "id": "CLEAN_WU_CACHE",
     "name": "Windows Update Download Cache",
-    "description": "Các file cài đặt bản cập nhật đã tải xong trong SoftwareDistribution\\Download",
+    "description": "Downloaded and completed update installation files in SoftwareDistribution\\Download",
     "pathType": "fixed",
     "targetPath": "%WINDIR%\\SoftwareDistribution\\Download",
     "requiresAdmin": true,
@@ -441,7 +442,7 @@ $global:TM_EMBEDDED_SYSTEM_CLEANUP = @'
   {
     "id": "CLEAN_CRASH_DUMPS",
     "name": "Crash Dumps & Minidumps",
-    "description": "Bản ghi lỗi BSOD (Minidump) và crash bộ nhớ cũ của Windows",
+    "description": "Past BSOD crash dumps and memory logs in Minidump",
     "pathType": "fixed",
     "targetPath": "%WINDIR%\\Minidump",
     "requiresAdmin": true,
@@ -453,7 +454,7 @@ $global:TM_EMBEDDED_SYSTEM_CLEANUP = @'
   {
     "id": "CLEAN_THUMB_CACHE",
     "name": "Thumbnail & Icon Cache",
-    "description": "Bộ nhớ đệm hình thu nhỏ của Windows Explorer",
+    "description": "Windows Explorer thumbnail cache database files",
     "pathType": "env",
     "targetPath": "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer",
     "filter": "thumbcache_*.db",
@@ -476,7 +477,7 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "detectCommand": "pip --version",
     "infoCommand": "pip cache info",
     "defaultPath": "%LOCALAPPDATA%\\pip\\cache",
-    "description": "Cache các file wheel và source code gói thư viện Python đã tải về",
+    "description": "Cached Python package wheel and tarball archives",
     "safeToDelete": true,
     "preserve": "Virtual environments (.venv), python source projects"
   },
@@ -488,7 +489,7 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "detectCommand": "uv --version",
     "infoCommand": "uv cache dir",
     "defaultPath": "%LOCALAPPDATA%\\uv\\cache",
-    "description": "Bộ nhớ đệm siêu nhanh của package manager uv",
+    "description": "High-performance cache directory for Python uv package manager",
     "safeToDelete": true,
     "preserve": "Python installed versions, local virtual environments"
   },
@@ -500,9 +501,9 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "detectCommand": "npm --version",
     "infoCommand": "npm cache verify",
     "defaultPath": "%APPDATA%\\npm-cache",
-    "description": "Cache các file nén tarball tải từ npm registry",
+    "description": "Compressed tarball packages downloaded from npm registry",
     "safeToDelete": true,
-    "preserve": "node_modules của các project, credentials, package.json"
+    "preserve": "Project node_modules, npm credentials, package.json"
   },
   {
     "id": "AIDEV_PNPM_STORE",
@@ -512,9 +513,9 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "detectCommand": "pnpm --version",
     "infoCommand": "pnpm store path",
     "defaultPath": "%LOCALAPPDATA%\\pnpm\\store",
-    "description": "Dọn dẹp các package mồ côi trong pnpm hard-link content-addressable store",
+    "description": "Prune unreferenced package files in pnpm content-addressable store",
     "safeToDelete": true,
-    "preserve": "Các package đang được symlink vào dự án hiện hành"
+    "preserve": "Packages hard-linked to active workspace projects"
   },
   {
     "id": "AIDEV_HF_CACHE",
@@ -523,10 +524,10 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "detectCommand": "hf version",
     "defaultPath": "%USERPROFILE%\\.cache\\huggingface\\hub",
     "envVar": "HF_HOME",
-    "description": "Bộ nhớ đệm snapshot mô hình AI và dataset tải từ Hugging Face",
+    "description": "Cached AI model snapshots and datasets from Hugging Face Hub",
     "safeToDelete": false,
     "requiresReview": true,
-    "preserve": "Model snapshots cần cho hoạt động offline"
+    "preserve": "Model snapshots required for offline inference"
   },
   {
     "id": "AIDEV_OLLAMA",
@@ -536,10 +537,10 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "listCommand": "ollama list",
     "defaultPath": "%USERPROFILE%\\.ollama\\models",
     "envVar": "OLLAMA_MODELS",
-    "description": "Danh sách các Local LLM models (Llama, DeepSeek, Qwen...) của Ollama",
+    "description": "Local LLM models (Llama, DeepSeek, Qwen) stored by Ollama",
     "safeToDelete": false,
     "requiresReview": true,
-    "preserve": "KHÔNG BAO GIỜ xóa tự động. Chỉ liệt kê dung lượng và dùng lệnh ollama rm <model> có xác nhận"
+    "preserve": "NEVER deleted automatically. Only inspect usage and use explicit ollama rm"
   },
   {
     "id": "AIDEV_DOCKER_BUILDER",
@@ -548,9 +549,9 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "detectCommand": "docker --version",
     "cliCommand": "docker builder prune -f",
     "infoCommand": "docker system df",
-    "description": "BuildKit cache của Docker khi build image",
+    "description": "BuildKit layer cache generated during container builds",
     "safeToDelete": true,
-    "preserve": "Docker images đang chạy, Docker volumes, containers"
+    "preserve": "Active images, running containers, named Docker volumes"
   },
   {
     "id": "AIDEV_VSCODE_LOGS",
@@ -558,7 +559,7 @@ $global:TM_EMBEDDED_AIDEV_CLEANUP = @'
     "category": "IDE",
     "defaultPath": "%APPDATA%\\Code\\logs",
     "cursorPath": "%APPDATA%\\Cursor\\logs",
-    "description": "Nhật ký phiên làm việc cũ và crash dump tạm thời của VS Code và Cursor",
+    "description": "Expired session logs and temporary crash dumps for VS Code and Cursor",
     "safeToDelete": true,
     "preserve": "Extensions, User Settings, Snippets, Keybindings, Conversation history"
   }
@@ -608,25 +609,25 @@ function Write-Success {
 
 function Write-WarningMessage {
     param ([string]$Message)
-    Write-Host "[CẢNH BÁO] " -ForegroundColor Yellow -NoNewline
+    Write-Host "[WARNING] " -ForegroundColor Yellow -NoNewline
     Write-Host $Message -ForegroundColor Yellow
 }
 
 function Write-ErrorMessage {
     param ([string]$Message)
-    Write-Host "[LỖI] " -ForegroundColor Red -NoNewline
+    Write-Host "[ERROR] " -ForegroundColor Red -NoNewline
     Write-Host $Message -ForegroundColor Red
 }
 
 function Write-InfoMessage {
     param ([string]$Message)
-    Write-Host "[THÔNG TIN] " -ForegroundColor Cyan -NoNewline
+    Write-Host "[INFO] " -ForegroundColor Cyan -NoNewline
     Write-Host $Message -ForegroundColor Gray
 }
 
 function Write-SkipMessage {
     param ([string]$Message)
-    Write-Host "[BỎ QUA] " -ForegroundColor DarkYellow -NoNewline
+    Write-Host "[SKIPPED] " -ForegroundColor DarkYellow -NoNewline
     Write-Host $Message -ForegroundColor DarkGray
 }
 
@@ -644,13 +645,13 @@ function Show-PropertyGrid {
         $val = $Properties[$key]
         $displayKey = ($key.ToString() + ":").PadRight($KeyWidth)
         Write-Host "  $displayKey " -ForegroundColor Cyan -NoNewline
-        if ($val -is [string] -and ($val -match "OK|Đang chạy|Hoạt động|Bật|Đã kích hoạt|Khỏe mạnh")) {
+        if ($val -is [string] -and ($val -match "OK|Running|Active|Enabled|Activated|Healthy|Good")) {
             Write-Host $val -ForegroundColor Green
         }
-        elseif ($val -is [string] -and ($val -match "Cảnh báo|Hết hạn|Gần đầy|Tắt|Dừng")) {
+        elseif ($val -is [string] -and ($val -match "Warning|Expired|Low|Disabled|Stopped|Degraded")) {
             Write-Host $val -ForegroundColor Yellow
         }
-        elseif ($val -is [string] -and ($val -match "Lỗi|Hỏng|Không kết nối")) {
+        elseif ($val -is [string] -and ($val -match "Error|Failed|Corrupt|Disconnected|Critical")) {
             Write-Host $val -ForegroundColor Red
         }
         else {
@@ -667,7 +668,7 @@ function Show-TableList {
         [array]$Widths
     )
     if (-not $Items -or $Items.Count -eq 0) {
-        Write-Host "  (Không có dữ liệu)" -ForegroundColor DarkGray
+        Write-Host "  (No data available)" -ForegroundColor DarkGray
         return
     }
 
@@ -704,7 +705,7 @@ function Show-TableList {
 
 function Read-MenuSelection {
     param (
-        [string]$PromptText = "Lựa chọn của bạn",
+        [string]$PromptText = "Select an option",
         [int]$Min = 0,
         [int]$Max = 99
     )
@@ -718,7 +719,7 @@ function Read-MenuSelection {
                 return $num
             }
         }
-        Write-ErrorMessage "Vui lòng nhập một số hợp lệ từ $Min đến $Max."
+        Write-ErrorMessage "Please enter a valid number between $Min and $Max."
     }
 }
 
@@ -731,28 +732,28 @@ function Confirm-Action {
     )
     Write-Host ""
     Write-Host "=========================================================" -ForegroundColor Yellow
-    Write-Host " XÁC NHẬN THỰC HIỆN TÁC VỤ: $TaskName" -ForegroundColor White
-    Write-Host " Mức độ rủi ro: $RiskLevel" -ForegroundColor Yellow
+    Write-Host " CONFIRM ACTION: $TaskName" -ForegroundColor White
+    Write-Host " Risk Level: $RiskLevel" -ForegroundColor Yellow
     if ($ImpactDescription) {
-        Write-Host " Ảnh hưởng:" -ForegroundColor Gray
+        Write-Host " Impact:" -ForegroundColor Gray
         Write-Host "   $ImpactDescription" -ForegroundColor Gray
     }
     Write-Host "=========================================================" -ForegroundColor Yellow
 
     if ($RequiresKeyword -or $RiskLevel -eq "high") {
-        Write-Host " Tác vụ có rủi ro cao. Nhập 'APPLY' để xác nhận thực hiện, hoặc bấm phím khác để hủy:" -ForegroundColor Red -NoNewline
+        Write-Host " High-risk action. Type 'APPLY' to confirm, or press any other key to cancel: " -ForegroundColor Red -NoNewline
         $ans = Read-Host
         return ($ans.Trim() -eq "APPLY")
     }
 
-    Write-Host " Bạn có chắc chắn muốn tiếp tục? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Are you sure you want to proceed? (Y/N): " -ForegroundColor Cyan -NoNewline
     $ans = Read-Host
     return ($ans.Trim().ToUpper() -eq "Y")
 }
 
 function Read-SecurePassword {
     param (
-        [string]$PromptText = "Nhập mật khẩu"
+        [string]$PromptText = "Enter password"
     )
     Write-Host " $($PromptText): " -ForegroundColor Cyan -NoNewline
     $sec = Read-Host -AsSecureString
@@ -761,7 +762,7 @@ function Read-SecurePassword {
 
 function Pause-Screen {
     param (
-        [string]$Message = "Nhấn Enter để quay lại menu..."
+        [string]$Message = "Press Enter to return to menu..."
     )
     Write-Host ""
     Write-Host " $Message" -ForegroundColor DarkGray
@@ -791,7 +792,7 @@ function Sanitize-LogMessage {
 function Write-TMLog {
     param (
         [string]$TaskId = "SYS",
-        [string]$TaskName = "Hệ thống",
+        [string]$TaskName = "System",
         [ValidateSet("Started", "Success", "Failed", "Skipped", "Warning", "Info")]
         [string]$Status = "Info",
         [string]$Message = "",
@@ -849,11 +850,11 @@ function Test-IsAdmin {
 
 function Assert-Admin {
     param (
-        [string]$ActionName = "thao tác này"
+        [string]$ActionName = "this action"
     )
     if (-not (Test-IsAdmin)) {
-        Write-ErrorMessage "Bạn cần chạy với quyền Quản trị viên (Run as Administrator) để thực hiện $ActionName."
-        Write-InfoMessage "Vui lòng đóng công cụ và chuột phải vào Start.cmd -> chọn 'Run as administrator'."
+        Write-ErrorMessage "Administrator privileges required to perform $ActionName."
+        Write-InfoMessage "Please restart the tool as Administrator (right click -> 'Run as administrator')."
         return $false
     }
     return $true
@@ -861,12 +862,12 @@ function Assert-Admin {
 
 function Request-Elevation {
     param (
-        [string]$Reason = "thực hiện các tác vụ quản trị hệ thống"
+        [string]$Reason = "perform system administration tasks"
     )
     if (Test-IsAdmin) { return $true }
 
-    Write-WarningMessage "Yêu cầu nâng quyền Administrator để $Reason."
-    Write-Host " Bạn có muốn mở phiên làm việc mới với quyền Administrator không? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-WarningMessage "Administrator elevation required to $Reason."
+    Write-Host " Would you like to restart in an elevated Administrator session? (Y/N): " -ForegroundColor Cyan -NoNewline
     $ans = Read-Host
     if ($ans.Trim().ToUpper() -eq "Y") {
         $startCmd = Join-Path $PSScriptRoot "../../Start.cmd"
@@ -906,31 +907,31 @@ function Get-TMSystemInfo {
         # Check Windows 10 EOL
         $eolNotice = ""
         if (-not $isWin11 -and $buildNumber -le 19045) {
-            $eolNotice = " [Hết hỗ trợ tiêu chuẩn 14/10/2025]"
+            $eolNotice = " [Standard EOL: Oct 14, 2025]"
         }
 
-        $info["Hệ điều hành"] = "$osFamily $displayVersion (Build $buildNumber)$eolNotice"
-        $info["Phiên bản chi tiết"] = $osCaption
-        $info["Kiến trúc"] = $osCim.OSArchitecture
-        $info["Tên máy (Hostname)"] = [System.Environment]::MachineName
-        $info["Người dùng hiện tại"] = "$([System.Environment]::UserDomainName)\$([System.Environment]::UserName)"
-        $info["Quyền Administrator"] = if (Test-IsAdmin) { "Có (Elevated)" } else { "Không (Standard User)" }
+        $info["Operating System"] = "$osFamily $displayVersion (Build $buildNumber)$eolNotice"
+        $info["OS Edition"] = $osCaption
+        $info["Architecture"] = $osCim.OSArchitecture
+        $info["Computer Name (Hostname)"] = [System.Environment]::MachineName
+        $info["Current User"] = "$([System.Environment]::UserDomainName)\$([System.Environment]::UserName)"
+        $info["Administrator Privilege"] = if (Test-IsAdmin) { "Yes (Elevated)" } else { "No (Standard User)" }
     } catch {
-        $info["Hệ điều hành"] = "Windows (Không thể đọc CIM: $($_.Exception.Message))"
+        $info["Operating System"] = "Windows (Unable to read CIM: $($_.Exception.Message))"
     }
 
     # 2. Hardware: CPU & RAM
     try {
         $cpu = Get-CimInstance -ClassName Win32_Processor -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($cpu) {
-            $info["Bộ vi xử lý (CPU)"] = $cpu.Name.Trim()
+            $info["Processor (CPU)"] = $cpu.Name.Trim()
         }
 
         $totalMem = [math]::Round($osCim.TotalVisibleMemorySize / 1MB, 1)
         $freeMem = [math]::Round($osCim.FreePhysicalMemory / 1MB, 1)
         $usedMem = [math]::Round($totalMem - $freeMem, 1)
         $pctMem = [math]::Round(($usedMem / $totalMem) * 100, 0)
-        $info["Bộ nhớ RAM"] = "$usedMem GB / $totalMem GB ($pctMem% đang dùng - $freeMem GB trống)"
+        $info["RAM Memory"] = "$usedMem GB / $totalMem GB ($pctMem% used - $freeMem GB free)"
     } catch {}
 
     # 3. Storage
@@ -941,40 +942,40 @@ function Get-TMSystemInfo {
             $totalGB = [math]::Round($d.Size / 1GB, 1)
             $freeGB = [math]::Round($d.FreeSpace / 1GB, 1)
             $pctFree = if ($totalGB -gt 0) { [math]::Round(($freeGB / $totalGB) * 100, 0) } else { 0 }
-            $driveSummaries += "$($d.DeviceID) ($freeGB GB trống / $totalGB GB - $pctFree%)"
+            $driveSummaries += "$($d.DeviceID) ($freeGB GB free / $totalGB GB - $pctFree%)"
         }
-        $info["Ổ đĩa lưu trữ"] = $driveSummaries -join ", "
+        $info["Storage Drives"] = $driveSummaries -join ", "
     } catch {}
 
     # 4. Network Status
     try {
         $net = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "*Wi-Fi*","*Ethernet*","*LAN*" -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -notlike "169.254*" } | Select-Object -First 1
         if ($net) {
-            $info["Địa chỉ IPv4"] = "$($net.IPAddress) ($($net.InterfaceAlias))"
+            $info["IPv4 Address"] = "$($net.IPAddress) ($($net.InterfaceAlias))"
         } else {
-            $info["Địa chỉ IPv4"] = "Không phát hiện card mạng LAN/Wi-Fi đang kết nối"
+            $info["IPv4 Address"] = "No active LAN or Wi-Fi adapter detected"
         }
     } catch {
-        $info["Địa chỉ IPv4"] = "Không thể lấy thông tin mạng"
+        $info["IPv4 Address"] = "Unable to read network info"
     }
 
     # 5. Security & Services
     try {
         $spooler = Get-Service -Name Spooler -ErrorAction SilentlyContinue
-        $info["Print Spooler"] = if ($spooler) { "$($spooler.Status) (Khởi động: $($spooler.StartType))" } else { "Không tìm thấy" }
+        $info["Print Spooler"] = if ($spooler) { "$($spooler.Status) (Startup: $($spooler.StartType))" } else { "Not Found" }
     } catch {}
 
     try {
         $printers = Get-Printer -ErrorAction SilentlyContinue
         $printerCount = if ($printers) { @($printers).Count } else { 0 }
-        $info["Số lượng máy in đã cài"] = "$printerCount máy in"
+        $info["Installed Printers"] = "$printerCount printers"
     } catch {
-        $info["Số lượng máy in đã cài"] = "Không thể đọc danh sách máy in"
+        $info["Installed Printers"] = "Unable to read printers"
     }
 
     try {
         $defenderSvc = Get-Service -Name WinDefend -ErrorAction SilentlyContinue
-        $info["Microsoft Defender"] = if ($defenderSvc -and $defenderSvc.Status -eq "Running") { "Đang chạy (Hoạt động)" } else { "Tắt hoặc không khả dụng" }
+        $info["Microsoft Defender"] = if ($defenderSvc -and $defenderSvc.Status -eq "Running") { "Running (Active)" } else { "Disabled or Unavailable" }
     } catch {}
 
     # Store global OS info
@@ -1024,11 +1025,11 @@ function Assert-FeatureSupported {
     )
     if ($global:TM_OS_INFO) {
         if ($MinBuild -gt 0 -and $global:TM_OS_INFO.Build -lt $MinBuild) {
-            Write-WarningMessage "$FeatureName yêu cầu Windows build tối thiểu $MinBuild (Hiện tại: $($global:TM_OS_INFO.Build))."
+            Write-WarningMessage "$FeatureName requires Windows build $MinBuild or newer (Current: $($global:TM_OS_INFO.Build))."
             return $false
         }
         if ($RequiresPro -and (Test-IsWindowsHome)) {
-            Write-WarningMessage "$FeatureName yêu cầu phiên bản Windows Pro/Enterprise (Phiên bản Home không hỗ trợ chính thức)."
+            Write-WarningMessage "$FeatureName requires Windows Pro or Enterprise edition (Windows Home is not supported)."
             return $false
         }
     }
@@ -1109,7 +1110,7 @@ function Backup-RegistryValue {
         }
         return $true
     } catch {
-        Write-ErrorMessage "Không thể sao lưu Registry: $($_.Exception.Message)"
+        Write-ErrorMessage "Unable to backup Registry: $($_.Exception.Message)"
         return $false
     }
 }
@@ -1129,7 +1130,7 @@ function Backup-ServiceState {
         }
         return $true
     } catch {
-        Write-ErrorMessage "Không thể sao lưu trạng thái Service $ServiceName : $($_.Exception.Message)"
+        Write-ErrorMessage "Unable to backup service state for $ServiceName : $($_.Exception.Message)"
         return $false
     }
 }
@@ -1142,10 +1143,10 @@ function Save-TMBackupSession {
         $manifestPath = Join-Path $Session.Directory "manifest.json"
         $json = $Session.Manifest | ConvertTo-Json -Depth 5
         Set-Content -Path $manifestPath -Value $json -Encoding UTF8 -Force
-        Write-Success "Đã tạo bản sao lưu an toàn: $($Session.Id)"
+        Write-Success "Created state backup snapshot: $($Session.Id)"
         return $Session.Id
     } catch {
-        Write-ErrorMessage "Lỗi khi lưu manifest backup: $($_.Exception.Message)"
+        Write-ErrorMessage "Failed to save backup manifest: $($_.Exception.Message)"
         return $null
     }
 }
@@ -1183,34 +1184,33 @@ function Invoke-TMRollback {
     param (
         [string]$BackupId
     )
-    if (-not (Assert-Admin "khôi phục sao lưu")) { return $false }
+    if (-not (Assert-Admin "restore backup")) { return $false }
 
     $backupRoot = if ($PSScriptRoot) { Join-Path $PSScriptRoot "../../Backups" } else { Join-Path $env:SystemDrive "TM-WinCare\Backups" }
     $backupDir = Join-Path $backupRoot $BackupId
     $manifestPath = Join-Path $backupDir "manifest.json"
     if (-not (Test-Path $manifestPath)) {
-        Write-ErrorMessage "Không tìm thấy file manifest của bản sao lưu: $BackupId"
+        Write-ErrorMessage "Backup manifest file not found for: $BackupId"
         return $false
     }
 
     try {
         $manifest = Get-Content -Path $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        Write-SubHeader "KHÔI PHỤC BẢN SAO LƯU: $BackupId ($($manifest.description))"
+        Write-SubHeader "RESTORE BACKUP SNAPSHOT: $BackupId ($($manifest.description))"
 
         # 1. Rollback Registry
         if ($manifest.registry) {
             foreach ($item in $manifest.registry) {
-                Write-InfoMessage "Khôi phục Registry: $($item.path) -> $($item.name)"
+                Write-InfoMessage "Restoring Registry: $($item.path) -> $($item.name)"
                 if ($item.existed) {
                     if (-not (Test-Path $item.path)) {
                         New-Item -Path $item.path -Force | Out-Null
                     }
                     Set-ItemProperty -Path $item.path -Name $item.name -Value $item.oldValue -Force
-                    Write-Success "Đã khôi phục giá trị: $($item.name) = $($item.oldValue)"
+                    Write-Success "Restored value: $($item.name) = $($item.oldValue)"
                 } else {
-                    # If it did not exist before, remove it
                     Remove-ItemProperty -Path $item.path -Name $item.name -ErrorAction SilentlyContinue
-                    Write-Success "Đã xóa thuộc tính được thêm mới: $($item.name)"
+                    Write-Success "Removed newly added property: $($item.name)"
                 }
             }
         }
@@ -1218,7 +1218,7 @@ function Invoke-TMRollback {
         # 2. Rollback Services
         if ($manifest.services) {
             foreach ($svc in $manifest.services) {
-                Write-InfoMessage "Khôi phục Service: $($svc.name) -> $($svc.startMode)"
+                Write-InfoMessage "Restoring Service: $($svc.name) -> $($svc.startMode)"
                 try {
                     $startType = switch ($svc.startMode) {
                         "Auto" { "Automatic" }
@@ -1230,19 +1230,19 @@ function Invoke-TMRollback {
                     if ($svc.status -eq "Running") {
                         Start-Service -Name $svc.name -ErrorAction SilentlyContinue
                     }
-                    Write-Success "Đã khôi phục dịch vụ: $($svc.name)"
+                    Write-Success "Restored service: $($svc.name)"
                 } catch {
-                    Write-ErrorMessage "Không thể khôi phục dịch vụ $($svc.name): $($_.Exception.Message)"
+                    Write-ErrorMessage "Unable to restore service $($svc.name): $($_.Exception.Message)"
                 }
             }
         }
 
-        Write-TMLog -TaskId "ROLLBACK" -TaskName "Khôi phục sao lưu" -Status "Success" -Message "Đã khôi phục bản sao lưu $BackupId"
-        Write-Success "Quá trình hoàn tác bản sao lưu $BackupId đã hoàn thành thành công!"
+        Write-TMLog -TaskId "ROLLBACK" -TaskName "Rollback Backup" -Status "Success" -Message "Restored backup $BackupId"
+        Write-Success "Rollback of snapshot $BackupId completed successfully!"
         return $true
     } catch {
-        Write-ErrorMessage "Lỗi trong quá trình khôi phục: $($_.Exception.Message)"
-        Write-TMLog -TaskId "ROLLBACK" -TaskName "Khôi phục sao lưu" -Status "Failed" -Message "Lỗi: $($_.Exception.Message)"
+        Write-ErrorMessage "Error during rollback: $($_.Exception.Message)"
+        Write-TMLog -TaskId "ROLLBACK" -TaskName "Rollback Backup" -Status "Failed" -Message $_.Exception.Message
         return $false
     }
 }
@@ -1263,8 +1263,8 @@ function Test-TaskApproval {
     
     # 1. Elevation check
     if ($RequiresAdmin -and -not (Test-IsAdmin)) {
-        if (-not (Request-Elevation -Reason "thực hiện tác vụ '$TaskName'")) {
-            Write-SkipMessage "Đã bỏ qua tác vụ '$TaskName' do thiếu quyền Administrator."
+        if (-not (Request-Elevation -Reason "execute task '$TaskName'")) {
+            Write-SkipMessage "Task '$TaskName' skipped due to missing Administrator privileges."
             return $false
         }
     }
@@ -1272,8 +1272,8 @@ function Test-TaskApproval {
     # 2. Risk confirmation
     $approved = Confirm-Action -TaskName $TaskName -ImpactDescription $ImpactDescription -RiskLevel $RiskLevel
     if (-not $approved) {
-        Write-SkipMessage "Người dùng đã từ chối thực hiện tác vụ '$TaskName'."
-        Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Skipped" -Message "Bỏ qua bởi người dùng"
+        Write-SkipMessage "User cancelled task '$TaskName'."
+        Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Skipped" -Message "Cancelled by user"
         return $false
     }
 
@@ -1293,14 +1293,14 @@ function Handle-TMException {
         [string]$Context = ""
     )
     $msg = $Exception.Message
-    Write-ErrorMessage "Đã xảy ra lỗi trong quá trình thực hiện [$TaskId] $TaskName"
+    Write-ErrorMessage "An error occurred while executing [$TaskId] $TaskName"
     if ($Context) {
-        Write-InfoMessage "Ngữ cảnh: $Context"
+        Write-InfoMessage "Context: $Context"
     }
-    Write-Host "  Chi tiết lỗi: $msg" -ForegroundColor Red
+    Write-Host "  Error details: $msg" -ForegroundColor Red
 
     # Log error
-    Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Failed" -Message "Lỗi: $msg ($Context)"
+    Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Failed" -Message "Error: $msg ($Context)"
 }
 
 function Invoke-TMSafeBlock {
@@ -1326,7 +1326,7 @@ function Show-TMMenu {
     param (
         [string]$Title,
         [array]$MenuItems,
-        [string]$ExitLabel = "Quay lại"
+        [string]$ExitLabel = "Back"
     )
 
     while ($true) {
@@ -1344,7 +1344,7 @@ function Show-TMMenu {
         Write-Host "$ExitLabel" -ForegroundColor Yellow
         Write-Divider
 
-        $selection = Read-MenuSelection -PromptText "Chọn chức năng" -Min 0 -Max $MenuItems.Count
+        $selection = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max $MenuItems.Count
         if ($selection -eq 0) {
             break
         }
@@ -1354,7 +1354,7 @@ function Show-TMMenu {
             try {
                 & $chosen.Action
             } catch {
-                Write-ErrorMessage "Lỗi thực thi mục menu: $($_.Exception.Message)"
+                Write-ErrorMessage "Menu item execution error: $($_.Exception.Message)"
             }
         }
     }
@@ -1366,21 +1366,21 @@ function Show-TMMenu {
 # Adheres to Section 3.1 of TM-WinCare-Architecture-v1.2.md
 
 function Show-TMDashboard {
-    Write-Header -Title "THÔNG TIN HỆ THỐNG & DASHBOARD"
-    Write-InfoMessage "Đang tải thông tin phần cứng và hệ điều hành..."
+    Write-Header -Title "SYSTEM INFORMATION & HEALTH DASHBOARD"
+    Write-InfoMessage "Loading hardware and operating system metrics..."
 
     $sys = Get-TMSystemInfo
     Write-Host ""
-    Show-PropertyGrid -Properties $sys -KeyWidth 25
+    Show-PropertyGrid -Properties $sys -KeyWidth 28
 
     Write-Host ""
-    Write-Host "  [1] Làm mới thông tin (Refresh)" -ForegroundColor Cyan
-    Write-Host "  [2] Xuất báo cáo hệ thống ra file TXT" -ForegroundColor Cyan
-    Write-Host "  [3] Xuất báo cáo hệ thống ra file JSON" -ForegroundColor Cyan
-    Write-Host "  [0] Quay lại Menu chính" -ForegroundColor Yellow
+    Write-Host "  [1] Refresh Information" -ForegroundColor Cyan
+    Write-Host "  [2] Export System Report to TXT" -ForegroundColor Cyan
+    Write-Host "  [3] Export System Report to JSON" -ForegroundColor Cyan
+    Write-Host "  [0] Back to Main Menu" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn thao tác" -Min 0 -Max 3
+    $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 3
     switch ($sel) {
         1 { Show-TMDashboard }
         2 { Export-TMDashboardText -Properties $sys }
@@ -1397,8 +1397,8 @@ function Export-TMDashboardText {
 
     $lines = @()
     $lines += "========================================================="
-    $lines += "         TM-WINCARE - BÁO CÁO THÔNG TIN HỆ THỐNG"
-    $lines += "  Thời gian tạo: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    $lines += "         TM-WINCARE - SYSTEM DIAGNOSTIC REPORT"
+    $lines += "  Generated: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     $lines += "========================================================="
     foreach ($k in $Properties.Keys) {
         $lines += ("{0,-28}: {1}" -f $k, $Properties[$k])
@@ -1406,8 +1406,8 @@ function Export-TMDashboardText {
     $lines += "========================================================="
 
     Set-Content -Path $fullPath -Value $lines -Encoding UTF8 -Force
-    Write-Success "Đã xuất báo cáo ra file: $fullPath"
-    Write-TMLog -TaskId "REPORT_TXT" -TaskName "Xuất báo cáo hệ thống" -Status "Success" -Message "Đã xuất file $filename"
+    Write-Success "Report exported to file: $fullPath"
+    Write-TMLog -TaskId "REPORT_TXT" -TaskName "Export System Report" -Status "Success" -Message "Exported $filename"
     Pause-Screen
 }
 
@@ -1424,20 +1424,20 @@ function Export-TMDashboardJson {
     }
     $json = $obj | ConvertTo-Json -Depth 4
     Set-Content -Path $fullPath -Value $json -Encoding UTF8 -Force
-    Write-Success "Đã xuất báo cáo ra file: $fullPath"
-    Write-TMLog -TaskId "REPORT_JSON" -TaskName "Xuất báo cáo hệ thống JSON" -Status "Success" -Message "Đã xuất file $filename"
+    Write-Success "Report exported to file: $fullPath"
+    Write-TMLog -TaskId "REPORT_JSON" -TaskName "Export System Report JSON" -Status "Success" -Message "Exported $filename"
     Pause-Screen
 }
 
 
 # === SOURCE: src/Modules/PostInstall/CheckLicense.ps1 ===
-# TM-WinCare - Windows & Office License Management (IT Inventory)
+# TM-WinCare - License and IT Inventory Tool
 # Decodes Full 25-character Windows Key & Office Key, Mainboard Serial, UUID, Sync to Google Sheets / Form
 
 function Invoke-LicenseInventoryCheck {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-    # ==================== CAU HINH LINK GOOGLE SHEETS / FORM ====================
+    # ==================== GOOGLE SHEETS / FORM CONFIGURATION ====================
     $WEB_APP_URL      = "https://script.google.com/macros/s/AKfycbyY0fbv2IehFvC8oLCi9sFIYI_HHXNyF2WEfCBdKDOwkW-5MmjFyBacjqbHXfj4R5YI0w/exec"
     $GOOGLE_FORM_URL  = "https://docs.google.com/forms/d/e/1FAIpQLSfrIXm1b_mpo0A_L0Ns4IUOElJSeAqYcOYtMY6REThZP8phKQ/viewform"
     $PREFILL_TEMPLATE = "https://docs.google.com/forms/d/e/1FAIpQLSfrIXm1b_mpo0A_L0Ns4IUOElJSeAqYcOYtMY6REThZP8phKQ/viewform?usp=pp_url&entry.149006453=__TEN_MAY__&entry.2097722978=__UUID__&entry.172201661=__MODEL__&entry.218557984=__SERIAL__&entry.2007771510=__WIN_VER__&entry.901102999=Da+kich+hoat&entry.1856982139=__WIN_KEY__&entry.610740607=__OFF_VER__&entry.695594658=Da+kich+hoat&entry.1357205106=__OFF_KEY__&entry.1710584041=__GHI_CHU__"
@@ -1476,7 +1476,7 @@ function Invoke-LicenseInventoryCheck {
         }
     }
 
-    Write-Host "`n[*] Đang quét phần cứng và giải mã toàn bộ Key Windows / Office..." -ForegroundColor Cyan
+    Write-Host "`n[*] Scanning hardware and decoding Windows & Office Product Keys..." -ForegroundColor Cyan
 
     $cs = Get-CimInstance Win32_ComputerSystemProduct -ErrorAction SilentlyContinue
     $bb = Get-CimInstance Win32_BaseBoard -ErrorAction SilentlyContinue
@@ -1491,17 +1491,17 @@ function Invoke-LicenseInventoryCheck {
     $allLicProducts = @(Get-CimInstance SoftwareLicensingProduct -Filter "PartialProductKey IS NOT NULL" -ErrorAction SilentlyContinue)
     $winAllLic = $allLicProducts | Where-Object { $_.ApplicationID -eq '55c92734-d682-4d71-983e-d6ec3f16059f' } | Sort-Object LicenseStatus -Descending
     $winActiveLic = $winAllLic | Select-Object -First 1
-    $winStatus = if ($winActiveLic -and $winActiveLic.LicenseStatus -eq 1) { "Da kich hoat" } else { "Chua kich hoat" }
+    $winStatus = if ($winActiveLic -and $winActiveLic.LicenseStatus -eq 1) { "Activated" } else { "Unactivated" }
     $winPartial = if ($winActiveLic -and $winActiveLic.PartialProductKey) { $winActiveLic.PartialProductKey } else { "N/A" }
 
     $winFullList = @()
     if ($winRegKey) { $winFullList += "Active: $winRegKey" }
     if ($winBackupKey -and $winBackupKey -ne $winRegKey) { $winFullList += "Backup: $winBackupKey" }
     if ($winOemKey) { $winFullList += "OEM-BIOS: $winOemKey" }
-    if ($winFullList.Count -eq 0) { $winFullList += "5-Cuoi: $winPartial" }
+    if ($winFullList.Count -eq 0) { $winFullList += "Last-5: $winPartial" }
     $winKeySummary = $winFullList -join " | "
 
-    # 2. Key Office tren may
+    # 2. Key Office
     $offAllLic = @($allLicProducts | Where-Object { $_.Name -like '*Office*' })
     if ($offAllLic.Count -eq 0) {
         $offAllLic = @(Get-CimInstance OfficeSoftwareProtectionProduct -Filter "PartialProductKey IS NOT NULL" -ErrorAction SilentlyContinue)
@@ -1526,7 +1526,7 @@ function Invoke-LicenseInventoryCheck {
 
         foreach ($item in ($offAllLic | Sort-Object LicenseStatus -Descending)) {
             $cleanName = ($item.Name -replace 'Office \d+, ', '' -replace ' edition', '' -replace 'Microsoft ', '').Trim()
-            $st = if ($item.LicenseStatus -eq 1) { "Da kich hoat" } else { "Chua kich hoat" }
+            $st = if ($item.LicenseStatus -eq 1) { "Activated" } else { "Unactivated" }
             $pk = $item.PartialProductKey
 
             $matchedFull = $offRegKeys | Where-Object { $_ -like "*$pk" } | Select-Object -First 1
@@ -1537,11 +1537,11 @@ function Invoke-LicenseInventoryCheck {
             $offKeys += $keyDisplay
         }
         $offNameSummary = ($offNames | Select-Object -Unique) -join " | "
-        $offStatusSummary = if ($offStatuses -contains "Da kich hoat") { "Da kich hoat" } else { "Chua kich hoat" }
+        $offStatusSummary = if ($offStatuses -contains "Activated") { "Activated" } else { "Unactivated" }
         $offKeySummary = $offKeys -join " | "
     } else {
-        $offNameSummary = "Chua cai"
-        $offStatusSummary = "Chua kich hoat"
+        $offNameSummary = "Not Installed"
+        $offStatusSummary = "Unactivated"
         $offKeySummary = "N/A"
     }
 
@@ -1563,19 +1563,19 @@ function Invoke-LicenseInventoryCheck {
     }
 
     function Show-TerminalInfoLocal {
-        Write-Host "`n================ THÔNG TIN MÁY & TOÀN BỘ BẢN QUYỀN KEY ================" -ForegroundColor Green
-        Write-Host ("  Thời gian check   : {0}" -f $dataObj.Thoi_Gian_Check)
-        Write-Host ("  Tên máy           : {0}" -f $dataObj.Ten_May) -ForegroundColor Yellow
+        Write-Host "`n================ SYSTEM INVENTORY & LICENSE KEY OVERVIEW ================" -ForegroundColor Green
+        Write-Host ("  Timestamp         : {0}" -f $dataObj.Thoi_Gian_Check)
+        Write-Host ("  Computer Name     : {0}" -f $dataObj.Ten_May) -ForegroundColor Yellow
         Write-Host ("  UUID Mainboard    : {0}" -f $dataObj.UUID_Mainboard)
         Write-Host ("  Model Mainboard   : {0}" -f $dataObj.Model_Mainboard)
         Write-Host ("  Serial Mainboard  : {0}" -f $dataObj.Serial_Mainboard)
-        Write-Host ("  Phiên bản Windows : {0}" -f $dataObj.Phien_Ban_Win)
-        Write-Host ("  Trạng thái Win    : {0}" -f $dataObj.Trang_Thai_Win)
-        Write-Host ("  Full Key Windows  : {0}" -f $dataObj.Key_Win_5_Cuoi) -ForegroundColor Cyan
-        Write-Host ("  Phiên bản Office  : {0}" -f $dataObj.Phien_Ban_Office)
-        Write-Host ("  Trạng thái Office : {0}" -f $dataObj.Trang_Thai_Office)
-        Write-Host ("  Các Key Office    : {0}" -f $dataObj.Key_Office_5_Cuoi) -ForegroundColor Cyan
-        Write-Host "========================================================================" -ForegroundColor Green
+        Write-Host ("  Windows OS        : {0}" -f $dataObj.Phien_Ban_Win)
+        Write-Host ("  Windows Status    : {0}" -f $dataObj.Trang_Thai_Win)
+        Write-Host ("  Full Windows Key  : {0}" -f $dataObj.Key_Win_5_Cuoi) -ForegroundColor Cyan
+        Write-Host ("  Office Edition    : {0}" -f $dataObj.Phien_Ban_Office)
+        Write-Host ("  Office Status     : {0}" -f $dataObj.Trang_Thai_Office)
+        Write-Host ("  Office Keys       : {0}" -f $dataObj.Key_Office_5_Cuoi) -ForegroundColor Cyan
+        Write-Host "=========================================================================" -ForegroundColor Green
     }
 
     function Get-ExportFolder {
@@ -1592,63 +1592,63 @@ function Invoke-LicenseInventoryCheck {
         $txtPath = Join-Path $folder ("Info_" + $dataObj.Ten_May + ".txt")
         $jsonPath = Join-Path $folder ("Info_" + $dataObj.Ten_May + ".json")
 
-        Write-Host "`nChọn định dạng xuất file (lưu tại $folder):" -ForegroundColor Cyan
-        Write-Host "  [1] Xuất/Cộng dồn vào file CSV (IT_Inventory_List.csv)"
-        Write-Host "  [2] Xuất file TXT chi tiết (Info_$($dataObj.Ten_May).txt)"
-        Write-Host "  [3] Xuất file JSON (Info_$($dataObj.Ten_May).json)"
-        $sub = Read-Host "Chọn (1/2/3)"
+        Write-Host "`nSelect export format (saving to $folder):" -ForegroundColor Cyan
+        Write-Host "  [1] Append to CSV inventory table (IT_Inventory_List.csv)"
+        Write-Host "  [2] Export detailed TXT report (Info_$($dataObj.Ten_May).txt)"
+        Write-Host "  [3] Export JSON file (Info_$($dataObj.Ten_May).json)"
+        $sub = Read-Host "Choice (1/2/3)"
 
         switch ($sub) {
             "1" {
                 [PSCustomObject]$dataObj | Export-Csv -Path $csvPath -Append -NoTypeInformation -Encoding UTF8
-                Write-Host "[+] Đã lưu cộng dồn vào: $csvPath" -ForegroundColor Green
+                Write-Host "[+] Appended to CSV inventory: $csvPath" -ForegroundColor Green
             }
             "2" {
                 $dataObj.GetEnumerator() | ForEach-Object { "{0,-20}: {1}" -f $_.Key, $_.Value } | Out-File -FilePath $txtPath -Encoding UTF8
-                Write-Host "[+] Đã xuất file TXT: $txtPath" -ForegroundColor Green
+                Write-Host "[+] Exported TXT report: $txtPath" -ForegroundColor Green
             }
             "3" {
                 $dataObj | ConvertTo-Json | Out-File -FilePath $jsonPath -Encoding UTF8
-                Write-Host "[+] Đã xuất file JSON: $jsonPath" -ForegroundColor Green
+                Write-Host "[+] Exported JSON: $jsonPath" -ForegroundColor Green
             }
-            default { Write-Host "[!] Lựa chọn không hợp lệ." -ForegroundColor Red }
+            default { Write-Host "[!] Invalid selection." -ForegroundColor Red }
         }
     }
 
     function Send-ToGoogleSheetsLocal {
-        $pin = Read-Host "Nhập mã PIN bảo mật để đồng bộ"
+        $pin = Read-Host "Enter secret security PIN to authorize sync"
         $dataObj.Secret_PIN = $pin
 
-        $note = Read-Host "`nNhập ghi chú cho máy này (Bấm Enter để bỏ qua)"
+        $note = Read-Host "`nEnter notes for this machine (Press Enter to skip)"
         $dataObj.Ghi_Chu = $note
         $payload = $dataObj | ConvertTo-Json -Compress
 
-        Write-Host "[*] Đang đồng bộ dữ liệu lên Google Sheets..." -ForegroundColor Yellow
+        Write-Host "[*] Syncing inventory data to Google Sheets..." -ForegroundColor Yellow
         try {
             [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
             $res = Invoke-RestMethod -Uri $WEB_APP_URL -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($payload)) -ContentType "text/plain; charset=utf-8"
             if ($res.status -eq "updated") {
-                Write-Host "[+] THÀNH CÔNG! Đã cập nhật đè lên dòng #$($res.row) của máy $($dataObj.Ten_May) trên Google Sheets." -ForegroundColor Green
+                Write-Host "[+] SUCCESS! Overwritten record on row #$($res.row) for $($dataObj.Ten_May) in Google Sheets." -ForegroundColor Green
             } elseif ($res.status -eq "inserted") {
-                Write-Host "[+] THÀNH CÔNG! Đã thêm mới máy $($dataObj.Ten_May) vào Google Sheets." -ForegroundColor Green
+                Write-Host "[+] SUCCESS! Added new entry for $($dataObj.Ten_May) to Google Sheets." -ForegroundColor Green
             } elseif ($res.status -eq "error") {
-                Write-Host "[!] LỖI TỪ GOOGLE APPS SCRIPT: $($res.message)" -ForegroundColor Red
+                Write-Host "[!] GOOGLE APPS SCRIPT ERROR: $($res.message)" -ForegroundColor Red
             } else {
-                Write-Host "[+] Đã gửi dữ liệu! Phản hồi: $($res | ConvertTo-Json -Compress)" -ForegroundColor Green
+                Write-Host "[+] Sent data! Response: $($res | ConvertTo-Json -Compress)" -ForegroundColor Green
             }
         } catch {
-            Write-Host "[!] LỖI KẾT NỐI WEB APP: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "[!] CONNECTION ERROR: $($_.Exception.Message)" -ForegroundColor Red
         }
     }
 
     function Open-GoogleFormLocal {
-        Write-Host "`nChọn chế độ mở Google Form:" -ForegroundColor Cyan
-        Write-Host "  [1] Mở Google Form và Copy sẵn thông tin máy vào Clipboard"
-        Write-Host "  [2] Mở Google Form trống"
-        $fChoice = Read-Host "Chọn (1/2)"
+        Write-Host "`nSelect Google Form mode:" -ForegroundColor Cyan
+        Write-Host "  [1] Open Google Form and copy device info to Clipboard"
+        Write-Host "  [2] Open blank Google Form"
+        $fChoice = Read-Host "Choice (1/2)"
 
         if ($fChoice -eq "1" -and $PREFILL_TEMPLATE -ne "") {
-            $note = Read-Host "Nhập ghi chú kèm theo trên Form (Bấm Enter để bỏ qua)"
+            $note = Read-Host "Enter additional notes for Form (Press Enter to skip)"
             $url = $PREFILL_TEMPLATE
             $url = $url.Replace("__TEN_MAY__", [uri]::EscapeDataString($dataObj.Ten_May))
             $url = $url.Replace("__UUID__", [uri]::EscapeDataString($dataObj.UUID_Mainboard))
@@ -1664,12 +1664,12 @@ function Invoke-LicenseInventoryCheck {
             $url = $regex.Replace($url, [uri]::EscapeDataString($dataObj.Trang_Thai_Win), 1)
             $url = $regex.Replace($url, [uri]::EscapeDataString($dataObj.Trang_Thai_Office), 1)
 
-            Write-Host "[*] Đang mở Google Form (Đã điền sẵn thông tin máy)..." -ForegroundColor Green
+            Write-Host "[*] Opening Google Form (prefilled with device specs)..." -ForegroundColor Green
             Start-Process $url
         } else {
-            $clipText = "Tên máy: $($dataObj.Ten_May) | UUID: $($dataObj.UUID_Mainboard) | Main: $($dataObj.Model_Mainboard) | Serial: $($dataObj.Serial_Mainboard) | Win: $($dataObj.Phien_Ban_Win) ($($dataObj.Trang_Thai_Win) - $($dataObj.Key_Win_5_Cuoi)) | Office: $($dataObj.Phien_Ban_Office) ($($dataObj.Trang_Thai_Office) - $($dataObj.Key_Office_5_Cuoi))"
+            $clipText = "Computer: $($dataObj.Ten_May) | UUID: $($dataObj.UUID_Mainboard) | Main: $($dataObj.Model_Mainboard) | Serial: $($dataObj.Serial_Mainboard) | Win: $($dataObj.Phien_Ban_Win) ($($dataObj.Trang_Thai_Win) - $($dataObj.Key_Win_5_Cuoi)) | Office: $($dataObj.Phien_Ban_Office) ($($dataObj.Trang_Thai_Office) - $($dataObj.Key_Office_5_Cuoi))"
             Set-Clipboard -Value $clipText
-            Write-Host "[+] Đã copy toàn bộ thông tin máy vào Clipboard!" -ForegroundColor Cyan
+            Write-Host "[+] Copied device information summary to Clipboard!" -ForegroundColor Cyan
             Start-Process $GOOGLE_FORM_URL
         }
     }
@@ -1677,16 +1677,16 @@ function Invoke-LicenseInventoryCheck {
     Show-TerminalInfoLocal
 
     while ($true) {
-        Write-Host "`n==================== MENU QUẢN LÝ BẢN QUYỀN ====================" -ForegroundColor Cyan
-        Write-Host "  [1] In lại thông tin bản quyền và phần cứng"
-        Write-Host "  [2] Xuất dữ liệu ra File (CSV / TXT / JSON)"
-        Write-Host "  [3] Đồng bộ trực tiếp lên Google Sheets (Auto API)"
-        Write-Host "  [4] Mở Google Form (Tự động điền sẵn)"
-        Write-Host "  [5] Mở bảng Google Sheets quản lý"
-        Write-Host "  [6] Chạy tất cả: Xuất CSV + Đồng bộ Google Sheets"
-        Write-Host "  [0] Quay lại Menu chính"
-        Write-Host "=================================================================" -ForegroundColor Cyan
-        $choice = Read-Host "Nhập lựa chọn của bạn (0-6)"
+        Write-Host "`n==================== LICENSE & INVENTORY MENU ====================" -ForegroundColor Cyan
+        Write-Host "  [1] Display License & Hardware Information"
+        Write-Host "  [2] Export Data to File (CSV / TXT / JSON)"
+        Write-Host "  [3] Sync to Google Sheets (Direct API)"
+        Write-Host "  [4] Open Google Form (Prefilled with Machine Info)"
+        Write-Host "  [5] Open Google Sheets Inventory Spreadsheet"
+        Write-Host "  [6] Run All: Export CSV + Sync Google Sheets"
+        Write-Host "  [0] Return to Main Menu"
+        Write-Host "==================================================================" -ForegroundColor Cyan
+        $choice = Read-Host "Enter your choice (0-6)"
 
         switch ($choice) {
             "1" { Show-TerminalInfoLocal }
@@ -1694,18 +1694,18 @@ function Invoke-LicenseInventoryCheck {
             "3" { Send-ToGoogleSheetsLocal }
             "4" { Open-GoogleFormLocal }
             "5" {
-                Write-Host "[*] Đang mở Google Sheets..." -ForegroundColor Green
+                Write-Host "[*] Opening Google Sheets..." -ForegroundColor Green
                 Start-Process $GOOGLE_SHEET_URL
             }
             "6" {
                 $folder = Get-ExportFolder
                 $csvPath = Join-Path $folder "IT_Inventory_List.csv"
                 [PSCustomObject]$dataObj | Export-Csv -Path $csvPath -Append -NoTypeInformation -Encoding UTF8
-                Write-Host "[+] Đã lưu file CSV tại: $csvPath" -ForegroundColor Green
+                Write-Host "[+] Saved CSV record to: $csvPath" -ForegroundColor Green
                 Send-ToGoogleSheetsLocal
             }
             "0" { return }
-            default { Write-Host "[!] Vui lòng chọn từ 0 đến 6." -ForegroundColor Yellow }
+            default { Write-Host "[!] Please select between 0 and 6." -ForegroundColor Yellow }
         }
     }
 }
@@ -1718,61 +1718,61 @@ function Invoke-LicenseInventoryCheck {
 
 function Show-TMPostInstallMenu {
     $menuItems = @(
-        @{ Label = "Quản lý bản quyền Windows & Office (IT Inventory Full Key)"; Action = { Invoke-LicenseInventoryCheck } },
-        @{ Label = "Đổi tên máy tính (Rename Computer)"; Action = { Invoke-RenameComputer } },
-        @{ Label = "Bật hiển thị đuôi mở rộng file (.exe, .txt...)"; Action = { Set-ExplorerShowFileExtensions -Enable $true } },
-        @{ Label = "Tắt hiển thị đuôi mở rộng file"; Action = { Set-ExplorerShowFileExtensions -Enable $false } },
-        @{ Label = "Bật hiển thị file và thư mục ẩn"; Action = { Set-ExplorerShowHiddenFiles -Enable $true } },
-        @{ Label = "Tắt hiển thị file và thư mục ẩn"; Action = { Set-ExplorerShowHiddenFiles -Enable $false } },
-        @{ Label = "Kiểm tra thiết bị thiếu driver / bị lỗi (Device Errors)"; Action = { Test-DeviceErrors } },
-        @{ Label = "Mở cài đặt Ngày giờ & Ngôn ngữ (Date & Time)"; Action = { Start-Process "timedate.cpl" } },
-        @{ Label = "Mở cài đặt Windows Update"; Action = { Start-Process "ms-settings:windowsupdate" } },
-        @{ Label = "Mở trang Kích hoạt Windows (Activation)"; Action = { Start-Process "ms-settings:activation" } },
-        @{ Label = "Mở thư mục Khởi động (Startup Folder)"; Action = { Start-Process "explorer.exe" "shell:startup" } },
-        @{ Label = "Mở Cấu hình Nguồn điện (Power Options)"; Action = { Start-Process "powercfg.cpl" } }
+        @{ Label = "Windows & Office License Management (IT Inventory Full Key)"; Action = { Invoke-LicenseInventoryCheck } },
+        @{ Label = "Rename Computer Hostname"; Action = { Invoke-RenameComputer } },
+        @{ Label = "Show Known File Extensions (.exe, .txt...)"; Action = { Set-ExplorerShowFileExtensions -Enable $true } },
+        @{ Label = "Hide Known File Extensions"; Action = { Set-ExplorerShowFileExtensions -Enable $false } },
+        @{ Label = "Show Hidden Files and Folders"; Action = { Set-ExplorerShowHiddenFiles -Enable $true } },
+        @{ Label = "Hide Hidden Files and Folders"; Action = { Set-ExplorerShowHiddenFiles -Enable $false } },
+        @{ Label = "Check Missing / Faulty Drivers (Device Errors)"; Action = { Test-DeviceErrors } },
+        @{ Label = "Open Date & Time Settings"; Action = { Start-Process "timedate.cpl" } },
+        @{ Label = "Open Windows Update Settings"; Action = { Start-Process "ms-settings:windowsupdate" } },
+        @{ Label = "Open Windows Activation Settings"; Action = { Start-Process "ms-settings:activation" } },
+        @{ Label = "Open Startup Folder (shell:startup)"; Action = { Start-Process "explorer.exe" "shell:startup" } },
+        @{ Label = "Open Power Options (powercfg.cpl)"; Action = { Start-Process "powercfg.cpl" } }
     )
-    Show-TMMenu -Title "CẤU HÌNH HẬU CÀI ĐẶT WINDOWS (POST-INSTALL)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "WINDOWS POST-INSTALL CONFIGURATION" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Invoke-RenameComputer {
-    if (-not (Assert-Admin "đổi tên máy tính")) {
+    if (-not (Assert-Admin "rename computer")) {
         Pause-Screen
         return
     }
 
     $currentName = [System.Environment]::MachineName
-    Write-SubHeader "ĐỔI TÊN MÁY TÍNH"
-    Write-InfoMessage "Tên máy hiện tại: $currentName"
-    Write-Host " Nhập tên máy mới (chữ, số và dấu gạch ngang, tối đa 15 ký tự): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "RENAME COMPUTER HOSTNAME"
+    Write-InfoMessage "Current Computer Name: $currentName"
+    Write-Host " Enter new computer name (letters, digits and dashes, max 15 chars): " -ForegroundColor Cyan -NoNewline
     $newName = Read-Host
 
     if ([string]::IsNullOrWhiteSpace($newName) -or $newName -match '[^a-zA-Z0-9\-]') {
-        Write-ErrorMessage "Tên máy không hợp lệ. Chỉ chấp nhận ký tự a-z, 0-9 và dấu gạch ngang (-)."
+        Write-ErrorMessage "Invalid computer name. Only characters a-z, 0-9 and hyphens (-) are permitted."
         Pause-Screen
         return
     }
 
     if ($newName.Length -gt 15) {
-        Write-ErrorMessage "Tên máy tính trên Windows không nên vượt quá 15 ký tự NetBIOS."
+        Write-ErrorMessage "Computer NetBIOS name must not exceed 15 characters."
         Pause-Screen
         return
     }
 
     if ($newName.ToUpper() -eq $currentName.ToUpper()) {
-        Write-WarningMessage "Tên mới trùng với tên máy hiện tại."
+        Write-WarningMessage "New name is identical to current computer name."
         Pause-Screen
         return
     }
 
-    $approved = Confirm-Action -TaskName "Đổi tên máy tính" -ImpactDescription "Đổi tên máy từ '$currentName' thành '$newName'. Yêu cầu khởi động lại máy để áp dụng." -RiskLevel "medium"
+    $approved = Confirm-Action -TaskName "Rename Computer" -ImpactDescription "Rename computer from '$currentName' to '$newName'. Requires a restart to take effect." -RiskLevel "medium"
     if ($approved) {
         try {
             Rename-Computer -NewName $newName -Force -ErrorAction Stop
-            Write-Success "Đổi tên máy tính thành công thành '$newName'!"
-            Write-WarningMessage "Bạn CẦN KHỞI ĐỘNG LẠI máy tính để tên mới có hiệu lực."
-            Write-TMLog -TaskId "POST_RENAME" -TaskName "Đổi tên máy tính" -Status "Success" -Message "Đổi tên từ $currentName sang $newName" -RequiresRestart $true
+            Write-Success "Computer successfully renamed to '$newName'!"
+            Write-WarningMessage "A SYSTEM RESTART IS REQUIRED for the new hostname to take effect."
+            Write-TMLog -TaskId "POST_RENAME" -TaskName "Rename Computer" -Status "Success" -Message "Renamed from $currentName to $newName" -RequiresRestart $true
         } catch {
-            Handle-TMException -TaskId "POST_RENAME" -TaskName "Đổi tên máy tính" -Exception $_.Exception
+            Handle-TMException -TaskId "POST_RENAME" -TaskName "Rename Computer" -Exception $_.Exception
         }
     }
     Pause-Screen
@@ -1781,13 +1781,13 @@ function Invoke-RenameComputer {
 function Set-ExplorerShowFileExtensions {
     param ([bool]$Enable)
     $val = if ($Enable) { 0 } else { 1 }
-    $actionDesc = if ($Enable) { "Bật hiển thị phần mở rộng của file" } else { "Ẩn phần mở rộng của file" }
+    $actionDesc = if ($Enable) { "Show file extensions" } else { "Hide file extensions" }
     
     try {
         $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         Set-ItemProperty -Path $regPath -Name "HideFileExt" -Value $val -Force
-        Write-Success "Đã cập nhật cấu hình: $actionDesc."
-        Write-InfoMessage "Lưu ý: Bạn có thể cần mở lại File Explorer để thay đổi hiển thị."
+        Write-Success "Setting updated: $actionDesc."
+        Write-InfoMessage "Note: You may need to restart or refresh File Explorer."
         Write-TMLog -TaskId "POST_FILEEXT" -TaskName $actionDesc -Status "Success" -Message "HideFileExt = $val"
     } catch {
         Handle-TMException -TaskId "POST_FILEEXT" -TaskName $actionDesc -Exception $_.Exception
@@ -1798,12 +1798,12 @@ function Set-ExplorerShowFileExtensions {
 function Set-ExplorerShowHiddenFiles {
     param ([bool]$Enable)
     $val = if ($Enable) { 1 } else { 2 }
-    $actionDesc = if ($Enable) { "Hiển thị file và thư mục ẩn" } else { "Ẩn file và thư mục ẩn" }
+    $actionDesc = if ($Enable) { "Show hidden files and folders" } else { "Hide hidden files and folders" }
 
     try {
         $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
         Set-ItemProperty -Path $regPath -Name "Hidden" -Value $val -Force
-        Write-Success "Đã cập nhật cấu hình: $actionDesc."
+        Write-Success "Setting updated: $actionDesc."
         Write-TMLog -TaskId "POST_HIDDEN" -TaskName $actionDesc -Status "Success" -Message "Hidden = $val"
     } catch {
         Handle-TMException -TaskId "POST_HIDDEN" -TaskName $actionDesc -Exception $_.Exception
@@ -1812,24 +1812,24 @@ function Set-ExplorerShowHiddenFiles {
 }
 
 function Test-DeviceErrors {
-    Write-SubHeader "KIỂM TRA THIẾT BỊ LỖI / THIẾU DRIVER"
-    Write-InfoMessage "Đang truy vấn Plug and Play Entity..."
+    Write-SubHeader "CHECK HARDWARE DEVICES & MISSING DRIVERS"
+    Write-InfoMessage "Querying Plug and Play entities via CIM..."
 
     try {
         $problemDevices = Get-CimInstance -ClassName Win32_PnPEntity | Where-Object { $_.ConfigManagerErrorCode -ne 0 -and $null -ne $_.ConfigManagerErrorCode }
         if (-not $problemDevices -or @($problemDevices).Count -eq 0) {
-            Write-Success "Tuyệt vời! Không phát hiện thiết bị nào bị lỗi hoặc thiếu driver trên hệ thống."
+            Write-Success "All good! No faulty or missing driver devices detected on this system."
         } else {
-            Write-WarningMessage "Phát hiện $(@($problemDevices).Count) thiết bị đang gặp sự cố:"
-            $headers = @("Tên thiết bị", "Mã lỗi PnP", "Hardware ID")
+            Write-WarningMessage "Detected $(@($problemDevices).Count) device(s) reporting error codes:"
+            $headers = @("Device Name", "PnP Error Code", "Hardware ID")
             $props = @("Name", "ConfigManagerErrorCode", "DeviceID")
-            $widths = @(30, 15, 30)
+            $widths = @(30, 16, 30)
             Show-TableList -Items $problemDevices -Headers $headers -PropertyNames $props -Widths $widths
             Write-Host ""
-            Write-InfoMessage "Gợi ý: Mở Device Manager để cập nhật driver cho các thiết bị trên."
+            Write-InfoMessage "Tip: Open Device Manager (devmgmt.msc) to install or update drivers."
         }
     } catch {
-        Handle-TMException -TaskId "DEV_CHECK" -TaskName "Kiểm tra thiết bị" -Exception $_.Exception
+        Handle-TMException -TaskId "DEV_CHECK" -TaskName "Check Devices" -Exception $_.Exception
     }
     Pause-Screen
 }
@@ -1856,37 +1856,37 @@ function Invoke-AutoOptimizeProfile {
     $profiles = Get-OptimizationProfiles
     $prof = $profiles | Where-Object { $_.id -eq $ProfileId }
     if (-not $prof) {
-        Write-ErrorMessage "Không tìm thấy cấu hình tối ưu: $ProfileId"
+        Write-ErrorMessage "Optimization profile not found: $ProfileId"
         Pause-Screen
         return
     }
 
     Write-Header -Title "AUTO OPTIMIZE: $($prof.name)"
-    Write-InfoMessage "Mục tiêu: $($prof.description)"
-    Write-Host " Đối tượng phù hợp: $($prof.target)" -ForegroundColor Gray
+    Write-InfoMessage "Objective: $($prof.description)"
+    Write-Host " Target environment: $($prof.target)" -ForegroundColor Gray
     Write-Host ""
 
     # 1. Pre-scan
-    Write-SubHeader "BƯỚC 1: QUÉT TRẠNG THÁI HỆ THỐNG (PRE-SCAN)"
+    Write-SubHeader "STEP 1: SYSTEM PRE-SCAN METRICS"
     $sys = Get-TMSystemInfo
-    Write-Success "Hệ điều hành: $($sys['Hệ điều hành'])"
-    Write-Success "Bộ nhớ RAM: $($sys['Bộ nhớ RAM'])"
-    Write-Success "Dung lượng ổ đĩa: $($sys['Ổ đĩa lưu trữ'])"
+    Write-Success "Operating System: $($sys['Operating System'])"
+    Write-Success "RAM Memory: $($sys['RAM Memory'])"
+    Write-Success "Storage Capacity: $($sys['Storage Drives'])"
 
     # 2. Health checks
-    Write-SubHeader "BƯỚC 2: KIỂM TRA ĐIỀU KIỆN AN TOÀN (HEALTH CHECKS)"
+    Write-SubHeader "STEP 2: SAFETY PREREQUISITE CHECKS"
     $needsAdmin = ($ProfileId -ne "audit")
     if ($needsAdmin -and -not (Test-IsAdmin)) {
-        Write-ErrorMessage "Tác vụ tối ưu này cần quyền Quản trị viên (Administrator)."
-        if (-not (Request-Elevation -Reason "chạy cấu hình tối ưu $($prof.name)")) {
+        Write-ErrorMessage "This optimization profile requires Administrator privileges."
+        if (-not (Request-Elevation -Reason "apply optimization profile $($prof.name)")) {
             Pause-Screen
             return
         }
     }
-    Write-Success "Điều kiện quyền Administrator: Hợp lệ."
+    Write-Success "Administrator Privilege Check: Valid."
 
     # 3. Preview Actions
-    Write-SubHeader "BƯỚC 3: XEM TRƯỚC CÁC TÁC VỤ SẼ THỰC HIỆN (PREVIEW)"
+    Write-SubHeader "STEP 3: ACTION PREVIEW"
     $actions = $prof.actions
     for ($i = 0; $i -lt $actions.Count; $i++) {
         Write-Host "  [$($i+1)] $($actions[$i].name)" -ForegroundColor Cyan
@@ -1894,30 +1894,30 @@ function Invoke-AutoOptimizeProfile {
     Write-Host ""
 
     if ($ProfileId -eq "audit") {
-        Write-Success "Đã hoàn thành kiểm tra phân tích hệ thống (Không có thay đổi nào được áp dụng)."
+        Write-Success "System audit complete. No system changes were applied."
         Pause-Screen
         return
     }
 
     # 4. Confirm & Backup
-    $confirmed = Confirm-Action -TaskName "Auto Optimize - $($prof.name)" -ImpactDescription "Áp dụng các tinh chỉnh an toàn theo profile $($prof.name). Tự động tạo bản sao lưu để có thể hoàn tác." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "Auto Optimize - $($prof.name)" -ImpactDescription "Apply safe optimizations defined in profile $($prof.name). An automatic rollback snapshot will be created." -RiskLevel "medium"
     if (-not $confirmed) {
-        Write-SkipMessage "Đã hủy tác vụ tối ưu theo yêu cầu của người dùng."
+        Write-SkipMessage "Optimization cancelled by user."
         Pause-Screen
         return
     }
 
-    Write-SubHeader "BƯỚC 4: TẠO BẢN SAO LƯU TRẠNG THÁI (BACKUP)"
-    $session = New-TMBackupSession -TaskId "AUTO_OPT_$ProfileId" -Description "Sao lưu trước khi chạy Auto Optimize $($prof.name)"
+    Write-SubHeader "STEP 4: CREATE SYSTEM RESTORE SNAPSHOT"
+    $session = New-TMBackupSession -TaskId "AUTO_OPT_$ProfileId" -Description "Backup prior to Auto Optimize $($prof.name)"
     
     # Backup relevant Registry keys for visual effects
     Backup-RegistryValue -Session $session -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" | Out-Null
     $backupId = Save-TMBackupSession -Session $session
 
     # 5. Apply
-    Write-SubHeader "BƯỚC 5: ÁP DỤNG CÁC TÁC VỤ TỐI ƯU (APPLY)"
+    Write-SubHeader "STEP 5: APPLYING OPTIMIZATIONS"
     foreach ($act in $actions) {
-        Write-Host "-> Đang thực hiện: $($act.name)... " -ForegroundColor White -NoNewline
+        Write-Host "-> Executing: $($act.name)... " -ForegroundColor White -NoNewline
         switch ($act.action) {
             "clean_temp" {
                 $userTemp = [System.IO.Path]::GetTempPath()
@@ -1925,49 +1925,49 @@ function Invoke-AutoOptimizeProfile {
                 Get-ChildItem -Path $userTemp -File -ErrorAction SilentlyContinue | ForEach-Object {
                     try { Remove-Item $_.FullName -Force -ErrorAction Stop; $cleanedCount++ } catch {}
                 }
-                Write-Host "Xong (Dọn được $cleanedCount file tạm)." -ForegroundColor Green
+                Write-Host "Done (Cleaned $cleanedCount temp files)." -ForegroundColor Green
             }
             "visual_balanced" {
                 try {
                     # VisualFXSetting: 3 = Custom (disable animation, keep font smoothing)
                     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 3 -Force -ErrorAction SilentlyContinue
                     Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Value 0 -Force -ErrorAction SilentlyContinue
-                    Write-Host "Xong (Đã giảm animations)." -ForegroundColor Green
-                } catch { Write-Host "Bỏ qua ($($_.Exception.Message))" -ForegroundColor Yellow }
+                    Write-Host "Done (Animations reduced, fonts preserved)." -ForegroundColor Green
+                } catch { Write-Host "Skipped ($($_.Exception.Message))" -ForegroundColor Yellow }
             }
             "visual_perf" {
                 try {
                     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -Force -ErrorAction SilentlyContinue
-                    Write-Host "Xong (Tối ưu Best Performance)." -ForegroundColor Green
-                } catch { Write-Host "Bỏ qua" -ForegroundColor Yellow }
+                    Write-Host "Done (Configured for Best Performance)." -ForegroundColor Green
+                } catch { Write-Host "Skipped" -ForegroundColor Yellow }
             }
             "visual_minimal" {
                 try {
                     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -Force -ErrorAction SilentlyContinue
-                    Write-Host "Xong." -ForegroundColor Green
-                } catch { Write-Host "Bỏ qua" -ForegroundColor Yellow }
+                    Write-Host "Done." -ForegroundColor Green
+                } catch { Write-Host "Skipped" -ForegroundColor Yellow }
             }
             "trim_ssd" {
                 try {
                     if (Test-CmdletAvailable "Optimize-Volume") {
                         Optimize-Volume -DriveLetter C -ReTrim -ErrorAction SilentlyContinue | Out-Null
-                        Write-Host "Xong (SSD ReTrim)." -ForegroundColor Green
+                        Write-Host "Done (SSD ReTrim executed)." -ForegroundColor Green
                     } else {
-                        Write-Host "Không khả dụng." -ForegroundColor DarkGray
+                        Write-Host "Not available." -ForegroundColor DarkGray
                     }
-                } catch { Write-Host "Bỏ qua." -ForegroundColor Yellow }
+                } catch { Write-Host "Skipped." -ForegroundColor Yellow }
             }
             default {
-                Write-Host "Hoàn tất." -ForegroundColor Green
+                Write-Host "Complete." -ForegroundColor Green
             }
         }
     }
 
     # 6. Verify & Report
-    Write-SubHeader "BƯỚC 6: XÁC MINH & BÁO CÁO (VERIFY)"
-    Write-Success "Hồ sơ tối ưu '$($prof.name)' đã được áp dụng thành công!"
-    Write-InfoMessage "ID bản sao lưu đã tạo: $backupId (Có thể hoàn tác bất kỳ lúc nào tại menu Backup & Restore)"
-    Write-TMLog -TaskId "AUTO_OPT_$ProfileId" -TaskName "Auto Optimize $($prof.name)" -Status "Success" -Message "Áp dụng thành công" -BackupId $backupId
+    Write-SubHeader "STEP 6: VERIFICATION & SUMMARY"
+    Write-Success "Optimization profile '$($prof.name)' applied successfully!"
+    Write-InfoMessage "Backup snapshot created: $backupId (Rollback available anytime in Backup & Restore menu)"
+    Write-TMLog -TaskId "AUTO_OPT_$ProfileId" -TaskName "Auto Optimize $($prof.name)" -Status "Success" -Message "Profile applied successfully" -BackupId $backupId
     
     Pause-Screen
 }
@@ -1980,58 +1980,58 @@ function Invoke-AutoOptimizeProfile {
 
 function Show-TMOptimizationMenu {
     $menuItems = @(
-        @{ Label = "Phân tích & đề xuất tối ưu (Audit only)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "audit" } },
-        @{ Label = "Auto Optimize - Balanced (Khuyến nghị cho máy phổ thông)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "balanced" } },
-        @{ Label = "Auto Optimize - Desktop Performance (Máy bàn hiệu năng cao)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "desktop_perf" } },
-        @{ Label = "Auto Optimize - Máy cấu hình thấp / Ổ cứng HDD"; Action = { Invoke-AutoOptimizeProfile -ProfileId "low_resource_hdd" } },
-        @{ Label = "Auto Optimize - Laptop Balanced (Laptop cân bằng pin)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "laptop_balanced" } },
-        @{ Label = "Services Manager (SysMain / WSearch / Ndu...)"; Action = { Show-ServicesManagerMenu } },
-        @{ Label = "Hiệu ứng thị giác & Animations (Visual Effects)"; Action = { Show-VisualEffectsMenu } },
-        @{ Label = "Ứng dụng khởi động cùng Windows (Startup Apps)"; Action = { Show-StartupAppsMenu } },
-        @{ Label = "Chế độ Nguồn điện & Hiệu năng (Power Plan)"; Action = { Show-PowerPlanMenu } },
-        @{ Label = "Xem thay đổi gần nhất / Rollback"; Action = { Show-TMBackupMenu } }
+        @{ Label = "Audit System & Generate Optimization Recommendations"; Action = { Invoke-AutoOptimizeProfile -ProfileId "audit" } },
+        @{ Label = "Auto Optimize - Balanced (Recommended for General PC)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "balanced" } },
+        @{ Label = "Auto Optimize - Desktop Performance (High-Performance Workstation)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "desktop_perf" } },
+        @{ Label = "Auto Optimize - Low Resource / HDD Budget PC"; Action = { Invoke-AutoOptimizeProfile -ProfileId "low_resource_hdd" } },
+        @{ Label = "Auto Optimize - Laptop Balanced (Battery-Conscious)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "laptop_balanced" } },
+        @{ Label = "Services Manager (SysMain / WSearch / Ndu Status)"; Action = { Show-ServicesManagerMenu } },
+        @{ Label = "Visual Effects & Window Animations"; Action = { Show-VisualEffectsMenu } },
+        @{ Label = "Startup Applications (Run at Boot)"; Action = { Show-StartupAppsMenu } },
+        @{ Label = "Power Plan & Performance Schemes"; Action = { Show-PowerPlanMenu } },
+        @{ Label = "View Recent Backups & Rollback"; Action = { Show-TMBackupMenu } }
     )
-    Show-TMMenu -Title "TỐI ƯU HÓA WINDOWS AN TOÀN (OPTIMIZATION)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "SAFE SYSTEM OPTIMIZATION (PROFILES & TUNING)" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-ServicesManagerMenu {
-    Write-Header -Title "QUẢN LÝ DỊCH VỤ HỆ THỐNG (SERVICES MANAGER)"
-    Write-InfoMessage "Đang đọc trạng thái các dịch vụ quan trọng..."
+    Write-Header -Title "WINDOWS SERVICES MANAGEMENT CONSOLE"
+    Write-InfoMessage "Querying service status for critical system components..."
 
     $servicesToCheck = @("SysMain", "WSearch", "Ndu")
     $list = @()
     foreach ($sName in $servicesToCheck) {
         $svc = Get-Service -Name $sName -ErrorAction SilentlyContinue
-        $startMode = "Không tìm thấy"
+        $startMode = "Not Found"
         if ($svc) {
             $cim = Get-CimInstance Win32_Service -Filter "Name='$sName'" -ErrorAction SilentlyContinue
             if ($cim) { $startMode = $cim.StartMode }
         }
         $list += [PSCustomObject]@{
-            DichVu = $sName
-            TrangThai = if ($svc) { $svc.Status.ToString() } else { "Không tồn tại" }
-            CheDoKhoiDong = $startMode
+            ServiceName = $sName
+            Status = if ($svc) { $svc.Status.ToString() } else { "Not Present" }
+            StartupType = $startMode
         }
     }
 
-    $headers = @("Tên dịch vụ", "Trạng thái", "Chế độ khởi động")
-    $props = @("DichVu", "TrangThai", "CheDoKhoiDong")
-    $widths = @(18, 20, 22)
+    $headers = @("Service Name", "Status", "Startup Type")
+    $props = @("ServiceName", "Status", "StartupType")
+    $widths = @(18, 18, 20)
     Show-TableList -Items $list -Headers $headers -PropertyNames $props -Widths $widths
 
     Write-Host ""
-    Write-Host "  LƯU Ý QUAN TRỌNG VỀ BẢO MẬT & ĐỘ ỔN ĐỊNH:" -ForegroundColor Yellow
-    Write-Host "  - SysMain: Quản lý cache RAM. Không nên tắt nếu dùng SSD và RAM dồi dào." -ForegroundColor Gray
-    Write-Host "  - WSearch: Dịch vụ tìm kiếm Windows. Không nên tắt hoàn toàn; nên thu hẹp phạm vi index." -ForegroundColor Gray
-    Write-Host "  - Ndu: Bắt buộc giữ nguyên. Tắt Ndu không phải là khuyến nghị chính thức của Microsoft." -ForegroundColor Gray
+    Write-Host "  IMPORTANT STABILITY & ARCHITECTURAL GUIDANCE:" -ForegroundColor Yellow
+    Write-Host "  - SysMain: Memory prefetching. Do NOT disable if using SSD and sufficient RAM." -ForegroundColor Gray
+    Write-Host "  - WSearch: Search indexer. Do NOT fully disable; narrow index locations instead." -ForegroundColor Gray
+    Write-Host "  - Ndu: Network Data Usage monitor. Keep running; disabling is not supported by Microsoft." -ForegroundColor Gray
     Write-Host ""
 
-    Write-Host "  [1] Mở Services Management Console (services.msc)" -ForegroundColor Cyan
-    Write-Host "  [2] Cấu hình phạm vi Search Indexing (Mở cài đặt Indexer)" -ForegroundColor Cyan
-    Write-Host "  [0] Quay lại" -ForegroundColor Yellow
+    Write-Host "  [1] Open Services Management Console (services.msc)" -ForegroundColor Cyan
+    Write-Host "  [2] Configure Search Indexing Scope (control srchadmin.dll)" -ForegroundColor Cyan
+    Write-Host "  [0] Back" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn thao tác" -Min 0 -Max 2
+    $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 2
     switch ($sel) {
         1 { Start-Process "services.msc" }
         2 { Start-Process "control.exe" "srchadmin.dll" }
@@ -2040,30 +2040,30 @@ function Show-ServicesManagerMenu {
 }
 
 function Show-VisualEffectsMenu {
-    Write-Header -Title "HIỆU ỨNG THỊ GIÁC & ANIMATIONS"
-    Write-Host "  [1] Tối ưu cân bằng (Tắt animation cửa sổ, giữ font chữ mịn)" -ForegroundColor Cyan
-    Write-Host "  [2] Tối ưu hiệu năng cao (Best Performance - tắt toàn bộ hiệu ứng)" -ForegroundColor Cyan
-    Write-Host "  [3] Khôi phục mặc định của Windows (Let Windows choose)" -ForegroundColor Cyan
-    Write-Host "  [4] Mở giao diện Performance Options của Windows" -ForegroundColor Cyan
-    Write-Host "  [0] Quay lại" -ForegroundColor Yellow
+    Write-Header -Title "VISUAL EFFECTS & WINDOW ANIMATIONS"
+    Write-Host "  [1] Balanced Optimization (Disable window animations, keep font smoothing)" -ForegroundColor Cyan
+    Write-Host "  [2] Best Performance (Disable all animations and effects)" -ForegroundColor Cyan
+    Write-Host "  [3] Restore Windows Default (Let Windows choose what's best)" -ForegroundColor Cyan
+    Write-Host "  [4] Open Windows Performance Options GUI" -ForegroundColor Cyan
+    Write-Host "  [0] Back" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn cấu hình visual" -Min 0 -Max 4
+    $sel = Read-MenuSelection -PromptText "Select visual preset" -Min 0 -Max 4
     switch ($sel) {
         1 {
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 3 -Force -ErrorAction SilentlyContinue
             Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Value 0 -Force -ErrorAction SilentlyContinue
-            Write-Success "Đã áp dụng cấu hình hiệu ứng cân bằng."
+            Write-Success "Balanced visual effects applied."
             Pause-Screen
         }
         2 {
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 2 -Force -ErrorAction SilentlyContinue
-            Write-Success "Đã chuyển sang chế độ Best Performance."
+            Write-Success "Best Performance preset applied."
             Pause-Screen
         }
         3 {
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 0 -Force -ErrorAction SilentlyContinue
-            Write-Success "Đã khôi phục chế độ tự động của Windows."
+            Write-Success "Restored automatic Windows defaults."
             Pause-Screen
         }
         4 {
@@ -2074,8 +2074,8 @@ function Show-VisualEffectsMenu {
 }
 
 function Show-StartupAppsMenu {
-    Write-Header -Title "ỨNG DỤNG KHỞI ĐỘNG CÙNG WINDOWS (STARTUP APPS)"
-    Write-InfoMessage "Đang truy vấn các mục Startup trong Registry..."
+    Write-Header -Title "STARTUP APPLICATIONS (RUN AT BOOT)"
+    Write-InfoMessage "Querying startup entries in user and system Registry..."
 
     $regPaths = @(
         "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run",
@@ -2089,27 +2089,27 @@ function Show-StartupAppsMenu {
             foreach ($name in $props.PSObject.Properties.Name) {
                 if ($name -notmatch "^PS.*") {
                     $items += [PSCustomObject]@{
-                        Ten = $name
-                        ViTri = if ($rp -match "HKCU") { "User" } else { "System" }
-                        Lenh = $props.$name
+                        AppName = $name
+                        Scope = if ($rp -match "HKCU") { "User" } else { "System" }
+                        Command = $props.$name
                     }
                 }
             }
         }
     }
 
-    $headers = @("Tên ứng dụng", "Phạm vi", "Đường dẫn lệnh")
-    $props = @("Ten", "ViTri", "Lenh")
+    $headers = @("Application Name", "Scope", "Command Line")
+    $props = @("AppName", "Scope", "Command")
     $widths = @(25, 10, 35)
     Show-TableList -Items $items -Headers $headers -PropertyNames $props -Widths $widths
 
     Write-Host ""
-    Write-Host "  [1] Mở trang Startup Apps trong Windows Settings" -ForegroundColor Cyan
-    Write-Host "  [2] Mở Task Manager (Tab Startup)" -ForegroundColor Cyan
-    Write-Host "  [0] Quay lại" -ForegroundColor Yellow
+    Write-Host "  [1] Open Startup Apps in Windows Settings" -ForegroundColor Cyan
+    Write-Host "  [2] Open Task Manager (Startup Tab)" -ForegroundColor Cyan
+    Write-Host "  [0] Back" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn thao tác" -Min 0 -Max 2
+    $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 2
     switch ($sel) {
         1 { Start-Process "ms-settings:startupapps" }
         2 { Start-Process "taskmgr.exe" }
@@ -2118,30 +2118,30 @@ function Show-StartupAppsMenu {
 }
 
 function Show-PowerPlanMenu {
-    Write-Header -Title "CHẾ ĐỘ NGUỒN ĐIỆN & HIỆU NĂNG (POWER PLAN)"
+    Write-Header -Title "POWER PLAN & PERFORMANCE SCHEMES"
     try {
         $activePlan = (powercfg /getactivescheme)
-        Write-InfoMessage "Chế độ hiện tại: $activePlan"
+        Write-InfoMessage "Current Scheme: $activePlan"
     } catch {}
 
     Write-Host ""
-    Write-Host "  [1] Mở cài đặt Power Options (Control Panel)" -ForegroundColor Cyan
-    Write-Host "  [2] Đặt sang chế độ Cân bằng (Balanced)" -ForegroundColor Cyan
-    Write-Host "  [3] Đặt sang chế độ Hiệu năng cao (High Performance)" -ForegroundColor Cyan
-    Write-Host "  [0] Quay lại" -ForegroundColor Yellow
+    Write-Host "  [1] Open Classic Power Options (Control Panel)" -ForegroundColor Cyan
+    Write-Host "  [2] Set to Balanced Power Scheme" -ForegroundColor Cyan
+    Write-Host "  [3] Set to High Performance Power Scheme" -ForegroundColor Cyan
+    Write-Host "  [0] Back" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn thao tác" -Min 0 -Max 3
+    $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 3
     switch ($sel) {
         1 { Start-Process "powercfg.cpl" }
         2 {
             powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e
-            Write-Success "Đã chuyển sang Balanced Power Scheme."
+            Write-Success "Switched to Balanced Power Scheme."
             Pause-Screen
         }
         3 {
             powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-            Write-Success "Đã chuyển sang High Performance Power Scheme."
+            Write-Success "Switched to High Performance Power Scheme."
             Pause-Screen
         }
         0 { return }
@@ -2155,26 +2155,26 @@ function Show-PowerPlanMenu {
 
 function Show-TMMaintenanceMenu {
     $menuItems = @(
-        @{ Label = "Kiểm tra loại ổ đĩa và dung lượng"; Action = { Show-DiskInventory } },
-        @{ Label = "Phân tích / tối ưu HDD hoặc SSD (Optimize-Volume)"; Action = { Invoke-DiskOptimization } },
-        @{ Label = "Mở công cụ Optimize Drives của Windows (dfrgui.exe)"; Action = { Start-Process "dfrgui.exe" } },
-        @{ Label = "CHKDSK - Kiểm tra ổ đĩa (Không sửa)"; Action = { Invoke-ChkdskBasic } },
-        @{ Label = "CHKDSK - Quét online NTFS (/scan)"; Action = { Invoke-ChkdskScan } },
-        @{ Label = "CHKDSK - Sửa lỗi hệ thống file (/f)"; Action = { Invoke-ChkdskFix } },
-        @{ Label = "CHKDSK - Quét sector và phục hồi (/r)"; Action = { Invoke-ChkdskRecovery } },
-        @{ Label = "SFC - Xác minh file hệ thống (/verifyonly)"; Action = { Invoke-SfcVerify } },
-        @{ Label = "SFC - Quét và sửa file hệ thống (/scannow)"; Action = { Invoke-SfcScanNow } },
-        @{ Label = "DISM - Quét Component Store (/ScanHealth)"; Action = { Invoke-DismScan } },
-        @{ Label = "DISM - Khôi phục Component Store (/RestoreHealth)"; Action = { Invoke-DismRestore } },
-        @{ Label = "Chạy quy trình DISM + SFC tuần tự (Windows Repair Wizard)"; Action = { Invoke-RepairPipeline } },
-        @{ Label = "Mở Cài đặt Dọn đĩa (Storage Settings / cleanmgr)"; Action = { Start-Process "cleanmgr.exe" } },
-        @{ Label = "Xuất báo cáo ổ đĩa và bảo trì"; Action = { Export-MaintenanceReport } }
+        @{ Label = "Inspect Disk Media Types & Storage Capacity"; Action = { Show-DiskInventory } },
+        @{ Label = "Optimize Volume / SSD Re-Trim (Optimize-Volume)"; Action = { Invoke-DiskOptimization } },
+        @{ Label = "Open Windows Optimize Drives GUI (dfrgui.exe)"; Action = { Start-Process "dfrgui.exe" } },
+        @{ Label = "CHKDSK - Read-Only Filesystem Check"; Action = { Invoke-ChkdskBasic } },
+        @{ Label = "CHKDSK - Online NTFS Scan (/scan)"; Action = { Invoke-ChkdskScan } },
+        @{ Label = "CHKDSK - Fix Filesystem Errors (/f)"; Action = { Invoke-ChkdskFix } },
+        @{ Label = "CHKDSK - Locate Bad Sectors & Recover Readable Data (/r)"; Action = { Invoke-ChkdskRecovery } },
+        @{ Label = "SFC - Verify System File Integrity (/verifyonly)"; Action = { Invoke-SfcVerify } },
+        @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (/scannow)"; Action = { Invoke-SfcScanNow } },
+        @{ Label = "DISM - Scan Component Store Health (/ScanHealth)"; Action = { Invoke-DismScan } },
+        @{ Label = "DISM - Repair Component Store Corruption (/RestoreHealth)"; Action = { Invoke-DismRestore } },
+        @{ Label = "Run Sequential Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
+        @{ Label = "Open Windows Disk Cleanup (cleanmgr.exe)"; Action = { Start-Process "cleanmgr.exe" } },
+        @{ Label = "Export Disk & Maintenance Report"; Action = { Export-MaintenanceReport } }
     )
-    Show-TMMenu -Title "BẢO TRÌ Ổ ĐĨA & HỆ THỐNG (DISK & MAINTENANCE)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "DISK & SYSTEM MAINTENANCE" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-DiskInventory {
-    Write-SubHeader "DANH SÁCH Ổ ĐĨA LƯU TRỮ TRÊN HỆ THỐNG"
+    Write-SubHeader "SYSTEM STORAGE VOLUMES & HEALTH STATUS"
     try {
         $volumes = Get-Volume | Where-Object { $null -ne $_.DriveLetter }
         $list = @()
@@ -2184,7 +2184,7 @@ function Show-DiskInventory {
             $pctFree = if ($totalGB -gt 0) { [math]::Round(($freeGB / $totalGB) * 100, 0) } else { 0 }
             
             # Detect Media Type if possible
-            $mediaType = "Không rõ"
+            $mediaType = "Unknown"
             try {
                 $part = Get-Partition -DriveLetter $v.DriveLetter -ErrorAction SilentlyContinue
                 if ($part) {
@@ -2197,193 +2197,193 @@ function Show-DiskInventory {
             } catch {}
 
             $list += [PSCustomObject]@{
-                O = "$($v.DriveLetter):"
-                Nhan = $v.FileSystemLabel
-                DinhDang = $v.FileSystem
-                LoaiMedia = $mediaType
-                DungLuong = "$freeGB GB / $totalGB GB ($pctFree% trống)"
-                TrangThai = $v.HealthStatus
+                Drive = "$($v.DriveLetter):"
+                Label = $v.FileSystemLabel
+                FileSystem = $v.FileSystem
+                MediaType = $mediaType
+                Capacity = "$freeGB GB / $totalGB GB ($pctFree% free)"
+                Health = $v.HealthStatus
             }
         }
-        $headers = @("Ổ", "Nhãn", "Định dạng", "Loại ổ", "Dung lượng trống", "Sức khỏe")
-        $props = @("O", "Nhan", "DinhDang", "LoaiMedia", "DungLuong", "TrangThai")
-        $widths = @(5, 15, 12, 12, 28, 10)
+        $headers = @("Drive", "Label", "File System", "Media Type", "Free Space", "Health")
+        $props = @("Drive", "Label", "FileSystem", "MediaType", "Capacity", "Health")
+        $widths = @(6, 15, 12, 12, 28, 10)
         Show-TableList -Items $list -Headers $headers -PropertyNames $props -Widths $widths
     } catch {
-        Handle-TMException -TaskId "DISK_INV" -TaskName "Kiểm tra ổ đĩa" -Exception $_.Exception
+        Handle-TMException -TaskId "DISK_INV" -TaskName "Inspect Disks" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Invoke-DiskOptimization {
-    if (-not (Assert-Admin "tối ưu hóa ổ đĩa")) { Pause-Screen; return }
+    if (-not (Assert-Admin "optimize drive")) { Pause-Screen; return }
 
-    Write-SubHeader "TỐI ƯU HÓA VOLUME / SSD RE-TRIM"
-    Write-Host " Nhập ký tự ổ đĩa cần tối ưu (ví dụ: C): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "OPTIMIZE STORAGE VOLUME / SSD RE-TRIM"
+    Write-Host " Enter drive letter to optimize (e.g. C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if (-not ($dl -match "^[a-zA-Z]$")) {
-        Write-ErrorMessage "Ký tự ổ đĩa không hợp lệ."
+        Write-ErrorMessage "Invalid drive letter."
         Pause-Screen
         return
     }
 
-    $confirmed = Confirm-Action -TaskName "Tối ưu ổ đĩa $dl`:" -ImpactDescription "Chạy Optimize-Volume (tự động chọn TRIM cho SSD hoặc Defrag an toàn cho HDD)." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Optimize Drive $dl`:" -ImpactDescription "Execute Optimize-Volume (automatically runs TRIM for SSD or safe defragmentation for HDD)." -RiskLevel "low"
     if ($confirmed) {
         try {
-            Write-InfoMessage "Đang chạy Optimize-Volume cho ổ $dl`:..."
+            Write-InfoMessage "Running Optimize-Volume on drive $dl`:..."
             Optimize-Volume -DriveLetter $dl -Verbose
-            Write-Success "Tối ưu hóa ổ $dl`: hoàn tất thành công!"
-            Write-TMLog -TaskId "DISK_OPT" -TaskName "Tối ưu ổ đĩa" -Status "Success" -Message "Ổ $dl`:"
+            Write-Success "Optimization of drive $dl`: completed successfully!"
+            Write-TMLog -TaskId "DISK_OPT" -TaskName "Optimize Drive" -Status "Success" -Message "Drive $dl`:"
         } catch {
-            Handle-TMException -TaskId "DISK_OPT" -TaskName "Tối ưu ổ đĩa" -Exception $_.Exception
+            Handle-TMException -TaskId "DISK_OPT" -TaskName "Optimize Drive" -Exception $_.Exception
         }
     }
     Pause-Screen
 }
 
 function Invoke-ChkdskBasic {
-    Write-SubHeader "CHKDSK - KIỂM TRA Ổ ĐĨA CHẾ ĐỘ READ-ONLY"
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "CHKDSK - READ-ONLY FILESYSTEM CHECK"
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    Write-InfoMessage "Đang chạy chkdsk $dl`: (chỉ đọc, không sửa)..."
+    Write-InfoMessage "Running chkdsk $dl`: (read-only mode)..."
     & chkdsk.exe "$dl`:"
-    Write-TMLog -TaskId "CHKDSK_RO" -TaskName "CHKDSK Read-Only" -Status "Success" -Message "Ổ $dl`:"
+    Write-TMLog -TaskId "CHKDSK_RO" -TaskName "CHKDSK Read-Only" -Status "Success" -Message "Drive $dl`:"
     Pause-Screen
 }
 
 function Invoke-ChkdskScan {
-    if (-not (Assert-Admin "chạy CHKDSK online scan")) { Pause-Screen; return }
-    Write-SubHeader "CHKDSK - QUÉT ONLINE NTFS (/scan)"
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    if (-not (Assert-Admin "run CHKDSK online scan")) { Pause-Screen; return }
+    Write-SubHeader "CHKDSK - ONLINE NTFS SCAN (/scan)"
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    Write-InfoMessage "Đang chạy chkdsk $dl`: /scan..."
+    Write-InfoMessage "Running chkdsk $dl`: /scan..."
     & chkdsk.exe "$dl`:" /scan
-    Write-TMLog -TaskId "CHKDSK_SCAN" -TaskName "CHKDSK Scan" -Status "Success" -Message "Ổ $dl`:"
+    Write-TMLog -TaskId "CHKDSK_SCAN" -TaskName "CHKDSK Scan" -Status "Success" -Message "Drive $dl`:"
     Pause-Screen
 }
 
 function Invoke-ChkdskFix {
-    if (-not (Assert-Admin "sửa lỗi ổ đĩa")) { Pause-Screen; return }
-    Write-SubHeader "CHKDSK - SỬA LỖI HỆ THỐNG FILE (/f)"
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    if (-not (Assert-Admin "fix disk errors")) { Pause-Screen; return }
+    Write-SubHeader "CHKDSK - REPAIR FILESYSTEM ERRORS (/f)"
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    $confirmed = Confirm-Action -TaskName "CHKDSK /f $dl`:" -ImpactDescription "Sửa lỗi logic hệ thống file. Với ổ hệ thống C:, Windows sẽ hỏi lên lịch quét khi khởi động lại máy." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "CHKDSK /f $dl`:" -ImpactDescription "Fixes filesystem logic errors. For system drive C:, Windows will schedule the check upon next reboot." -RiskLevel "medium"
     if ($confirmed) {
-        Write-InfoMessage "Đang thực thi chkdsk $dl`: /f..."
+        Write-InfoMessage "Executing chkdsk $dl`: /f..."
         & chkdsk.exe "$dl`:" /f
-        Write-TMLog -TaskId "CHKDSK_FIX" -TaskName "CHKDSK /f" -Status "Success" -Message "Ổ $dl`:" -RequiresRestart ($dl -eq "C")
+        Write-TMLog -TaskId "CHKDSK_FIX" -TaskName "CHKDSK /f" -Status "Success" -Message "Drive $dl`:" -RequiresRestart ($dl -eq "C")
     }
     Pause-Screen
 }
 
 function Invoke-ChkdskRecovery {
-    if (-not (Assert-Admin "quét phục hồi sector")) { Pause-Screen; return }
-    Write-SubHeader "CHKDSK - QUÉT SECTOR VÀ PHỤC HỒI DỮ LIỆU (/r)"
-    Write-WarningMessage "Lưu ý: Quá trình /r quét toàn bộ bề mặt ổ đĩa có thể mất từ 1 đến vài giờ."
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    if (-not (Assert-Admin "scan and recover bad sectors")) { Pause-Screen; return }
+    Write-SubHeader "CHKDSK - BAD SECTOR SCAN & DATA RECOVERY (/r)"
+    Write-WarningMessage "Notice: Scanning every sector on the drive surface may take hours depending on disk capacity."
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    $confirmed = Confirm-Action -TaskName "CHKDSK /r $dl`:" -ImpactDescription "Tìm sector lỗi và cố gắng phục hồi dữ liệu đọc được. Thao tác mất nhiều thời gian và yêu cầu khởi động lại nếu là ổ C:." -RiskLevel "high" -RequiresKeyword $true
+    $confirmed = Confirm-Action -TaskName "CHKDSK /r $dl`:" -ImpactDescription "Locates bad sectors and recovers readable information. Demands high disk I/O and requires a restart for drive C:." -RiskLevel "high" -RequiresKeyword $true
     if ($confirmed) {
-        Write-InfoMessage "Đang thực thi chkdsk $dl`: /r..."
+        Write-InfoMessage "Executing chkdsk $dl`: /r..."
         & chkdsk.exe "$dl`:" /r
-        Write-TMLog -TaskId "CHKDSK_R" -TaskName "CHKDSK /r" -Status "Success" -Message "Ổ $dl`:" -RequiresRestart ($dl -eq "C")
+        Write-TMLog -TaskId "CHKDSK_R" -TaskName "CHKDSK /r" -Status "Success" -Message "Drive $dl`:" -RequiresRestart ($dl -eq "C")
     }
     Pause-Screen
 }
 
 function Invoke-SfcVerify {
-    if (-not (Assert-Admin "xác minh file hệ thống")) { Pause-Screen; return }
-    Write-SubHeader "SFC - XÁC MINH FILE HỆ THỐNG (/verifyonly)"
-    Write-InfoMessage "Đang chạy sfc /verifyonly... Vui lòng không đóng cửa sổ."
+    if (-not (Assert-Admin "verify system files")) { Pause-Screen; return }
+    Write-SubHeader "SFC - VERIFY SYSTEM FILE INTEGRITY (/verifyonly)"
+    Write-InfoMessage "Running sfc /verifyonly... Please keep this window open."
     & sfc.exe /verifyonly
-    Write-TMLog -TaskId "SFC_VERIFY" -TaskName "SFC VerifyOnly" -Status "Success" -Message "Hoàn tất kiểm tra"
+    Write-TMLog -TaskId "SFC_VERIFY" -TaskName "SFC VerifyOnly" -Status "Success" -Message "Verification complete"
     Pause-Screen
 }
 
 function Invoke-SfcScanNow {
-    if (-not (Assert-Admin "quét và sửa file hệ thống")) { Pause-Screen; return }
-    Write-SubHeader "SFC - QUÉT VÀ SỬA FILE HỆ THỐNG (/scannow)"
-    Write-InfoMessage "Đang chạy sfc /scannow... Quá trình này mất khoảng vài phút."
+    if (-not (Assert-Admin "scan and repair system files")) { Pause-Screen; return }
+    Write-SubHeader "SFC - SCAN AND REPAIR SYSTEM FILES (/scannow)"
+    Write-InfoMessage "Running sfc /scannow... This process takes several minutes."
     & sfc.exe /scannow
-    Write-TMLog -TaskId "SFC_SCANNOW" -TaskName "SFC ScanNow" -Status "Success" -Message "Hoàn tất quét sửa"
+    Write-TMLog -TaskId "SFC_SCANNOW" -TaskName "SFC ScanNow" -Status "Success" -Message "Scan and repair complete"
     Pause-Screen
 }
 
 function Invoke-DismScan {
-    if (-not (Assert-Admin "quét component store")) { Pause-Screen; return }
-    Write-SubHeader "DISM - QUÉT COMPONENT STORE (/ScanHealth)"
-    Write-InfoMessage "Đang chạy DISM /Online /Cleanup-Image /ScanHealth..."
+    if (-not (Assert-Admin "scan component store")) { Pause-Screen; return }
+    Write-SubHeader "DISM - SCAN COMPONENT STORE (/ScanHealth)"
+    Write-InfoMessage "Running DISM /Online /Cleanup-Image /ScanHealth..."
     & dism.exe /Online /Cleanup-Image /ScanHealth
-    Write-TMLog -TaskId "DISM_SCAN" -TaskName "DISM ScanHealth" -Status "Success" -Message "Hoàn tất"
+    Write-TMLog -TaskId "DISM_SCAN" -TaskName "DISM ScanHealth" -Status "Success" -Message "Scan complete"
     Pause-Screen
 }
 
 function Invoke-DismRestore {
-    if (-not (Assert-Admin "khôi phục component store")) { Pause-Screen; return }
-    Write-SubHeader "DISM - KHÔI PHỤC COMPONENT STORE (/RestoreHealth)"
-    Write-InfoMessage "Đang chạy DISM /Online /Cleanup-Image /RestoreHealth..."
+    if (-not (Assert-Admin "repair component store")) { Pause-Screen; return }
+    Write-SubHeader "DISM - REPAIR COMPONENT STORE (/RestoreHealth)"
+    Write-InfoMessage "Running DISM /Online /Cleanup-Image /RestoreHealth..."
     & dism.exe /Online /Cleanup-Image /RestoreHealth
-    Write-TMLog -TaskId "DISM_RESTORE" -TaskName "DISM RestoreHealth" -Status "Success" -Message "Hoàn tất"
+    Write-TMLog -TaskId "DISM_RESTORE" -TaskName "DISM RestoreHealth" -Status "Success" -Message "Repair complete"
     Pause-Screen
 }
 
 function Invoke-RepairPipeline {
-    if (-not (Assert-Admin "chạy quy trình sửa chữa Windows")) { Pause-Screen; return }
-    Write-Header -Title "QUY TRÌNH SỬA CHỮA WINDOWS TOÀN DIỆN (DISM + SFC)"
-    Write-InfoMessage "Trình tự khuyến nghị chuẩn của Microsoft:"
-    Write-Host "  1. Quét và khôi phục kho linh kiện Windows Component Store (DISM RestoreHealth)" -ForegroundColor Gray
-    Write-Host "  2. Quét và thay thế các file hệ thống được bảo vệ (SFC scannow)" -ForegroundColor Gray
+    if (-not (Assert-Admin "run Windows repair wizard")) { Pause-Screen; return }
+    Write-Header -Title "COMPREHENSIVE WINDOWS REPAIR PIPELINE (DISM + SFC)"
+    Write-InfoMessage "Standard Microsoft-recommended sequence:"
+    Write-Host "  1. Repair Windows Component Store (DISM /Online /Cleanup-Image /RestoreHealth)" -ForegroundColor Gray
+    Write-Host "  2. Scan and replace protected system files (SFC /scannow)" -ForegroundColor Gray
     Write-Host ""
 
-    $confirmed = Confirm-Action -TaskName "Sửa chữa hệ thống DISM + SFC" -ImpactDescription "Tự động chạy DISM RestoreHealth rồi đến SFC Scannow để sửa các file Windows bị hỏng." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "DISM + SFC Repair Pipeline" -ImpactDescription "Automatically runs DISM RestoreHealth followed by SFC Scannow to fix corrupted OS files." -RiskLevel "medium"
     if ($confirmed) {
-        Write-SubHeader "BƯỚC 1/2: CHẠY DISM RESTOREHEALTH"
+        Write-SubHeader "STEP 1/2: EXECUTING DISM RESTOREHEALTH"
         & dism.exe /Online /Cleanup-Image /RestoreHealth
 
-        Write-SubHeader "BƯỚC 2/2: CHẠY SFC SCANNOW"
+        Write-SubHeader "STEP 2/2: EXECUTING SFC SCANNOW"
         & sfc.exe /scannow
 
-        Write-Success "Quy trình sửa chữa DISM + SFC đã hoàn thành!"
-        Write-TMLog -TaskId "REPAIR_PIPELINE" -TaskName "DISM + SFC Pipeline" -Status "Success" -Message "Hoàn tất quy trình sửa chữa"
+        Write-Success "DISM + SFC Repair Pipeline completed successfully!"
+        Write-TMLog -TaskId "REPAIR_PIPELINE" -TaskName "DISM + SFC Pipeline" -Status "Success" -Message "Repair pipeline finished"
     }
     Pause-Screen
 }
 
 function Export-MaintenanceReport {
-    Write-SubHeader "XUẤT BÁO CÁO Ổ ĐĨA & BẢO TRÌ"
+    Write-SubHeader "EXPORT DISK & MAINTENANCE REPORT"
     $reportDir = Join-Path $PSScriptRoot "../../../Logs"
     $filename = "MaintenanceReport_" + (Get-Date).ToString("yyyyMMdd_HHmmss") + ".txt"
     $fullPath = Join-Path $reportDir $filename
 
     $lines = @()
     $lines += "========================================================="
-    $lines += "         TM-WINCARE - BÁO CÁO BẢO TRÌ & Ổ ĐĨA"
-    $lines += "  Thời gian: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    $lines += "         TM-WINCARE - DISK & MAINTENANCE REPORT"
+    $lines += "  Generated: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     $lines += "========================================================="
     try {
         $volumes = Get-Volume | Where-Object { $null -ne $_.DriveLetter }
         foreach ($v in $volumes) {
             $totalGB = [math]::Round($v.Size / 1GB, 1)
             $freeGB = [math]::Round($v.SizeRemaining / 1GB, 1)
-            $lines += "Ổ $($v.DriveLetter): [$($v.FileSystemLabel)] - $freeGB GB trống / $totalGB GB ($($v.FileSystem))"
+            $lines += "Drive $($v.DriveLetter): [$($v.FileSystemLabel)] - $freeGB GB free / $totalGB GB ($($v.FileSystem))"
         }
     } catch {}
     $lines += "========================================================="
 
     Set-Content -Path $fullPath -Value $lines -Encoding UTF8 -Force
-    Write-Success "Đã xuất báo cáo ra: $fullPath"
+    Write-Success "Report exported to: $fullPath"
     Pause-Screen
 }
 
@@ -2394,49 +2394,49 @@ function Export-MaintenanceReport {
 
 function Show-TMRepairMenu {
     $menuItems = @(
-        @{ Label = "Quy trình sửa chữa hoàn chỉnh (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
-        @{ Label = "SFC - Quét và sửa file hệ thống (sfc /scannow)"; Action = { Invoke-SfcScanNow } },
-        @{ Label = "DISM - Kiểm tra trạng thái hỏng hóc nhanh (CheckHealth)"; Action = { Invoke-DismCheckHealth } },
-        @{ Label = "DISM - Quét sâu linh kiện Component Store (ScanHealth)"; Action = { Invoke-DismScan } },
-        @{ Label = "DISM - Khôi phục linh kiện Component Store (RestoreHealth)"; Action = { Invoke-DismRestore } },
-        @{ Label = "Dọn dẹp Windows Component Store (DISM StartComponentCleanup)"; Action = { Invoke-DismComponentCleanup } },
-        @{ Label = "Đặt lại cấu hình mạng & Winsock (Netsh Winsock Reset)"; Action = { Invoke-ResetWinsock } }
+        @{ Label = "Complete Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
+        @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (sfc /scannow)"; Action = { Invoke-SfcScanNow } },
+        @{ Label = "DISM - Quick Corruption Check (CheckHealth)"; Action = { Invoke-DismCheckHealth } },
+        @{ Label = "DISM - Deep Component Store Health Scan (ScanHealth)"; Action = { Invoke-DismScan } },
+        @{ Label = "DISM - Restore Component Store Health (RestoreHealth)"; Action = { Invoke-DismRestore } },
+        @{ Label = "Clean Windows Component Store WinSxS (DISM StartComponentCleanup)"; Action = { Invoke-DismComponentCleanup } },
+        @{ Label = "Reset Network Winsock & TCP/IP Stack (Netsh Winsock Reset)"; Action = { Invoke-ResetWinsock } }
     )
-    Show-TMMenu -Title "SỬA CHỮA HỆ THỐNG WINDOWS (SYSTEM REPAIR)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "WINDOWS SYSTEM REPAIR & HEALTH" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Invoke-DismCheckHealth {
-    if (-not (Assert-Admin "kiểm tra nhanh DISM")) { Pause-Screen; return }
-    Write-SubHeader "DISM /CheckHealth - KIỂM TRA NHANH TRẠNG THÁI COMPONENT STORE"
+    if (-not (Assert-Admin "run DISM quick check")) { Pause-Screen; return }
+    Write-SubHeader "DISM /CheckHealth - QUICK COMPONENT STORE HEALTH CHECK"
     & dism.exe /Online /Cleanup-Image /CheckHealth
     Pause-Screen
 }
 
 function Invoke-DismComponentCleanup {
-    if (-not (Assert-Admin "dọn dẹp component store")) { Pause-Screen; return }
-    Write-SubHeader "DỌN DẸP WIN-SXS COMPONENT STORE (DISM StartComponentCleanup)"
-    Write-InfoMessage "Thu hồi dung lượng các bản cập nhật cũ trong thư mục WinSxS an toàn theo chuẩn Microsoft."
+    if (-not (Assert-Admin "clean component store")) { Pause-Screen; return }
+    Write-SubHeader "CLEAN WINSXS COMPONENT STORE (DISM StartComponentCleanup)"
+    Write-InfoMessage "Reclaims disk space by purging superseded update components per official Microsoft guidance."
     
-    $confirmed = Confirm-Action -TaskName "DISM Component Cleanup" -ImpactDescription "Dọn dẹp các bản backup update cũ trong WinSxS. Thao tác không thể hoàn tác nhưng an toàn." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "DISM Component Cleanup" -ImpactDescription "Cleans superseded update packages in WinSxS. Operation cannot be rolled back but is officially safe." -RiskLevel "medium"
     if ($confirmed) {
-        Write-InfoMessage "Đang thực thi DISM /Online /Cleanup-Image /StartComponentCleanup..."
+        Write-InfoMessage "Executing DISM /Online /Cleanup-Image /StartComponentCleanup..."
         & dism.exe /Online /Cleanup-Image /StartComponentCleanup
-        Write-Success "Dọn dẹp Component Store hoàn tất!"
-        Write-TMLog -TaskId "DISM_CLEANUP" -TaskName "DISM StartComponentCleanup" -Status "Success" -Message "Hoàn tất"
+        Write-Success "Component Store cleanup complete!"
+        Write-TMLog -TaskId "DISM_CLEANUP" -TaskName "DISM StartComponentCleanup" -Status "Success" -Message "Complete"
     }
     Pause-Screen
 }
 
 function Invoke-ResetWinsock {
-    if (-not (Assert-Admin "đặt lại Winsock")) { Pause-Screen; return }
-    Write-SubHeader "ĐẶT LẠI WINSOCK & TCP/IP STACK"
-    $confirmed = Confirm-Action -TaskName "Reset Winsock" -ImpactDescription "Đặt lại cấu hình socket mạng về mặc định để sửa lỗi mất mạng, DNS hoặc proxy bị hỏng. Cần khởi động lại máy." -RiskLevel "medium"
+    if (-not (Assert-Admin "reset Winsock")) { Pause-Screen; return }
+    Write-SubHeader "RESET WINSOCK & TCP/IP STACK"
+    $confirmed = Confirm-Action -TaskName "Reset Winsock" -ImpactDescription "Resets network socket catalog to default to fix internet, DNS, or broken proxy issues. Requires restart." -RiskLevel "medium"
     if ($confirmed) {
         & netsh.exe winsock reset
         & netsh.exe int ip reset
-        Write-Success "Đã đặt lại Winsock và TCP/IP stack!"
-        Write-WarningMessage "Vui lòng khởi động lại máy để hoàn tất cấu hình mạng."
-        Write-TMLog -TaskId "NET_WINSOCK_RESET" -TaskName "Reset Winsock" -Status "Success" -Message "Thành công" -RequiresRestart $true
+        Write-Success "Winsock and TCP/IP stack successfully reset!"
+        Write-WarningMessage "Please restart your computer to apply the network reset."
+        Write-TMLog -TaskId "NET_WINSOCK_RESET" -TaskName "Reset Winsock" -Status "Success" -Message "Success" -RequiresRestart $true
     }
     Pause-Screen
 }
@@ -2448,36 +2448,36 @@ function Invoke-ResetWinsock {
 
 function Show-TMNetworkMenu {
     $menuItems = @(
-        @{ Label = "Xem tổng quan IP, Gateway, DNS, MAC"; Action = { Show-NetworkOverview } },
-        @{ Label = "Chạy ipconfig /all (Chi tiết cấu hình)"; Action = { & ipconfig.exe /all; Pause-Screen } },
-        @{ Label = "Xóa cache DNS (Flush DNS)"; Action = { Clear-DnsClientCache; Write-Success "Đã xóa DNS Cache thành công."; Pause-Screen } },
-        @{ Label = "Làm mới địa chỉ IP DHCP (Renew IP)"; Action = { & ipconfig.exe /renew; Pause-Screen } },
-        @{ Label = "Kiểm tra Ping tới Gateway / IP / Máy chủ"; Action = { Invoke-PingTest } },
-        @{ Label = "Kiểm tra phân giải tên miền (DNS Lookup)"; Action = { Invoke-DnsLookupTest } },
-        @{ Label = "Kiểm tra kết nối cổng TCP (Port Ping)"; Action = { Invoke-TcpPortTest } },
-        @{ Label = "Kiểm tra cấu hình SMB Client (Read-Only)"; Action = { Show-SmbConfiguration } },
-        @{ Label = "Kiểm tra Firewall Rules cho File & Printer Sharing"; Action = { Show-FirewallSharingRules } },
-        @{ Label = "Mở Network Connections (ncpa.cpl)"; Action = { Start-Process "ncpa.cpl" } },
-        @{ Label = "Mở Advanced Sharing Settings (Cài đặt chia sẻ nâng cao)"; Action = { Start-Process "control.exe" "/name Microsoft.NetworkAndSharingCenter /page Advanced" } },
-        @{ Label = "Mở Windows Firewall (firewall.cpl)"; Action = { Start-Process "firewall.cpl" } },
-        @{ Label = "Mở Credential Manager (Quản lý tài khoản mạng)"; Action = { Start-Process "control.exe" "/name Microsoft.CredentialManager" } },
-        @{ Label = "Xuất báo cáo cấu hình mạng"; Action = { Export-NetworkReport } }
+        @{ Label = "View Network Overview (IP, Gateway, DNS, MAC)"; Action = { Show-NetworkOverview } },
+        @{ Label = "Run ipconfig /all (Detailed Adapter Metrics)"; Action = { & ipconfig.exe /all; Pause-Screen } },
+        @{ Label = "Flush DNS Resolver Cache"; Action = { Clear-DnsClientCache; Write-Success "DNS Client Resolver Cache flushed successfully."; Pause-Screen } },
+        @{ Label = "Renew DHCP IP Address (ipconfig /renew)"; Action = { & ipconfig.exe /renew; Pause-Screen } },
+        @{ Label = "Ping Connectivity Test (Gateway / Target Host)"; Action = { Invoke-PingTest } },
+        @{ Label = "DNS Hostname Lookup Test (nslookup / Resolve-DnsName)"; Action = { Invoke-DnsLookupTest } },
+        @{ Label = "TCP Port Connectivity Test (Test-NetConnection)"; Action = { Invoke-TcpPortTest } },
+        @{ Label = "Inspect SMB Client Security Configuration (Read-Only)"; Action = { Show-SmbConfiguration } },
+        @{ Label = "Check Windows Firewall Rules for File & Printer Sharing"; Action = { Show-FirewallSharingRules } },
+        @{ Label = "Open Network Connections (ncpa.cpl)"; Action = { Start-Process "ncpa.cpl" } },
+        @{ Label = "Open Advanced Sharing Settings"; Action = { Start-Process "control.exe" "/name Microsoft.NetworkAndSharingCenter /page Advanced" } },
+        @{ Label = "Open Windows Firewall (firewall.cpl)"; Action = { Start-Process "firewall.cpl" } },
+        @{ Label = "Open Credential Manager (control credman)"; Action = { Start-Process "control.exe" "/name Microsoft.CredentialManager" } },
+        @{ Label = "Export Network Diagnostic Report"; Action = { Export-NetworkReport } }
     )
-    Show-TMMenu -Title "MẠNG NỘI BỘ & LAN SUPPORT (NETWORK SUPPORT)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "LOCAL NETWORK & LAN SUPPORT" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-NetworkOverview {
-    Write-SubHeader "TỔNG QUAN KẾT NỐI MẠNG"
+    Write-SubHeader "ACTIVE NETWORK INTERFACES & IP CONFIGURATION"
     try {
         $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
         foreach ($ad in $adapters) {
-            Write-Host " Card mạng: $($ad.Name) ($($ad.InterfaceDescription))" -ForegroundColor Cyan
+            Write-Host " Interface : $($ad.Name) ($($ad.InterfaceDescription))" -ForegroundColor Cyan
             Write-Host "   MAC Address  : $($ad.MacAddress)" -ForegroundColor White
-            Write-Host "   Tốc độ kết nối: $($ad.LinkSpeed)" -ForegroundColor White
+            Write-Host "   Link Speed   : $($ad.LinkSpeed)" -ForegroundColor White
 
             $ips = Get-NetIPAddress -InterfaceIndex $ad.InterfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
             foreach ($ip in $ips) {
-                Write-Host "   Địa chỉ IPv4 : $($ip.IPAddress)/$($ip.PrefixLength)" -ForegroundColor Green
+                Write-Host "   IPv4 Address : $($ip.IPAddress)/$($ip.PrefixLength)" -ForegroundColor Green
             }
 
             $routes = Get-NetRoute -InterfaceIndex $ad.InterfaceIndex -DestinationPrefix "0.0.0.0/0" -ErrorAction SilentlyContinue
@@ -2487,30 +2487,30 @@ function Show-NetworkOverview {
 
             $dnsServers = (Get-DnsClientServerAddress -InterfaceIndex $ad.InterfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue).ServerAddresses
             if ($dnsServers) {
-                Write-Host "   Máy chủ DNS  : $($dnsServers -join ', ')" -ForegroundColor White
+                Write-Host "   DNS Servers  : $($dnsServers -join ', ')" -ForegroundColor White
             }
             Write-Host ""
         }
     } catch {
-        Handle-TMException -TaskId "NET_OVERVIEW" -TaskName "Xem cấu hình mạng" -Exception $_.Exception
+        Handle-TMException -TaskId "NET_OVERVIEW" -TaskName "View Network Config" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Invoke-PingTest {
-    Write-SubHeader "KIỂM TRA PING KẾT NỐI"
-    Write-Host " Nhập IP hoặc tên máy chủ cần ping (mặc định 8.8.8.8): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "ICMP PING CONNECTIVITY TEST"
+    Write-Host " Enter IP address or hostname to ping (default 8.8.8.8): " -ForegroundColor Cyan -NoNewline
     $target = Read-Host
     if ([string]::IsNullOrWhiteSpace($target)) { $target = "8.8.8.8" }
 
-    Write-InfoMessage "Đang gửi 4 gói tin ICMP tới $target..."
+    Write-InfoMessage "Sending 4 ICMP echo requests to $target..."
     & ping.exe $target
     Pause-Screen
 }
 
 function Invoke-DnsLookupTest {
-    Write-SubHeader "KIỂM TRA PHÂN GIẢI DNS (NSLOOKUP)"
-    Write-Host " Nhập tên miền hoặc hostname cần tra cứu (ví dụ: google.com): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "DNS NAME RESOLUTION TEST (NSLOOKUP)"
+    Write-Host " Enter domain name or hostname to resolve (e.g. google.com): " -ForegroundColor Cyan -NoNewline
     $hostName = Read-Host
     if ([string]::IsNullOrWhiteSpace($hostName)) { $hostName = "google.com" }
 
@@ -2518,37 +2518,37 @@ function Invoke-DnsLookupTest {
         $res = Resolve-DnsName -Name $hostName -ErrorAction Stop
         $res | Select-Object Name, Type, IPAddress | Format-Table -AutoSize
     } catch {
-        Write-ErrorMessage "Không thể phân giải tên '$hostName': $($_.Exception.Message)"
+        Write-ErrorMessage "Failed to resolve '$hostName': $($_.Exception.Message)"
     }
     Pause-Screen
 }
 
 function Invoke-TcpPortTest {
-    Write-SubHeader "KIỂM TRA KẾT NỐI CỔNG TCP (PORT TEST)"
-    Write-Host " Nhập địa chỉ IP hoặc tên máy: " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "TCP PORT CONNECTIVITY TEST"
+    Write-Host " Enter destination host or IP: " -ForegroundColor Cyan -NoNewline
     $dest = Read-Host
     if ([string]::IsNullOrWhiteSpace($dest)) {
-        Write-ErrorMessage "Địa chỉ không được để trống."
+        Write-ErrorMessage "Target address cannot be empty."
         Pause-Screen
         return
     }
 
-    Write-Host " Nhập số cổng TCP (ví dụ: 80, 443, 445 cho SMB, 135 cho RPC, 9100 cho máy in): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Enter TCP port number (e.g. 80, 443, 445 for SMB, 135 for RPC, 9100 for RAW printer): " -ForegroundColor Cyan -NoNewline
     $portStr = Read-Host
     if (-not ($portStr -match "^\d+$")) {
-        Write-ErrorMessage "Số cổng không hợp lệ."
+        Write-ErrorMessage "Invalid port number."
         Pause-Screen
         return
     }
 
     $port = [int]$portStr
-    Write-InfoMessage "Đang kiểm tra kết nối TCP tới $dest`:$port..."
+    Write-InfoMessage "Testing TCP connection to $dest`:$port..."
     try {
         $test = Test-NetConnection -ComputerName $dest -Port $port -WarningAction SilentlyContinue
         if ($test.TcpTestSucceeded) {
-            Write-Success "Kết nối tới $dest`:$port THÀNH CÔNG!"
+            Write-Success "Connection to $dest`:$port SUCCEEDED!"
         } else {
-            Write-ErrorMessage "Kết nối tới $dest`:$port THẤT BẠI. Cổng có thể bị đóng hoặc chặn bởi tường lửa."
+            Write-ErrorMessage "Connection to $dest`:$port FAILED. Port may be closed or blocked by firewall."
         }
     } catch {
         Handle-TMException -TaskId "NET_PORT_TEST" -TaskName "Port Test" -Exception $_.Exception
@@ -2557,62 +2557,63 @@ function Invoke-TcpPortTest {
 }
 
 function Show-SmbConfiguration {
-    Write-SubHeader "CẤU HÌNH SMB CLIENT HIỆN TẠI (READ-ONLY)"
+    Write-SubHeader "SMB CLIENT SECURITY CONFIGURATION (READ-ONLY)"
     try {
         if (Test-CmdletAvailable "Get-SmbClientConfiguration") {
             $smb = Get-SmbClientConfiguration
-            Write-Host "  RequireSecuritySignature (Bắt buộc ký số SMB): $($smb.RequireSecuritySignature)" -ForegroundColor $(if ($smb.RequireSecuritySignature) { "Green" } else { "Yellow" })
-            Write-Host "  EnableInsecureGuestLogons (Cho phép Guest):      $($smb.EnableInsecureGuestLogons)" -ForegroundColor $(if ($smb.EnableInsecureGuestLogons) { "Red" } else { "Green" })
-            Write-Host "  EnableSMB1Protocol (Giao thức cũ SMB1):          $(if (Test-CmdletAvailable 'Get-WindowsOptionalFeature') { 'Kiểm tra qua Windows Features' } else { 'Không khả dụng' })" -ForegroundColor Gray
+            Write-Host "  RequireSecuritySignature (SMB Signing Mandatory): $($smb.RequireSecuritySignature)" -ForegroundColor $(if ($smb.RequireSecuritySignature) { "Green" } else { "Yellow" })
+            Write-Host "  EnableInsecureGuestLogons (Insecure Guest Allowed): $($smb.EnableInsecureGuestLogons)" -ForegroundColor $(if ($smb.EnableInsecureGuestLogons) { "Red" } else { "Green" })
+            Write-Host "  EnableSMB1Protocol (Deprecated SMBv1 Protocol):   $(if (Test-CmdletAvailable 'Get-WindowsOptionalFeature') { 'Queryable via Optional Features' } else { 'Not Available' })" -ForegroundColor Gray
             Write-Host ""
-            Write-InfoMessage "Ghi chú: Giữ RequireSecuritySignature = True là cấu hình an toàn tiêu chuẩn của Microsoft."
+            Write-InfoMessage "Note: Keeping RequireSecuritySignature = True is official Microsoft security best practice."
         } else {
-            Write-WarningMessage "Cmdlet Get-SmbClientConfiguration không khả dụng trên phiên bản Windows này."
+            Write-WarningMessage "Cmdlet Get-SmbClientConfiguration is unavailable on this edition."
         }
     } catch {
-        Handle-TMException -TaskId "SMB_CONF" -TaskName "Kiểm tra SMB" -Exception $_.Exception
+        Handle-TMException -TaskId "SMB_CONF" -TaskName "Inspect SMB" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Show-FirewallSharingRules {
-    Write-SubHeader "TRẠNG THÁI TƯỜNG LỬA CHO FILE & PRINTER SHARING"
+    Write-SubHeader "FIREWALL STATUS FOR FILE & PRINTER SHARING"
     try {
         $rules = Get-NetFirewallRule -DisplayGroup "*File and Printer Sharing*" -ErrorAction SilentlyContinue | Select-Object -First 5
         if ($rules) {
             foreach ($r in $rules) {
-                $status = if ($r.Enabled -eq "True") { "[BẬT]" } else { "[TẮT]" }
+                $status = if ($r.Enabled -eq "True") { "[ENABLED]" } else { "[DISABLED]" }
                 $color = if ($r.Enabled -eq "True") { "Green" } else { "Yellow" }
                 Write-Host "  $status $($r.DisplayName)" -ForegroundColor $color
             }
         } else {
-            Write-InfoMessage "Không tìm thấy rule File and Printer Sharing."
+            Write-InfoMessage "No File and Printer Sharing rules detected."
         }
     } catch {
-        Handle-TMException -TaskId "FW_RULES" -TaskName "Kiểm tra Firewall Rules" -Exception $_.Exception
+        Handle-TMException -TaskId "FW_RULES" -TaskName "Check Firewall Rules" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Export-NetworkReport {
+    Write-SubHeader "EXPORT NETWORK DIAGNOSTIC REPORT"
     $reportDir = Join-Path $PSScriptRoot "../../../Logs"
     $filename = "NetworkReport_" + (Get-Date).ToString("yyyyMMdd_HHmmss") + ".txt"
     $fullPath = Join-Path $reportDir $filename
 
     $lines = @()
     $lines += "========================================================="
-    $lines += "         TM-WINCARE - BÁO CÁO CẤU HÌNH MẠNG"
-    $lines += "  Thời gian: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    $lines += "         TM-WINCARE - NETWORK DIAGNOSTIC REPORT"
+    $lines += "  Generated: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     $lines += "========================================================="
     try {
         $adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
         foreach ($ad in $adapters) {
-            $lines += "Card: $($ad.Name) | MAC: $($ad.MacAddress) | Tốc độ: $($ad.LinkSpeed)"
+            $lines += "Adapter: $($ad.Name) | MAC: $($ad.MacAddress) | Speed: $($ad.LinkSpeed)"
         }
     } catch {}
     $lines += "========================================================="
     Set-Content -Path $fullPath -Value $lines -Encoding UTF8 -Force
-    Write-Success "Đã xuất báo cáo ra file: $fullPath"
+    Write-Success "Report exported to file: $fullPath"
     Pause-Screen
 }
 
@@ -2623,71 +2624,71 @@ function Export-NetworkReport {
 
 function Show-TMPrinterMenu {
     $menuItems = @(
-        @{ Label = "Danh sách máy in đã cài trên hệ thống"; Action = { Show-InstalledPrinters } },
-        @{ Label = "Mở cài đặt Printers & Scanners (Settings)"; Action = { Start-Process "ms-settings:printers" } },
-        @{ Label = "Mở Devices and Printers cổ điển (Control Panel)"; Action = { Start-Process "control.exe" "printers" } },
-        @{ Label = "Mở Quản lý Driver máy in (printui /s /t2)"; Action = { Start-Process "rundll32.exe" "printui.dll,PrintUIEntry /s /t2" } },
-        @{ Label = "Khởi động lại dịch vụ Print Spooler"; Action = { Invoke-RestartSpooler } },
-        @{ Label = "Xóa toàn bộ hàng đợi in bị treo / kẹt lệnh"; Action = { Invoke-ClearPrintQueue } },
-        @{ Label = "Kiểm tra chi tiết trạng thái Print Spooler"; Action = { Test-PrintSpoolerHealth } },
-        @{ Label = "Kiểm tra kết nối máy in chia sẻ qua mạng (UNC Test)"; Action = { Test-SharedPrinterConnection } },
-        @{ Label = "Tạo tài khoản scan máy in (Scan-to-Folder)"; Action = { Invoke-CreateScanAccount } },
-        @{ Label = "Hướng dẫn & công cụ cấu hình máy chủ chia sẻ máy in"; Action = { Show-HostPrinterGuide } },
-        @{ Label = "Hướng dẫn & công cụ cấu hình máy khách kết nối máy in"; Action = { Show-ClientPrinterGuide } },
-        @{ Label = "Tạo Local Port kết nối máy in qua mạng (\\Server\\Share)"; Action = { Show-LocalPortHelper } },
-        @{ Label = "Hướng dẫn xử lý lỗi máy in Access Denied (0x0000011b, 0x00000709)"; Action = { Show-PrinterAccessDeniedGuide } },
-        @{ Label = "Xuất báo cáo máy in ra file TXT"; Action = { Export-PrinterReport } }
+        @{ Label = "List Installed Printers & Driver Status"; Action = { Show-InstalledPrinters } },
+        @{ Label = "Open Windows Printers & Scanners Settings"; Action = { Start-Process "ms-settings:printers" } },
+        @{ Label = "Open Classic Devices and Printers (Control Panel)"; Action = { Start-Process "control.exe" "printers" } },
+        @{ Label = "Open Print Server Driver Properties (printui /s /t2)"; Action = { Start-Process "rundll32.exe" "printui.dll,PrintUIEntry /s /t2" } },
+        @{ Label = "Restart Print Spooler Service"; Action = { Invoke-RestartSpooler } },
+        @{ Label = "Clear Stuck Print Spool Queue Files"; Action = { Invoke-ClearPrintQueue } },
+        @{ Label = "Test Print Spooler Health & Service Status"; Action = { Test-PrintSpoolerHealth } },
+        @{ Label = "Test Network Shared Printer Path (UNC Connectivity)"; Action = { Test-SharedPrinterConnection } },
+        @{ Label = "Create Scan-to-Folder Local Account"; Action = { Invoke-CreateScanAccount } },
+        @{ Label = "Host Printer Sharing Setup Guide & Tools"; Action = { Show-HostPrinterGuide } },
+        @{ Label = "Client Printer Connection Guide & Tools"; Action = { Show-ClientPrinterGuide } },
+        @{ Label = "Local Port Helper for Shared Network Printers (\\Server\\Share)"; Action = { Show-LocalPortHelper } },
+        @{ Label = "Troubleshoot Access Denied & 0x0000011b / 0x00000709 Errors"; Action = { Show-PrinterAccessDeniedGuide } },
+        @{ Label = "Export Printer Configuration Report to TXT"; Action = { Export-PrinterReport } }
     )
-    Show-TMMenu -Title "HỖ TRỢ MÁY IN & IN ẤN (PRINTER SUPPORT)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "PRINTER & PRINT SPOOLER SUPPORT" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-InstalledPrinters {
-    Write-SubHeader "DANH SÁCH MÁY IN ĐÃ CÀI ĐẶT"
+    Write-SubHeader "INSTALLED PRINTERS ON THIS SYSTEM"
     try {
         $printers = Get-Printer -ErrorAction Stop
         if (-not $printers -or @($printers).Count -eq 0) {
-            Write-InfoMessage "Không tìm thấy máy in nào được cài đặt trên hệ thống."
+            Write-InfoMessage "No printers currently installed on this system."
         } else {
             $list = @()
             foreach ($p in $printers) {
                 $list += [PSCustomObject]@{
-                    TenMayIn = $p.Name
+                    PrinterName = $p.Name
                     Driver = $p.DriverName
-                    Cong = $p.PortName
-                    ChiaSe = if ($p.Shared) { "Có ($($p.ShareName))" } else { "Không" }
-                    TrangThai = $p.PrinterStatus.ToString()
+                    Port = $p.PortName
+                    Shared = if ($p.Shared) { "Yes ($($p.ShareName))" } else { "No" }
+                    Status = $p.PrinterStatus.ToString()
                 }
             }
-            $headers = @("Tên máy in", "Driver", "Cổng kết nối", "Chia sẻ", "Trạng thái")
-            $props = @("TenMayIn", "Driver", "Cong", "ChiaSe", "TrangThai")
+            $headers = @("Printer Name", "Driver", "Port Name", "Shared", "Status")
+            $props = @("PrinterName", "Driver", "Port", "Shared", "Status")
             $widths = @(25, 25, 15, 12, 10)
             Show-TableList -Items $list -Headers $headers -PropertyNames $props -Widths $widths
         }
     } catch {
-        Handle-TMException -TaskId "PRINT_LIST" -TaskName "Liệt kê máy in" -Exception $_.Exception
+        Handle-TMException -TaskId "PRINT_LIST" -TaskName "List Printers" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Invoke-RestartSpooler {
-    if (-not (Assert-Admin "khởi động lại Print Spooler")) { Pause-Screen; return }
+    if (-not (Assert-Admin "restart Print Spooler")) { Pause-Screen; return }
 
-    Write-SubHeader "KHỞI ĐỘNG LẠI DỊCH VỤ PRINT SPOOLER"
+    Write-SubHeader "RESTART PRINT SPOOLER SERVICE"
     try {
-        Write-InfoMessage "Đang dừng dịch vụ Spooler..."
+        Write-InfoMessage "Stopping Spooler service..."
         Stop-Service -Name Spooler -Force -ErrorAction Stop
         Start-Sleep -Milliseconds 800
         
-        Write-InfoMessage "Đang khởi động lại dịch vụ Spooler..."
+        Write-InfoMessage "Starting Spooler service..."
         Start-Service -Name Spooler -ErrorAction Stop
         Start-Sleep -Milliseconds 800
 
         $svc = Get-Service -Name Spooler
         if ($svc.Status -eq "Running") {
-            Write-Success "Dịch vụ Print Spooler đã được khởi động lại và đang hoạt động bình thường!"
-            Write-TMLog -TaskId "PRINT_RESTART_SPOOLER" -TaskName "Restart Spooler" -Status "Success" -Message "Thành công"
+            Write-Success "Print Spooler service restarted and running normally!"
+            Write-TMLog -TaskId "PRINT_RESTART_SPOOLER" -TaskName "Restart Spooler" -Status "Success" -Message "Success"
         } else {
-            Write-ErrorMessage "Dịch vụ Spooler ở trạng thái: $($svc.Status)"
+            Write-ErrorMessage "Spooler service status: $($svc.Status)"
         }
     } catch {
         Handle-TMException -TaskId "PRINT_RESTART_SPOOLER" -TaskName "Restart Spooler" -Exception $_.Exception
@@ -2696,20 +2697,20 @@ function Invoke-RestartSpooler {
 }
 
 function Invoke-ClearPrintQueue {
-    if (-not (Assert-Admin "xóa hàng đợi in bị treo")) { Pause-Screen; return }
+    if (-not (Assert-Admin "clear stuck print queue")) { Pause-Screen; return }
 
-    Write-SubHeader "XÓA HÀNG ĐỢI IN BỊ TREO (CLEAR SPOOL QUEUE)"
+    Write-SubHeader "PURGE STUCK PRINT JOBS (CLEAR SPOOL QUEUE)"
     $spoolPath = Join-Path $env:SystemRoot "System32\spool\PRINTERS"
 
-    $confirmed = Confirm-Action -TaskName "Xóa hàng đợi in bị kẹt" -ImpactDescription "Dừng Print Spooler, dọn sạch tất cả lệnh in đang chờ trong thư mục $spoolPath và khởi động lại Spooler." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "Purge Stuck Print Jobs" -ImpactDescription "Stops Spooler, deletes all pending .SPL/.SHD files in $spoolPath, and restarts Spooler." -RiskLevel "medium"
     if (-not $confirmed) { Pause-Screen; return }
 
     try {
-        Write-InfoMessage "1. Đang dừng dịch vụ Print Spooler..."
+        Write-InfoMessage "1. Stopping Print Spooler service..."
         Stop-Service -Name Spooler -Force -ErrorAction Stop
         Start-Sleep -Milliseconds 500
 
-        Write-InfoMessage "2. Đang xóa các file lệnh in tạm trong $spoolPath..."
+        Write-InfoMessage "2. Purging temporary spool job files in $spoolPath..."
         $files = Get-ChildItem -Path $spoolPath -File -ErrorAction SilentlyContinue
         $deleted = 0
         foreach ($f in $files) {
@@ -2718,54 +2719,54 @@ function Invoke-ClearPrintQueue {
                 $deleted++
             } catch {}
         }
-        Write-Success "Đã xóa $deleted file lệnh in bị kẹt."
+        Write-Success "Deleted $deleted stuck spool file(s)."
 
-        Write-InfoMessage "3. Đang khởi động lại dịch vụ Print Spooler..."
+        Write-InfoMessage "3. Restarting Print Spooler service..."
         Start-Service -Name Spooler -ErrorAction Stop
         Start-Sleep -Milliseconds 500
 
         $svc = Get-Service -Name Spooler
         if ($svc.Status -eq "Running") {
-            Write-Success "Hàng đợi in đã được dọn sạch và Spooler đã hoạt động trở lại!"
-            Write-TMLog -TaskId "PRINT_CLEAR_QUEUE" -TaskName "Xóa hàng đợi in" -Status "Success" -Message "Đã xóa $deleted file lệnh in"
+            Write-Success "Print spool queue cleared and Spooler service resumed!"
+            Write-TMLog -TaskId "PRINT_CLEAR_QUEUE" -TaskName "Clear Spool Queue" -Status "Success" -Message "Purged $deleted print jobs"
         }
     } catch {
-        Handle-TMException -TaskId "PRINT_CLEAR_QUEUE" -TaskName "Xóa hàng đợi in" -Exception $_.Exception
+        Handle-TMException -TaskId "PRINT_CLEAR_QUEUE" -TaskName "Clear Spool Queue" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Test-PrintSpoolerHealth {
-    Write-SubHeader "KIỂM TRA SỨC KHỎE DỊCH VỤ PRINT SPOOLER"
+    Write-SubHeader "PRINT SPOOLER HEALTH & DIAGNOSTICS"
     try {
         $svc = Get-Service -Name Spooler -ErrorAction Stop
-        Write-Host "  Tên dịch vụ   : $($svc.ServiceName) ($($svc.DisplayName))" -ForegroundColor Cyan
-        Write-Host "  Trạng thái    : $($svc.Status)" -ForegroundColor $(if ($svc.Status -eq "Running") { "Green" } else { "Red" })
+        Write-Host "  Service Name  : $($svc.ServiceName) ($($svc.DisplayName))" -ForegroundColor Cyan
+        Write-Host "  Current Status: $($svc.Status)" -ForegroundColor $(if ($svc.Status -eq "Running") { "Green" } else { "Red" })
 
         $cim = Get-CimInstance Win32_Service -Filter "Name='Spooler'" -ErrorAction SilentlyContinue
         if ($cim) {
-            Write-Host "  Chế độ startup: $($cim.StartMode)" -ForegroundColor White
-            Write-Host "  Tiến trình PID: $($cim.ProcessId)" -ForegroundColor White
+            Write-Host "  Startup Mode  : $($cim.StartMode)" -ForegroundColor White
+            Write-Host "  Process PID   : $($cim.ProcessId)" -ForegroundColor White
         }
 
         # Check Spool folder size
         $spoolPath = Join-Path $env:SystemRoot "System32\spool\PRINTERS"
         if (Test-Path $spoolPath) {
             $files = Get-ChildItem -Path $spoolPath -File -ErrorAction SilentlyContinue
-            Write-Host "  Số lệnh in kẹt: $(@($files).Count) file" -ForegroundColor $(if (@($files).Count -gt 0) { "Yellow" } else { "Green" })
+            Write-Host "  Pending Jobs  : $(@($files).Count) file(s)" -ForegroundColor $(if (@($files).Count -gt 0) { "Yellow" } else { "Green" })
         }
     } catch {
-        Handle-TMException -TaskId "PRINT_HEALTH" -TaskName "Kiểm tra Spooler" -Exception $_.Exception
+        Handle-TMException -TaskId "PRINT_HEALTH" -TaskName "Inspect Spooler" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Test-SharedPrinterConnection {
-    Write-SubHeader "KIỂM TRA KẾT NỐI MÁY IN CHIA SẺ TRONG MẠNG LAN"
-    Write-Host " Nhập đường dẫn UNC máy in (ví dụ: \\TEN-MAY-CHU\TEN-MAY-IN hoặc \\192.168.1.100\PrinterName): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "TEST NETWORK SHARED PRINTER PATH (UNC)"
+    Write-Host " Enter printer UNC path (e.g. \\SERVER-NAME\PrinterShare or \\192.168.1.100\PrinterShare): " -ForegroundColor Cyan -NoNewline
     $unc = Read-Host
     if ([string]::IsNullOrWhiteSpace($unc) -or -not ($unc.StartsWith("\\"))) {
-        Write-ErrorMessage "Đường dẫn không hợp lệ. Phải bắt đầu bằng \\ (ví dụ \\Server\Printer)."
+        Write-ErrorMessage "Invalid path format. Must begin with \\ (e.g. \\Server\Printer)."
         Pause-Screen
         return
     }
@@ -2773,30 +2774,30 @@ function Test-SharedPrinterConnection {
     $parts = $unc.TrimStart('\').Split('\')
     $serverName = $parts[0]
 
-    Write-InfoMessage "1. Kiểm tra phân giải & kết nối TCP 445 (SMB) tới máy chủ $serverName..."
+    Write-InfoMessage "1. Testing name resolution & TCP 445 (SMB) connection to host $serverName..."
     $testSmb = Test-NetConnection -ComputerName $serverName -Port 445 -WarningAction SilentlyContinue
     if ($testSmb.TcpTestSucceeded) {
-        Write-Success "Máy chủ $serverName đang mở cổng chia sẻ SMB (TCP 445)."
+        Write-Success "Host $serverName is listening on SMB sharing port (TCP 445)."
     } else {
-        Write-WarningMessage "Không thể kết nối cổng SMB tới $serverName. Hãy kiểm tra địa chỉ IP, tên máy hoặc tường lửa."
+        Write-WarningMessage "Unable to reach SMB port on $serverName. Check IP address, hostname, or firewall rules."
     }
 
-    Write-InfoMessage "2. Kiểm tra đường dẫn chia sẻ $unc..."
+    Write-InfoMessage "2. Verifying accessibility of share path $unc..."
     if (Test-Path -LiteralPath $unc -ErrorAction SilentlyContinue) {
-        Write-Success "Đường dẫn chia sẻ $unc có thể truy cập thành công!"
+        Write-Success "Shared path $unc is accessible!"
     } else {
-        Write-WarningMessage "Chưa thể truy cập trực tiếp $unc. Điều này có thể do cần xác thực tài khoản qua Credential Manager."
+        Write-WarningMessage "Cannot access $unc directly. Authentication credentials in Credential Manager may be required."
     }
     Pause-Screen
 }
 
 function Invoke-CreateScanAccount {
-    if (-not (Assert-Admin "tạo tài khoản scan")) { Pause-Screen; return }
+    if (-not (Assert-Admin "create scan account")) { Pause-Screen; return }
 
-    Write-SubHeader "TẠO TÀI KHOẢN SCAN MÁY IN (SCAN-TO-FOLDER)"
-    Write-InfoMessage "Tài khoản local dùng cho máy in đa chức năng scan gửi file vào thư mục mạng."
+    Write-SubHeader "CREATE DEDICATED SCAN-TO-FOLDER LOCAL ACCOUNT"
+    Write-InfoMessage "Local account used by multi-function printers to deliver scanned files over SMB."
     Write-Host ""
-    Write-Host " Nhập tên tài khoản (mặc định 'scan'): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Enter account name (default 'scan'): " -ForegroundColor Cyan -NoNewline
     $uName = Read-Host
     if ([string]::IsNullOrWhiteSpace($uName)) { $uName = "scan" }
 
@@ -2804,16 +2805,16 @@ function Invoke-CreateScanAccount {
     if (Test-CmdletAvailable "Get-LocalUser") {
         $existing = Get-LocalUser -Name $uName -ErrorAction SilentlyContinue
         if ($existing) {
-            Write-WarningMessage "Tài khoản '$uName' đã tồn tại trên máy tính này!"
+            Write-WarningMessage "Account '$uName' already exists on this computer!"
             Pause-Screen
             return
         }
     }
 
     # Secure Password Input
-    Write-Host " Nhập mật khẩu cho tài khoản '$uName': " -ForegroundColor Cyan -NoNewline
+    Write-Host " Enter password for account '$uName': " -ForegroundColor Cyan -NoNewline
     $secPass1 = Read-Host -AsSecureString
-    Write-Host " Xác nhận lại mật khẩu: " -ForegroundColor Cyan -NoNewline
+    Write-Host " Confirm password: " -ForegroundColor Cyan -NoNewline
     $secPass2 = Read-Host -AsSecureString
 
     # Validate passwords match
@@ -2825,89 +2826,88 @@ function Invoke-CreateScanAccount {
     [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr2)
 
     if ($plain1 -ne $plain2) {
-        Write-ErrorMessage "Mật khẩu xác nhận không khớp. Hủy thao tác."
+        Write-ErrorMessage "Passwords do not match. Action cancelled."
         Pause-Screen
         return
     }
     if ([string]::IsNullOrWhiteSpace($plain1)) {
-        Write-ErrorMessage "Mật khẩu không được để trống."
+        Write-ErrorMessage "Password cannot be empty."
         Pause-Screen
         return
     }
 
-    Write-Host " Bạn có muốn đặt mật khẩu không bao giờ hết hạn (PasswordNeverExpires)? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Set password to never expire (PasswordNeverExpires)? (Y/N): " -ForegroundColor Cyan -NoNewline
     $pneAns = Read-Host
     $neverExpires = ($pneAns.Trim().ToUpper() -eq "Y")
 
-    $confirmed = Confirm-Action -TaskName "Tạo tài khoản scan '$uName'" -ImpactDescription "Tạo user cục bộ '$uName' dùng riêng cho dịch vụ scan máy in. Mật khẩu được bảo mật hoàn toàn." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "Create scan account '$uName'" -ImpactDescription "Create dedicated local user '$uName' for printer scan delivery. Password is fully secured." -RiskLevel "medium"
     if ($confirmed) {
         try {
             if (Test-CmdletAvailable "New-LocalUser") {
-                New-LocalUser -Name $uName -Password $secPass1 -Description "Tài khoản dùng cho scan máy in" -PasswordNeverExpires:$neverExpires -ErrorAction Stop
+                New-LocalUser -Name $uName -Password $secPass1 -Description "Dedicated Scan-to-folder service account" -PasswordNeverExpires:$neverExpires -ErrorAction Stop
             } else {
-                # Fallback to net user if LocalAccounts cmdlet not present
-                & net.exe user "$uName" "$plain1" /add /comment:"Tai khoan scan"
+                & net.exe user "$uName" "$plain1" /add /comment:"Scan to folder account"
             }
-            Write-Success "Đã tạo tài khoản '$uName' thành công!"
-            Write-InfoMessage "Bây giờ bạn có thể phân quyền cho user '$uName' vào thư mục nhận file scan (ví dụ D:\Scan)."
-            Write-TMLog -TaskId "PRINT_SCAN_USER" -TaskName "Tạo tài khoản scan" -Status "Success" -Message "User: $uName"
+            Write-Success "Account '$uName' successfully created!"
+            Write-InfoMessage "Now grant '$uName' permissions to your shared scan destination folder (e.g. D:\Scan)."
+            Write-TMLog -TaskId "PRINT_SCAN_USER" -TaskName "Create Scan User" -Status "Success" -Message "User: $uName"
         } catch {
-            Handle-TMException -TaskId "PRINT_SCAN_USER" -TaskName "Tạo user scan" -Exception $_.Exception
+            Handle-TMException -TaskId "PRINT_SCAN_USER" -TaskName "Create Scan User" -Exception $_.Exception
         }
     }
     Pause-Screen
 }
 
 function Show-HostPrinterGuide {
-    Write-SubHeader "HƯỚNG DẪN CẤU HÌNH TRÊN MÁY CHỦ (MÁY CẮM MÁY IN)"
-    Write-Host " 1. Kiểm tra máy in đã in được trực tiếp từ máy chủ." -ForegroundColor White
-    Write-Host " 2. Vào Control Panel > Devices and Printers > Chuột phải vào máy in > Printer Properties." -ForegroundColor White
-    Write-Host " 3. Mở tab Sharing > Tích chọn 'Share this printer' và đặt tên chia sẻ ngắn gọn (ví dụ: Canon2900)." -ForegroundColor White
-    Write-Host " 4. Mở tab Security > Kiểm tra nhóm 'Everyone' có quyền 'Print'." -ForegroundColor White
-    Write-Host " 5. Mở Advanced Sharing Settings > Bật 'Turn on file and printer sharing'." -ForegroundColor White
-    Write-Host " 6. Ghi lại Tên máy chủ (Hostname) hoặc địa chỉ IP của máy này." -ForegroundColor Cyan
+    Write-SubHeader "HOST PRINTER SHARING SETUP GUIDE (PRINT SERVER PC)"
+    Write-Host " 1. Ensure the printer prints locally from the host PC without errors." -ForegroundColor White
+    Write-Host " 2. Open Control Panel > Devices and Printers > Right-click printer > Printer Properties." -ForegroundColor White
+    Write-Host " 3. In Sharing tab: Check 'Share this printer' and provide a concise share name (e.g. Canon2900)." -ForegroundColor White
+    Write-Host " 4. In Security tab: Verify 'Everyone' group has 'Print' permissions." -ForegroundColor White
+    Write-Host " 5. Open Advanced Sharing Settings: Verify 'Turn on file and printer sharing' is active." -ForegroundColor White
+    Write-Host " 6. Record this host's Computer Name (Hostname) or static IP address." -ForegroundColor Cyan
     Pause-Screen
 }
 
 function Show-ClientPrinterGuide {
-    Write-SubHeader "HƯỚNG DẪN CẤU HÌNH TRÊN MÁY KHÁCH (CLIENT)"
-    Write-Host " 1. Mở Credential Manager > Windows Credentials > Add a Windows credential." -ForegroundColor White
-    Write-Host "    - Network address: Nhập tên hoặc IP máy chủ (ví dụ: \\TEN-MAY-CHU)" -ForegroundColor Gray
-    Write-Host "    - User name / Password: Nhập tài khoản của máy chủ." -ForegroundColor Gray
-    Write-Host " 2. Bấm Win + R > Nhập '\\TEN-MAY-CHU' để kiểm tra xem đã nhìn thấy máy in chia sẻ chưa." -ForegroundColor White
-    Write-Host " 3. Chuột phải vào máy in chia sẻ > Chọn 'Connect'." -ForegroundColor White
-    Write-Host " 4. Nếu gặp lỗi Access Denied hoặc driver, hãy dùng chức năng 'Tạo Local Port' bên dưới." -ForegroundColor Cyan
+    Write-SubHeader "CLIENT PRINTER CONNECTION GUIDE (CLIENT PC)"
+    Write-Host " 1. Open Credential Manager > Windows Credentials > Add a Windows credential:" -ForegroundColor White
+    Write-Host "    - Network address: Enter host computer name or IP (e.g. \\HOST-PC)" -ForegroundColor Gray
+    Write-Host "    - User name / Password: Enter valid credentials of the host computer." -ForegroundColor Gray
+    Write-Host " 2. Press Win + R > Enter '\\HOST-PC' to view shared printer shares." -ForegroundColor White
+    Write-Host " 3. Right-click the shared printer > Select 'Connect'." -ForegroundColor White
+    Write-Host " 4. If an Access Denied or driver error occurs, use the 'Local Port Helper' option below." -ForegroundColor Cyan
     Pause-Screen
 }
 
 function Show-LocalPortHelper {
-    Write-SubHeader "HỖ TRỢ TẠO LOCAL PORT CHO MÁY IN MẠNG"
-    Write-InfoMessage "Local Port là giải pháp cực kỳ tin cậy để kết nối máy in chia sẻ khi gặp lỗi driver hoặc mạng."
+    Write-SubHeader "LOCAL PORT HELPER FOR SHARED NETWORK PRINTERS"
+    Write-InfoMessage "A Local Port is the most reliable workaround when encountering RPC or driver install blocks."
     Write-Host ""
-    Write-Host " Nhập tên hoặc IP máy chủ (Server): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Enter Host Computer Name or IP: " -ForegroundColor Cyan -NoNewline
     $server = Read-Host
-    Write-Host " Nhập tên chia sẻ máy in (Share name): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Enter Printer Share Name: " -ForegroundColor Cyan -NoNewline
     $share = Read-Host
 
     if ([string]::IsNullOrWhiteSpace($server) -or [string]::IsNullOrWhiteSpace($share)) {
-        Write-ErrorMessage "Tên máy chủ và tên chia sẻ không được để trống."
+        Write-ErrorMessage "Server and share name cannot be empty."
         Pause-Screen
         return
     }
 
     $portName = "\\$server\$share"
-    Write-Success "Đường dẫn Local Port của bạn là: $portName"
+    Write-Success "Target Local Port string: $portName"
     Write-Host ""
-    Write-Host " Các bước thực hiện trong Windows:" -ForegroundColor Yellow
-    Write-Host "  1. Mở 'Devices and Printers' -> Bấm 'Add a printer'." -ForegroundColor White
-    Write-Host "  2. Chọn 'The printer that I want isn't listed'." -ForegroundColor White
-    Write-Host "  3. Chọn 'Add a local printer or network printer with manual settings' -> Next." -ForegroundColor White
-    Write-Host "  4. Chọn 'Create a new port' -> Loại port chọn: 'Local Port' -> Next." -ForegroundColor White
-    Write-Host "  5. Dán chính xác đường dẫn sau vào ô Port Name: " -ForegroundColor White
+    Write-Host " Setup steps in Windows:" -ForegroundColor Yellow
+    Write-Host "  1. Open 'Devices and Printers' -> Click 'Add a printer'." -ForegroundColor White
+    Write-Host "  2. Select 'The printer that I want isn't listed'." -ForegroundColor White
+    Write-Host "  3. Select 'Add a local printer or network printer with manual settings' -> Next." -ForegroundColor White
+    Write-Host "  4. Select 'Create a new port' -> Port type: 'Local Port' -> Next." -ForegroundColor White
+    Write-Host "  5. Paste this exact string into Port Name: " -ForegroundColor White
     Write-Host "     $portName" -ForegroundColor Cyan
-    Write-Host "  6. Chọn đúng Driver máy in từ danh sách hoặc Have Disk để hoàn tất." -ForegroundColor White
+    Write-Host "  6. Select matching printer driver from vendor list or click Have Disk." -ForegroundColor White
     Write-Host ""
-    Write-Host " Bạn có muốn mở ngay trình quản lý Devices and Printers không? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Open Devices and Printers now? (Y/N): " -ForegroundColor Cyan -NoNewline
     $ans = Read-Host
     if ($ans.Trim().ToUpper() -eq "Y") {
         Start-Process "control.exe" "printers"
@@ -2916,39 +2916,40 @@ function Show-LocalPortHelper {
 }
 
 function Show-PrinterAccessDeniedGuide {
-    Write-SubHeader "HƯỚNG DẪN XỬ LÝ LỖI ACCESS DENIED / 0x0000011b TRÊN WINDOWS 10 & 11"
-    Write-Host " Nguyên nhân thường gặp:" -ForegroundColor Yellow
-    Write-Host "  - Bản cập nhật bảo mật RPC Printing của Microsoft yêu cầu xác thực mức cao." -ForegroundColor Gray
-    Write-Host "  - Máy khách chưa lưu thông tin tài khoản của máy chủ trong Credential Manager." -ForegroundColor Gray
-    Write-Host "  - Windows 11 22H2+ mặc định dùng RPC over TCP trong khi máy chủ cũ dùng Named Pipes." -ForegroundColor Gray
+    Write-SubHeader "TROUBLESHOOTING ACCESS DENIED / 0x0000011b ERRORS (WIN 10 & 11)"
+    Write-Host " Common root causes:" -ForegroundColor Yellow
+    Write-Host "  - Windows Point and Print RPC hardening updates require elevated RPC authentication." -ForegroundColor Gray
+    Write-Host "  - Client has not saved host credentials in Windows Credential Manager." -ForegroundColor Gray
+    Write-Host "  - Windows 11 22H2+ enforces RPC over TCP while older servers use Named Pipes." -ForegroundColor Gray
     Write-Host ""
-    Write-Host " Các bước xử lý an toàn theo thứ tự ưu tiên:" -ForegroundColor Cyan
-    Write-Host "  1. Lưu tài khoản máy chủ vào Credential Manager trên máy khách." -ForegroundColor White
-    Write-Host "  2. Cài đặt sẵn driver máy in giống hệt phiên bản trên máy khách trước khi kết nối." -ForegroundColor White
-    Write-Host "  3. Sử dụng kết nối qua Local Port thay vì kết nối tự động (đã hướng dẫn ở mục 12)." -ForegroundColor White
-    Write-Host "  4. Khởi động lại Print Spooler trên cả hai máy." -ForegroundColor White
+    Write-Host " Safe resolution sequence:" -ForegroundColor Cyan
+    Write-Host "  1. Save host credentials into Credential Manager on the client PC." -ForegroundColor White
+    Write-Host "  2. Pre-install identical printer driver version locally on client before connecting." -ForegroundColor White
+    Write-Host "  3. Connect using Local Port (\\Server\Share) instead of automatic point-and-print." -ForegroundColor White
+    Write-Host "  4. Restart Print Spooler on both host and client machines." -ForegroundColor White
     Pause-Screen
 }
 
 function Export-PrinterReport {
+    Write-SubHeader "EXPORT PRINTER CONFIGURATION REPORT"
     $reportDir = Join-Path $PSScriptRoot "../../../Logs"
     $filename = "PrinterReport_" + (Get-Date).ToString("yyyyMMdd_HHmmss") + ".txt"
     $fullPath = Join-Path $reportDir $filename
 
     $lines = @()
     $lines += "========================================================="
-    $lines += "         TM-WINCARE - BÁO CÁO DANH SÁCH MÁY IN"
-    $lines += "  Thời gian: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    $lines += "         TM-WINCARE - PRINTER CONFIGURATION REPORT"
+    $lines += "  Generated: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     $lines += "========================================================="
     try {
         $printers = Get-Printer
         foreach ($p in $printers) {
-            $lines += "Tên: $($p.Name) | Driver: $($p.DriverName) | Cổng: $($p.PortName) | Shared: $($p.Shared)"
+            $lines += "Printer: $($p.Name) | Driver: $($p.DriverName) | Port: $($p.PortName) | Shared: $($p.Shared)"
         }
     } catch {}
     $lines += "========================================================="
     Set-Content -Path $fullPath -Value $lines -Encoding UTF8 -Force
-    Write-Success "Đã xuất báo cáo ra file: $fullPath"
+    Write-Success "Report exported to file: $fullPath"
     Pause-Screen
 }
 
@@ -2959,27 +2960,27 @@ function Export-PrinterReport {
 
 function Show-TMSystemCleanupMenu {
     $menuItems = @(
-        @{ Label = "Quét & Phân tích dung lượng các mục có thể dọn"; Action = { Scan-SystemCleanupTargets } },
-        @{ Label = "Dọn thư mục Temp của người dùng (%TEMP%)"; Action = { Clean-UserTempFolder } },
-        @{ Label = "Dọn thư mục Windows Temp (%WINDIR%\\Temp)"; Action = { Clean-WindowsTempFolder } },
-        @{ Label = "Dọn Thùng rác (Recycle Bin)"; Action = { Clean-RecycleBinCustom } },
-        @{ Label = "Dọn cache bản cập nhật Windows Update (SoftwareDistribution)"; Action = { Clean-WindowsUpdateCache } },
-        @{ Label = "Dọn crash dumps và minidumps cũ"; Action = { Clean-CrashDumps } },
-        @{ Label = "Kiểm tra & Hướng dẫn dọn dẹp thư mục Windows.old"; Action = { Show-WindowsOldWizard } },
-        @{ Label = "Mở giao diện Cài đặt Lưu trữ (Storage Sense / Settings)"; Action = { Start-Process "ms-settings:storagesense" } }
+        @{ Label = "Scan & Analyze Junk Storage Footprint"; Action = { Scan-SystemCleanupTargets } },
+        @{ Label = "Clean Current User Temporary Files (%TEMP%)"; Action = { Clean-UserTempFolder } },
+        @{ Label = "Clean Windows System Temp Files (%WINDIR%\\Temp)"; Action = { Clean-WindowsTempFolder } },
+        @{ Label = "Empty Recycle Bin Across All Drives"; Action = { Clean-RecycleBinCustom } },
+        @{ Label = "Purge Windows Update Download Cache (SoftwareDistribution)"; Action = { Clean-WindowsUpdateCache } },
+        @{ Label = "Purge Obsolete Crash Dumps & Minidumps"; Action = { Clean-CrashDumps } },
+        @{ Label = "Windows.old Storage Inspection & Guidance"; Action = { Show-WindowsOldWizard } },
+        @{ Label = "Open Windows Storage Sense Settings"; Action = { Start-Process "ms-settings:storagesense" } }
     )
-    Show-TMMenu -Title "DỌN DẸP HỆ THỐNG WINDOWS (SYSTEM CLEANUP)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "WINDOWS SYSTEM CLEANUP" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Scan-SystemCleanupTargets {
-    Write-SubHeader "QUÉT & PHÂN TÍCH DUNG LƯỢNG RÁC HỆ THỐNG"
-    Write-InfoMessage "Đang tính toán dung lượng các thư mục file tạm..."
+    Write-SubHeader "SCAN & ANALYZE JUNK FILE VOLUMES"
+    Write-InfoMessage "Measuring temporary directories and storage footprint..."
 
     $targets = @(
         @{ Name = "User Temp (%TEMP%)"; Path = [System.IO.Path]::GetTempPath() },
         @{ Name = "Windows Temp"; Path = (Join-Path $env:SystemRoot "Temp") },
         @{ Name = "Windows Update Cache"; Path = (Join-Path $env:SystemRoot "SoftwareDistribution\Download") },
-        @{ Name = "Minidumps"; Path = (Join-Path $env:SystemRoot "Minidump") }
+        @{ Name = "Crash Minidumps"; Path = (Join-Path $env:SystemRoot "Minidump") }
     )
 
     $results = @()
@@ -2997,31 +2998,31 @@ function Scan-SystemCleanupTargets {
             }
         }
         $results += [PSCustomObject]@{
-            Muc = $t.Name
-            SoLuongFile = "$count file"
-            DungLuong = "$sizeMB MB"
-            DuongDan = $t.Path
+            Target = $t.Name
+            FileCount = "$count files"
+            EstimatedSize = "$sizeMB MB"
+            DirectoryPath = $t.Path
         }
     }
 
-    $headers = @("Mục dọn dẹp", "Số lượng file", "Dung lượng ước tính", "Đường dẫn")
-    $props = @("Muc", "SoLuongFile", "DungLuong", "DuongDan")
-    $widths = @(25, 15, 20, 30)
+    $headers = @("Cleanup Target", "Files", "Estimated Size", "Directory Path")
+    $props = @("Target", "FileCount", "EstimatedSize", "DirectoryPath")
+    $widths = @(25, 14, 18, 32)
     Show-TableList -Items $results -Headers $headers -PropertyNames $props -Widths $widths
 
     # Check Windows.old
     $winOld = "C:\Windows.old"
     if (Test-Path $winOld) {
-        Write-WarningMessage "Phát hiện thư mục 'Windows.old' trên ổ C:. Hãy xem mục 'Windows.old Wizard' để dọn dẹp an toàn."
+        Write-WarningMessage "Detected 'C:\Windows.old' folder. Use the 'Windows.old Guidance' wizard for safe removal."
     }
     Pause-Screen
 }
 
 function Clean-UserTempFolder {
     $tempPath = [System.IO.Path]::GetTempPath()
-    Write-SubHeader "DỌN THƯ MỤC USER TEMP: $tempPath"
+    Write-SubHeader "CLEAN USER TEMP FOLDER: $tempPath"
     
-    $confirmed = Confirm-Action -TaskName "Dọn User Temp" -ImpactDescription "Xóa các file tạm do ứng dụng tạo ra trong %TEMP%. Các file đang được mở hoặc bị khóa sẽ tự động được bỏ qua." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Clean User Temp" -ImpactDescription "Deletes temporary application files in %TEMP%. Locked or currently active files are automatically skipped." -RiskLevel "low"
     if (-not $confirmed) { Pause-Screen; return }
 
     $files = Get-ChildItem -Path $tempPath -File -ErrorAction SilentlyContinue
@@ -3035,18 +3036,18 @@ function Clean-UserTempFolder {
             $skipped++
         }
     }
-    Write-Success "Đã dọn thành công $deleted file tạm (Bỏ qua $skipped file đang được hệ thống dùng)."
-    Write-TMLog -TaskId "CLEAN_USER_TEMP" -TaskName "Dọn User Temp" -Status "Success" -Message "Đã xóa $deleted file"
+    Write-Success "Cleaned $deleted temporary files ($skipped active file(s) safely skipped)."
+    Write-TMLog -TaskId "CLEAN_USER_TEMP" -TaskName "Clean User Temp" -Status "Success" -Message "Deleted $deleted files"
     Pause-Screen
 }
 
 function Clean-WindowsTempFolder {
-    if (-not (Assert-Admin "dọn thư mục Windows Temp")) { Pause-Screen; return }
+    if (-not (Assert-Admin "clean Windows Temp folder")) { Pause-Screen; return }
 
     $winTemp = Join-Path $env:SystemRoot "Temp"
-    Write-SubHeader "DỌN THƯ MỤC WINDOWS TEMP: $winTemp"
+    Write-SubHeader "CLEAN WINDOWS SYSTEM TEMP FOLDER: $winTemp"
 
-    $confirmed = Confirm-Action -TaskName "Dọn Windows Temp" -ImpactDescription "Xóa file tạm của Windows và dịch vụ hệ thống. Các file đang được dịch vụ sử dụng sẽ tự động được bỏ qua." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Clean Windows Temp" -ImpactDescription "Deletes system and service temporary files. Active in-use files are skipped automatically." -RiskLevel "low"
     if (-not $confirmed) { Pause-Screen; return }
 
     $files = Get-ChildItem -Path $winTemp -File -ErrorAction SilentlyContinue
@@ -3060,37 +3061,37 @@ function Clean-WindowsTempFolder {
             $skipped++
         }
     }
-    Write-Success "Đã dọn thành công $deleted file trong Windows Temp (Bỏ qua $skipped file đang dùng)."
-    Write-TMLog -TaskId "CLEAN_WIN_TEMP" -TaskName "Dọn Windows Temp" -Status "Success" -Message "Đã xóa $deleted file"
+    Write-Success "Cleaned $deleted file(s) in Windows Temp ($skipped in-use file(s) skipped)."
+    Write-TMLog -TaskId "CLEAN_WIN_TEMP" -TaskName "Clean Windows Temp" -Status "Success" -Message "Deleted $deleted files"
     Pause-Screen
 }
 
 function Clean-RecycleBinCustom {
-    Write-SubHeader "DỌN SẠCH THÙNG RÁC (RECYCLE BIN)"
-    $confirmed = Confirm-Action -TaskName "Dọn sạch Thùng rác" -ImpactDescription "Xóa vĩnh viễn toàn bộ file trong Thùng rác trên tất cả các ổ đĩa. Thao tác này không thể hoàn tác." -RiskLevel "medium"
+    Write-SubHeader "EMPTY RECYCLE BIN ACROSS ALL VOLUMES"
+    $confirmed = Confirm-Action -TaskName "Empty Recycle Bin" -ImpactDescription "Permanently deletes all contents from Recycle Bin across all disk volumes. Cannot be undone." -RiskLevel "medium"
     if (-not $confirmed) { Pause-Screen; return }
 
     try {
         Clear-RecycleBin -Force -ErrorAction Stop
-        Write-Success "Đã dọn sạch Thùng rác thành công!"
-        Write-TMLog -TaskId "CLEAN_RECYCLE_BIN" -TaskName "Dọn thùng rác" -Status "Success" -Message "Thành công"
+        Write-Success "Recycle Bin emptied successfully!"
+        Write-TMLog -TaskId "CLEAN_RECYCLE_BIN" -TaskName "Empty Recycle Bin" -Status "Success" -Message "Success"
     } catch {
-        Handle-TMException -TaskId "CLEAN_RECYCLE_BIN" -TaskName "Dọn thùng rác" -Exception $_.Exception
+        Handle-TMException -TaskId "CLEAN_RECYCLE_BIN" -TaskName "Empty Recycle Bin" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Clean-WindowsUpdateCache {
-    if (-not (Assert-Admin "dọn cache Windows Update")) { Pause-Screen; return }
+    if (-not (Assert-Admin "clean Windows Update cache")) { Pause-Screen; return }
 
-    Write-SubHeader "DỌN CACHE BẢN CẬP NHẬT WINDOWS UPDATE"
+    Write-SubHeader "PURGE WINDOWS UPDATE DOWNLOAD CACHE"
     $wuPath = Join-Path $env:SystemRoot "SoftwareDistribution\Download"
 
-    $confirmed = Confirm-Action -TaskName "Dọn cache Windows Update" -ImpactDescription "Tạm dừng dịch vụ wuauserv, dọn các file cài đặt đã tải xong trong SoftwareDistribution\Download và khởi động lại dịch vụ." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "Purge Windows Update Cache" -ImpactDescription "Pauses wuauserv service, purges downloaded update files in SoftwareDistribution\Download, and restarts service." -RiskLevel "medium"
     if (-not $confirmed) { Pause-Screen; return }
 
     try {
-        Write-InfoMessage "Tạm dừng dịch vụ Windows Update..."
+        Write-InfoMessage "Pausing Windows Update service..."
         Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue
         
         $files = Get-ChildItem -Path $wuPath -Recurse -File -ErrorAction SilentlyContinue
@@ -3098,57 +3099,57 @@ function Clean-WindowsUpdateCache {
         foreach ($f in $files) {
             try { Remove-Item $f.FullName -Force -ErrorAction Stop; $deleted++ } catch {}
         }
-        Write-Success "Đã xóa $deleted file cài đặt cập nhật cũ."
+        Write-Success "Purged $deleted downloaded update cache files."
 
-        Write-InfoMessage "Khởi động lại dịch vụ Windows Update..."
+        Write-InfoMessage "Restarting Windows Update service..."
         Start-Service -Name wuauserv -ErrorAction SilentlyContinue
-        Write-Success "Hoàn tất dọn dẹp cache Windows Update!"
-        Write-TMLog -TaskId "CLEAN_WU_CACHE" -TaskName "Dọn cache Windows Update" -Status "Success" -Message "Đã xóa $deleted file"
+        Write-Success "Windows Update cache cleanup completed!"
+        Write-TMLog -TaskId "CLEAN_WU_CACHE" -TaskName "Clean WU Cache" -Status "Success" -Message "Deleted $deleted files"
     } catch {
-        Handle-TMException -TaskId "CLEAN_WU_CACHE" -TaskName "Dọn cache WU" -Exception $_.Exception
+        Handle-TMException -TaskId "CLEAN_WU_CACHE" -TaskName "Clean WU Cache" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Clean-CrashDumps {
-    if (-not (Assert-Admin "dọn crash dumps")) { Pause-Screen; return }
+    if (-not (Assert-Admin "clean crash dumps")) { Pause-Screen; return }
 
-    Write-SubHeader "DỌN CRASH DUMPS & MINIDUMPS CŨ"
+    Write-SubHeader "PURGE PAST CRASH DUMPS & MINIDUMPS"
     $dumpPath = Join-Path $env:SystemRoot "Minidump"
     if (-not (Test-Path $dumpPath)) {
-        Write-InfoMessage "Không tìm thấy thư mục Minidump trên máy tính này."
+        Write-InfoMessage "No Minidump directory present on this system."
         Pause-Screen
         return
     }
 
-    $confirmed = Confirm-Action -TaskName "Dọn Minidump" -ImpactDescription "Xóa các file ghi nhớ sự cố BSOD cũ trong $dumpPath." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Purge Minidumps" -ImpactDescription "Deletes obsolete BSOD crash dump files in $dumpPath." -RiskLevel "low"
     if ($confirmed) {
         $files = Get-ChildItem -Path $dumpPath -File -ErrorAction SilentlyContinue
         $deleted = 0
         foreach ($f in $files) {
             try { Remove-Item $f.FullName -Force -ErrorAction Stop; $deleted++ } catch {}
         }
-        Write-Success "Đã xóa $deleted file minidump."
+        Write-Success "Purged $deleted minidump file(s)."
     }
     Pause-Screen
 }
 
 function Show-WindowsOldWizard {
-    Write-SubHeader "HƯỚNG DẪN DỌN DẸP THƯ MỤC WINDOWS.OLD AN TOÀN"
+    Write-SubHeader "SAFE WINDOWS.OLD STORAGE GUIDANCE"
     $winOld = "C:\Windows.old"
     if (-not (Test-Path $winOld)) {
-        Write-Success "Thư mục 'C:\Windows.old' KHÔNG tồn tại trên máy tính này. Không cần dọn dẹp."
+        Write-Success "'C:\Windows.old' does NOT exist on this PC. No action required."
         Pause-Screen
         return
     }
 
-    Write-WarningMessage "PHÁT HIỆN THƯ MỤC C:\Windows.old TRÊN HỆ THỐNG!"
-    Write-Host " CẢNH BÁO QUAN TRỌNG:" -ForegroundColor Yellow
-    Write-Host "  - Windows.old chứa bản cài đặt Windows trước đó của bạn." -ForegroundColor Gray
-    Write-Host "  - Xóa Windows.old sẽ làm MẤT HOÀN TOÀN khả năng quay lại (Rollback) bản Windows cũ." -ForegroundColor Gray
-    Write-Host "  - Microsoft khuyến nghị KHÔNG tự dùng lệnh xóa thủ công, mà dùng Disk Cleanup hoặc Storage Sense." -ForegroundColor Gray
+    Write-WarningMessage "DETECTED 'C:\Windows.old' ON SYSTEM DRIVE!"
+    Write-Host " IMPORTANT SAFETY NOTICE:" -ForegroundColor Yellow
+    Write-Host "  - Windows.old contains your previous Windows installation." -ForegroundColor Gray
+    Write-Host "  - Removing Windows.old permanently deletes the ability to roll back to the prior OS build." -ForegroundColor Gray
+    Write-Host "  - Microsoft recommends using Storage Sense or Disk Cleanup rather than manual deletion." -ForegroundColor Gray
     Write-Host ""
-    Write-Host " Bạn có muốn mở giao diện Windows Storage Sense để dọn dẹp 'Previous Windows installation(s)' an toàn không? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Open Windows Storage Sense to safely purge 'Previous Windows installation(s)'? (Y/N): " -ForegroundColor Cyan -NoNewline
     $ans = Read-Host
     if ($ans.Trim().ToUpper() -eq "Y") {
         Start-Process "ms-settings:storagesense"
@@ -3163,22 +3164,22 @@ function Show-WindowsOldWizard {
 
 function Show-TMAiDevCleanupMenu {
     $menuItems = @(
-        @{ Label = "Quét & Nhận diện các công cụ AI / Developer đã cài"; Action = { Scan-AiDevEnvironment } },
-        @{ Label = "Dọn cache Python pip (pip cache purge)"; Action = { Clean-PipCache } },
-        @{ Label = "Dọn cache Python uv (uv cache clean)"; Action = { Clean-UvCache } },
-        @{ Label = "Dọn cache Node.js npm (npm cache clean)"; Action = { Clean-NpmCache } },
-        @{ Label = "Dọn dẹp pnpm Store mồ côi (pnpm store prune)"; Action = { Clean-PnpmStore } },
-        @{ Label = "Liệt kê mô hình Ollama & Hướng dẫn quản lý"; Action = { Show-OllamaManager } },
-        @{ Label = "Kiểm tra dung lượng Hugging Face cache"; Action = { Show-HuggingFaceCache } },
-        @{ Label = "Dọn dẹp Docker Builder Cache (docker builder prune)"; Action = { Clean-DockerBuilderCache } },
-        @{ Label = "Kiểm tra dung lượng WSL Distributions (Virtual Disks)"; Action = { Show-WslStatus } },
-        @{ Label = "Dọn dẹp Log tạm thời của VS Code & Cursor"; Action = { Clean-IdeLogs } }
+        @{ Label = "Scan & Detect Installed AI / Developer Toolchains"; Action = { Scan-AiDevEnvironment } },
+        @{ Label = "Purge Python Pip Cache (pip cache purge)"; Action = { Clean-PipCache } },
+        @{ Label = "Purge Python uv Cache (uv cache clean)"; Action = { Clean-UvCache } },
+        @{ Label = "Purge Node.js npm Cache (npm cache clean)"; Action = { Clean-NpmCache } },
+        @{ Label = "Prune Unreferenced pnpm Store Packages (pnpm store prune)"; Action = { Clean-PnpmStore } },
+        @{ Label = "List Ollama Local LLMs & Safe Management Guidance"; Action = { Show-OllamaManager } },
+        @{ Label = "Inspect Hugging Face Hub Cache Footprint"; Action = { Show-HuggingFaceCache } },
+        @{ Label = "Prune Docker Builder Cache (docker builder prune)"; Action = { Clean-DockerBuilderCache } },
+        @{ Label = "Inspect WSL Distributions & Virtual Disks (.vhdx)"; Action = { Show-WslStatus } },
+        @{ Label = "Clean VS Code & Cursor Temporary Session Logs"; Action = { Clean-IdeLogs } }
     )
-    Show-TMMenu -Title "DỌN DẸP CÔNG CỤ AI & DEVELOPER (AI & DEV CLEANUP)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "AI & DEVELOPER TOOLCHAIN CLEANUP" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Scan-AiDevEnvironment {
-    Write-SubHeader "QUÉT CÁC CÔNG CỤ AI & DEVELOPER TRÊN MÁY"
+    Write-SubHeader "SCAN AI & DEVELOPER TOOLCHAINS ON THIS SYSTEM"
     
     $tools = @(
         @{ Name = "Python"; Cmd = "python --version" },
@@ -3196,187 +3197,187 @@ function Scan-AiDevEnvironment {
     foreach ($t in $tools) {
         $bin = $t.Cmd.Split(' ')[0]
         $found = Test-ToolAvailable $bin
-        $ver = "Chưa cài đặt"
+        $ver = "Not Installed"
         if ($found) {
             try {
                 $verOutput = (& cmd.exe /c "$($t.Cmd) 2>&1")
                 if ($verOutput) { $ver = $verOutput[0] }
-            } catch { $ver = "Đã cài đặt" }
+            } catch { $ver = "Installed" }
         }
         $results += [PSCustomObject]@{
-            CongCu = $t.Name
-            TrangThai = if ($found) { "Đã phát hiện" } else { "Không tìm thấy" }
-            PhienBan = $ver
+            Tool = $t.Name
+            Status = if ($found) { "Detected" } else { "Not Found" }
+            Version = $ver
         }
     }
 
-    $headers = @("Công cụ", "Trạng thái", "Phiên bản / Thông tin")
-    $props = @("CongCu", "TrangThai", "PhienBan")
+    $headers = @("Tool / Platform", "Detection Status", "Version / Output")
+    $props = @("Tool", "Status", "Version")
     $widths = @(18, 18, 38)
     Show-TableList -Items $results -Headers $headers -PropertyNames $props -Widths $widths
     Pause-Screen
 }
 
 function Clean-PipCache {
-    Write-SubHeader "DỌN CACHE PYTHON PIP (pip cache purge)"
+    Write-SubHeader "PURGE PYTHON PIP CACHE (pip cache purge)"
     if (-not (Test-ToolAvailable "pip")) {
-        Write-WarningMessage "Công cụ pip không có sẵn trong biến môi trường PATH."
+        Write-WarningMessage "Tool 'pip' is not found in system PATH."
         Pause-Screen
         return
     }
 
-    Write-InfoMessage "Thông tin cache hiện tại:"
+    Write-InfoMessage "Current Pip Cache Metrics:"
     & pip cache info
 
-    $confirmed = Confirm-Action -TaskName "Dọn cache pip" -ImpactDescription "Xóa các gói wheel/tarball đã tải trong cache của pip. Không ảnh hưởng đến các thư viện và môi trường ảo .venv hiện có." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Purge Pip Cache" -ImpactDescription "Deletes cached wheel and source archives. Does NOT modify installed site-packages or .venv environments." -RiskLevel "low"
     if ($confirmed) {
         & pip cache purge
-        Write-Success "Đã dọn dẹp cache pip thành công!"
+        Write-Success "Pip cache purged successfully!"
     }
     Pause-Screen
 }
 
 function Clean-UvCache {
-    Write-SubHeader "DỌN CACHE PYTHON UV (uv cache clean)"
+    Write-SubHeader "PURGE PYTHON UV CACHE (uv cache clean)"
     if (-not (Test-ToolAvailable "uv")) {
-        Write-WarningMessage "Công cụ uv không có sẵn trong PATH."
+        Write-WarningMessage "Tool 'uv' is not found in system PATH."
         Pause-Screen
         return
     }
 
-    $confirmed = Confirm-Action -TaskName "Dọn cache uv" -ImpactDescription "Xóa bộ nhớ đệm uv cache. Các gói cần thiết sẽ được tải lại khi cần." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Purge uv Cache" -ImpactDescription "Clears uv package cache. Packages will be downloaded automatically when required." -RiskLevel "low"
     if ($confirmed) {
         & uv cache clean
-        Write-Success "Đã dọn dẹp cache uv thành công!"
+        Write-Success "Python uv cache purged successfully!"
     }
     Pause-Screen
 }
 
 function Clean-NpmCache {
-    Write-SubHeader "DỌN CACHE NODE.JS NPM (npm cache clean)"
+    Write-SubHeader "PURGE NODE.JS NPM CACHE (npm cache clean)"
     if (-not (Test-ToolAvailable "npm")) {
-        Write-WarningMessage "Công cụ npm không có sẵn trong PATH."
+        Write-WarningMessage "Tool 'npm' is not found in system PATH."
         Pause-Screen
         return
     }
 
-    $confirmed = Confirm-Action -TaskName "Dọn cache npm" -ImpactDescription "Xóa toàn bộ tarball đã lưu trong cache của npm. Không xóa thư mục node_modules của các dự án." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Purge npm Cache" -ImpactDescription "Cleans local tarballs in npm cache. Does NOT delete project node_modules folders." -RiskLevel "low"
     if ($confirmed) {
         & npm cache clean --force
-        Write-Success "Đã dọn dẹp cache npm thành công!"
+        Write-Success "Node.js npm cache purged successfully!"
     }
     Pause-Screen
 }
 
 function Clean-PnpmStore {
-    Write-SubHeader "DỌN PNPM STORE MỒ CÔI (pnpm store prune)"
+    Write-SubHeader "PRUNE UNREFERENCED PNPM STORE PACKAGES"
     if (-not (Test-ToolAvailable "pnpm")) {
-        Write-WarningMessage "Công cụ pnpm không có sẵn trong PATH."
+        Write-WarningMessage "Tool 'pnpm' is not found in system PATH."
         Pause-Screen
         return
     }
 
-    $confirmed = Confirm-Action -TaskName "pnpm store prune" -ImpactDescription "Xóa các package không còn được bất kỳ project nào liên kết (hard-link) trong pnpm store." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "pnpm store prune" -ImpactDescription "Prunes orphaned packages in pnpm store that are no longer referenced by any workspace project." -RiskLevel "low"
     if ($confirmed) {
         & pnpm store prune
-        Write-Success "Đã dọn dẹp pnpm store thành công!"
+        Write-Success "pnpm store pruned successfully!"
     }
     Pause-Screen
 }
 
 function Show-OllamaManager {
-    Write-SubHeader "QUẢN LÝ MÔ HÌNH OLLAMA LOCAL LLM"
+    Write-SubHeader "OLLAMA LOCAL LLM MODEL MANAGEMENT"
     if (-not (Test-ToolAvailable "ollama")) {
-        Write-WarningMessage "Ollama không có sẵn trong PATH."
+        Write-WarningMessage "Ollama is not found in system PATH."
         Pause-Screen
         return
     }
 
-    Write-InfoMessage "Danh sách các model hiện có:"
+    Write-InfoMessage "Listing installed models:"
     & ollama list
 
     Write-Host ""
-    Write-Host " NGUYÊN TẮC BẢO VỆ DỮ LIỆU:" -ForegroundColor Yellow
-    Write-Host "  - TM-WinCare TUYỆT ĐỐI KHÔNG BAO GIỜ tự xóa các mô hình Ollama." -ForegroundColor Gray
-    Write-Host "  - Mỗi mô hình LLM có dung lượng từ vài GB đến hàng chục GB." -ForegroundColor Gray
-    Write-Host "  - Nếu muốn xóa model không dùng, hãy chạy: ollama rm <tên_model>" -ForegroundColor Cyan
+    Write-Host " DATA PROTECTION PRINCIPLE:" -ForegroundColor Yellow
+    Write-Host "  - TM-WinCare NEVER deletes Ollama models automatically." -ForegroundColor Gray
+    Write-Host "  - Each model weights several gigabytes." -ForegroundColor Gray
+    Write-Host "  - To delete an unused model manually, run: ollama rm <model_name>" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host " Bạn có muốn nhập tên model để xóa không? (Bỏ trống để quay lại): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Enter model name to delete (leave blank to return): " -ForegroundColor Cyan -NoNewline
     $targetModel = Read-Host
     if (-not [string]::IsNullOrWhiteSpace($targetModel)) {
-        $confirmed = Confirm-Action -TaskName "Xóa mô hình Ollama '$targetModel'" -ImpactDescription "Xóa mô hình $targetModel khỏi Ollama. Bạn sẽ phải tải lại nếu muốn sử dụng lại." -RiskLevel "medium"
+        $confirmed = Confirm-Action -TaskName "Delete Ollama Model '$targetModel'" -ImpactDescription "Deletes $targetModel from Ollama storage. You must re-download if needed later." -RiskLevel "medium"
         if ($confirmed) {
             & ollama rm $targetModel
-            Write-Success "Đã xóa mô hình $targetModel."
+            Write-Success "Deleted model $targetModel."
         }
     }
     Pause-Screen
 }
 
 function Show-HuggingFaceCache {
-    Write-SubHeader "DUNG LƯỢNG HUGGING FACE HUB CACHE"
+    Write-SubHeader "HUGGING FACE HUB CACHE FOOTPRINT"
     $hfPath = if ($env:HF_HOME) { Join-Path $env:HF_HOME "hub" } else { Join-Path $env:USERPROFILE ".cache\huggingface\hub" }
     
     if (-not (Test-Path $hfPath)) {
-        Write-InfoMessage "Không tìm thấy thư mục Hugging Face cache tại: $hfPath"
+        Write-InfoMessage "Hugging Face cache directory not found at: $hfPath"
         Pause-Screen
         return
     }
 
-    Write-InfoMessage "Đang tính dung lượng thư mục: $hfPath..."
+    Write-InfoMessage "Calculating cache directory size: $hfPath..."
     $files = Get-ChildItem -Path $hfPath -File -Recurse -ErrorAction SilentlyContinue
-    $totalMB = 0
+    $totalGB = 0
     if ($files) {
         $measure = $files | Measure-Object -Property Length -Sum
-        if ($measure.Sum) { $totalMB = [math]::Round($measure.Sum / 1GB, 2) }
+        if ($measure.Sum) { $totalGB = [math]::Round($measure.Sum / 1GB, 2) }
     }
-    Write-Host "  Tổng dung lượng HF Hub Cache: $totalMB GB" -ForegroundColor Cyan
-    Write-InfoMessage "Lưu ý: Thư mục này chứa weights mô hình tải về. Nếu có cài công cụ 'huggingface-cli', bạn có thể dùng lệnh 'huggingface-cli delete-cache' để chọn xóa từng snapshot."
+    Write-Host "  Total HF Hub Cache Size: $totalGB GB" -ForegroundColor Cyan
+    Write-InfoMessage "Note: Contains downloaded model snapshots. If huggingface-cli is installed, run 'huggingface-cli delete-cache' for interactive snapshot removal."
     Pause-Screen
 }
 
 function Clean-DockerBuilderCache {
-    Write-SubHeader "DỌN DẸP DOCKER BUILDER CACHE"
+    Write-SubHeader "PRUNE DOCKER BUILDER CACHE"
     if (-not (Test-ToolAvailable "docker")) {
-        Write-WarningMessage "Docker không có sẵn hoặc chưa chạy daemon."
+        Write-WarningMessage "Docker is not installed or daemon is not running."
         Pause-Screen
         return
     }
 
-    Write-InfoMessage "Dung lượng Docker hiện tại:"
+    Write-InfoMessage "Current Docker storage metrics:"
     & docker system df
 
-    $confirmed = Confirm-Action -TaskName "Docker Builder Prune" -ImpactDescription "Xóa cache BuildKit của Docker. KHÔNG XÓA Volumes (dữ liệu database) hay container đang chạy." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "Docker Builder Prune" -ImpactDescription "Purges BuildKit layer cache. Does NOT touch named Volumes (database storage) or active containers." -RiskLevel "medium"
     if ($confirmed) {
         & docker builder prune -f
-        Write-Success "Đã dọn dẹp Docker Builder Cache!"
+        Write-Success "Docker Builder Cache pruned successfully!"
     }
     Pause-Screen
 }
 
 function Show-WslStatus {
-    Write-SubHeader "DANH SÁCH BẢN PHÂN PHỐI WSL (DISTRIBUTIONS)"
+    Write-SubHeader "WSL LINUX DISTRIBUTIONS & VIRTUAL DISKS"
     if (-not (Test-ToolAvailable "wsl")) {
-        Write-WarningMessage "WSL chưa được cài đặt."
+        Write-WarningMessage "WSL is not installed."
         Pause-Screen
         return
     }
 
     & wsl.exe -l -v
     Write-Host ""
-    Write-Host " NGUYÊN TẮC AN TOÀN:" -ForegroundColor Yellow
-    Write-Host "  - Không bao giờ xóa file ext4.vhdx trực tiếp vì sẽ làm hỏng dữ liệu Linux." -ForegroundColor Gray
-    Write-Host "  - Để thu hồi dung lượng WSL: hãy dọn dẹp bên trong Linux trước, sau đó chạy 'wsl --shutdown' và compact disk." -ForegroundColor Gray
+    Write-Host " SAFETY PRINCIPLE:" -ForegroundColor Yellow
+    Write-Host "  - Never delete ext4.vhdx files directly to prevent Linux corruption." -ForegroundColor Gray
+    Write-Host "  - To reclaim WSL storage: run apt-get autoremove inside Linux, then run 'wsl --shutdown' and compact disk." -ForegroundColor Gray
     Pause-Screen
 }
 
 function Clean-IdeLogs {
-    Write-SubHeader "DỌN LOG & CACHE TẠM THỜI CỦA VS CODE / CURSOR"
+    Write-SubHeader "PURGE VS CODE & CURSOR TEMPORARY SESSION LOGS"
     $paths = @(
         (Join-Path $env:APPDATA "Code\logs"),
         (Join-Path $env:APPDATA "Cursor\logs")
     )
-    $confirmed = Confirm-Action -TaskName "Dọn Log IDE" -ImpactDescription "Xóa các thư mục log cũ của VS Code và Cursor. Không ảnh hưởng đến extensions, cấu hình settings hay conversation history." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Purge IDE Logs" -ImpactDescription "Deletes expired session log folders for VS Code and Cursor. Preserves all extensions, user settings, snippets, and conversation history." -RiskLevel "low"
     if ($confirmed) {
         $deleted = 0
         foreach ($p in $paths) {
@@ -3387,7 +3388,7 @@ function Clean-IdeLogs {
                 }
             }
         }
-        Write-Success "Đã dọn dẹp $deleted file log IDE."
+        Write-Success "Purged $deleted temporary IDE log file(s)."
     }
     Pause-Screen
 }
@@ -3399,37 +3400,37 @@ function Clean-IdeLogs {
 
 function Show-TMPrivacyMenu {
     $menuItems = @(
-        @{ Label = "Bật / Tắt nút Copilot trên thanh Taskbar (Windows 11)"; Action = { Toggle-CopilotTaskbar } },
-        @{ Label = "Tắt gợi ý & quảng cáo mẹo vặt của Windows (Tips & Suggestions)"; Action = { Disable-WindowsTips } },
-        @{ Label = "Bật / Tắt Widget trên thanh Taskbar (Windows 11)"; Action = { Toggle-TaskbarWidgets } },
-        @{ Label = "Mở cài đặt Thông báo (Notifications & Actions)"; Action = { Start-Process "ms-settings:notifications" } },
-        @{ Label = "Mở cài đặt Quyền riêng tư (Privacy & Security)"; Action = { Start-Process "ms-settings:privacy" } },
-        @{ Label = "Mở cấu hình phạm vi Search Indexing (Giảm tải ổ đĩa)"; Action = { Start-Process "control.exe" "srchadmin.dll" } }
+        @{ Label = "Toggle Microsoft Copilot Taskbar Button (Windows 11)"; Action = { Toggle-CopilotTaskbar } },
+        @{ Label = "Disable Windows Tips, Suggestions & Promotional Ads"; Action = { Disable-WindowsTips } },
+        @{ Label = "Toggle Taskbar Widgets / News Feed (Windows 11)"; Action = { Toggle-TaskbarWidgets } },
+        @{ Label = "Open Windows Notifications & Actions Settings"; Action = { Start-Process "ms-settings:notifications" } },
+        @{ Label = "Open Windows Privacy & Security Settings"; Action = { Start-Process "ms-settings:privacy" } },
+        @{ Label = "Open Windows Search Indexing Options (Reduce Disk I/O)"; Action = { Start-Process "control.exe" "srchadmin.dll" } }
     )
-    Show-TMMenu -Title "QUYỀN RIÊNG TƯ & THÀNH PHẦN WINDOWS (PRIVACY & COPILOT)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "PRIVACY, NOTIFICATIONS & SYSTEM COMPONENTS" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Toggle-CopilotTaskbar {
-    Write-SubHeader "BẬT / TẮT NÚT COPILOT TRÊN TASKBAR"
+    Write-SubHeader "TOGGLE COPILOT TASKBAR BUTTON"
     $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
     try {
         $current = (Get-ItemProperty -Path $regPath -Name "ShowCopilotButton" -ErrorAction SilentlyContinue).ShowCopilotButton
-        $statusStr = if ($current -eq 0) { "Đang ẩn (Tắt)" } else { "Đang hiện (Bật)" }
-        Write-InfoMessage "Trạng thái nút Copilot hiện tại: $statusStr"
+        $statusStr = if ($current -eq 0) { "Hidden (Disabled)" } else { "Visible (Enabled)" }
+        Write-InfoMessage "Current Copilot Button Status: $statusStr"
 
-        Write-Host " [1] Ẩn nút Copilot" -ForegroundColor Cyan
-        Write-Host " [2] Hiện nút Copilot" -ForegroundColor Cyan
-        Write-Host " [0] Quay lại" -ForegroundColor Yellow
+        Write-Host " [1] Hide Copilot Button" -ForegroundColor Cyan
+        Write-Host " [2] Show Copilot Button" -ForegroundColor Cyan
+        Write-Host " [0] Back" -ForegroundColor Yellow
         $sel = Read-MenuSelection -Min 0 -Max 2
         switch ($sel) {
             1 {
                 Set-ItemProperty -Path $regPath -Name "ShowCopilotButton" -Value 0 -Force
-                Write-Success "Đã ẩn nút Copilot trên Taskbar."
-                Write-InfoMessage "Có thể cần khởi động lại Explorer để cập nhật ngay."
+                Write-Success "Copilot button hidden from Taskbar."
+                Write-InfoMessage "You may need to restart or refresh File Explorer."
             }
             2 {
                 Set-ItemProperty -Path $regPath -Name "ShowCopilotButton" -Value 1 -Force
-                Write-Success "Đã bật hiển thị nút Copilot trên Taskbar."
+                Write-Success "Copilot button enabled on Taskbar."
             }
         }
     } catch {
@@ -3439,40 +3440,40 @@ function Toggle-CopilotTaskbar {
 }
 
 function Disable-WindowsTips {
-    Write-SubHeader "TẮT GỢI Ý & QUẢNG CÁO MẸO VẶT CỦA WINDOWS"
+    Write-SubHeader "DISABLE WINDOWS TIPS & SUGGESTIONS"
     $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
     try {
         Set-ItemProperty -Path $regPath -Name "SoftLandingEnabled" -Value 0 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path $regPath -Name "SubscribedContent-338388Enabled" -Value 0 -Force -ErrorAction SilentlyContinue
         Set-ItemProperty -Path $regPath -Name "SubscribedContent-338389Enabled" -Value 0 -Force -ErrorAction SilentlyContinue
-        Write-Success "Đã tắt các mẹo vặt và gợi ý ứng dụng trên Windows!"
-        Write-TMLog -TaskId "PRIV_TIPS" -TaskName "Tắt gợi ý Windows" -Status "Success" -Message "Thành công"
+        Write-Success "Windows tips, suggestions, and app recommendations disabled!"
+        Write-TMLog -TaskId "PRIV_TIPS" -TaskName "Disable Windows Tips" -Status "Success" -Message "Success"
     } catch {
-        Handle-TMException -TaskId "PRIV_TIPS" -TaskName "Tắt gợi ý Windows" -Exception $_.Exception
+        Handle-TMException -TaskId "PRIV_TIPS" -TaskName "Disable Windows Tips" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Toggle-TaskbarWidgets {
-    Write-SubHeader "BẬT / TẮT WIDGET TRÊN THANH TASKBAR"
+    Write-SubHeader "TOGGLE TASKBAR WIDGETS (WINDOWS 11)"
     $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
     try {
         $current = (Get-ItemProperty -Path $regPath -Name "TaskbarDa" -ErrorAction SilentlyContinue).TaskbarDa
-        $statusStr = if ($current -eq 0) { "Đang ẩn (Tắt)" } else { "Đang hiện (Bật)" }
-        Write-InfoMessage "Trạng thái Widgets hiện tại: $statusStr"
+        $statusStr = if ($current -eq 0) { "Hidden (Disabled)" } else { "Visible (Enabled)" }
+        Write-InfoMessage "Current Widgets Status: $statusStr"
 
-        Write-Host " [1] Ẩn Widgets" -ForegroundColor Cyan
-        Write-Host " [2] Hiện Widgets" -ForegroundColor Cyan
-        Write-Host " [0] Quay lại" -ForegroundColor Yellow
+        Write-Host " [1] Hide Widgets" -ForegroundColor Cyan
+        Write-Host " [2] Show Widgets" -ForegroundColor Cyan
+        Write-Host " [0] Back" -ForegroundColor Yellow
         $sel = Read-MenuSelection -Min 0 -Max 2
         switch ($sel) {
             1 {
                 Set-ItemProperty -Path $regPath -Name "TaskbarDa" -Value 0 -Force
-                Write-Success "Đã ẩn Widgets trên Taskbar."
+                Write-Success "Widgets hidden from Taskbar."
             }
             2 {
                 Set-ItemProperty -Path $regPath -Name "TaskbarDa" -Value 1 -Force
-                Write-Success "Đã hiện Widgets trên Taskbar."
+                Write-Success "Widgets enabled on Taskbar."
             }
         }
     } catch {
@@ -3488,38 +3489,38 @@ function Toggle-TaskbarWidgets {
 
 function Show-TMAccountsMenu {
     $menuItems = @(
-        @{ Label = "Danh sách tài khoản người dùng cục bộ (Local Users)"; Action = { Show-LocalUsersList } },
-        @{ Label = "Tạo tài khoản scan máy in (Scan-to-Folder)"; Action = { Invoke-CreateScanAccount } },
-        @{ Label = "Mở Quản lý Người dùng & Nhóm (lusrmgr.msc)"; Action = { Start-Process "lusrmgr.msc" } },
-        @{ Label = "Mở Cấu hình Tài khoản Nhanh (netplwiz)"; Action = { Start-Process "netplwiz.exe" } },
-        @{ Label = "Mở Quản lý Mật khẩu Mạng (Credential Manager)"; Action = { Start-Process "control.exe" "/name Microsoft.CredentialManager" } }
+        @{ Label = "List Local User Accounts (Get-LocalUser)"; Action = { Show-LocalUsersList } },
+        @{ Label = "Create Scan-to-Folder Dedicated Local User"; Action = { Invoke-CreateScanAccount } },
+        @{ Label = "Open Local Users and Groups Console (lusrmgr.msc)"; Action = { Start-Process "lusrmgr.msc" } },
+        @{ Label = "Open User Accounts Management (netplwiz)"; Action = { Start-Process "netplwiz.exe" } },
+        @{ Label = "Open Windows Credential Manager (control credman)"; Action = { Start-Process "control.exe" "/name Microsoft.CredentialManager" } }
     )
-    Show-TMMenu -Title "TÀI KHOẢN & QUYỀN TRUY CẬP (ACCOUNTS & ACCESS)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "ACCOUNTS & ACCESS MANAGEMENT" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-LocalUsersList {
-    Write-SubHeader "DANH SÁCH TÀI KHOẢN CỤC BỘ TRÊN MÁY"
+    Write-SubHeader "LOCAL USER ACCOUNTS ON THIS PC"
     try {
         if (Test-CmdletAvailable "Get-LocalUser") {
             $users = Get-LocalUser
             $list = @()
             foreach ($u in $users) {
                 $list += [PSCustomObject]@{
-                    TenUser = $u.Name
-                    TrangThai = if ($u.Enabled) { "Bật" } else { "Tắt" }
-                    MatKhauKhongHetHan = if ($u.PasswordNeverExpires) { "Có" } else { "Không" }
-                    MoTa = $u.Description
+                    Username = $u.Name
+                    Status = if ($u.Enabled) { "Enabled" } else { "Disabled" }
+                    PasswordNeverExpires = if ($u.PasswordNeverExpires) { "Yes" } else { "No" }
+                    Description = $u.Description
                 }
             }
-            $headers = @("Tên tài khoản", "Trạng thái", "Pass không hết hạn", "Mô tả")
-            $props = @("TenUser", "TrangThai", "MatKhauKhongHetHan", "MoTa")
-            $widths = @(22, 12, 22, 25)
+            $headers = @("Username", "Status", "Password Never Expires", "Description")
+            $props = @("Username", "Status", "PasswordNeverExpires", "Description")
+            $widths = @(22, 12, 24, 25)
             Show-TableList -Items $list -Headers $headers -PropertyNames $props -Widths $widths
         } else {
             & net.exe user
         }
     } catch {
-        Handle-TMException -TaskId "ACC_LIST" -TaskName "Liệt kê tài khoản" -Exception $_.Exception
+        Handle-TMException -TaskId "ACC_LIST" -TaskName "List Accounts" -Exception $_.Exception
     }
     Pause-Screen
 }
@@ -3543,13 +3544,13 @@ function Get-QuickCommandsList {
 function Show-TMQuickCommandsMenu {
     $commands = Get-QuickCommandsList
     if (-not $commands -or $commands.Count -eq 0) {
-        Write-ErrorMessage "Không tìm thấy danh mục Quick Commands."
+        Write-ErrorMessage "Quick Commands catalog not found."
         Pause-Screen
         return
     }
 
     while ($true) {
-        Write-Header -Title "THƯ VIỆN LỆNH NHANH (QUICK COMMANDS)"
+        Write-Header -Title "QUICK COMMANDS & APPLET LAUNCHER"
         for ($i = 0; $i -lt $commands.Count; $i++) {
             $cmd = $commands[$i]
             $num = ($i + 1).ToString().PadLeft(2)
@@ -3561,10 +3562,10 @@ function Show-TMQuickCommandsMenu {
             Write-Host "$($cmd.name)" -ForegroundColor White
         }
 
-        Write-Host "  [ 0] Quay lại" -ForegroundColor Yellow
+        Write-Host "  [ 0] Back" -ForegroundColor Yellow
         Write-Divider
 
-        $sel = Read-MenuSelection -PromptText "Chọn lệnh cần chạy" -Min 0 -Max $commands.Count
+        $sel = Read-MenuSelection -PromptText "Select command to execute" -Min 0 -Max $commands.Count
         if ($sel -eq 0) { break }
 
         $chosen = $commands[$sel - 1]
@@ -3575,30 +3576,30 @@ function Show-TMQuickCommandsMenu {
 function Invoke-QuickCommandItem {
     param ($CommandItem)
 
-    Write-SubHeader "THỰC THI LỆNH: $($CommandItem.name)"
-    Write-InfoMessage "Nhóm chức năng: $($CommandItem.group)"
-    Write-Host " Mô tả: $($CommandItem.description)" -ForegroundColor Gray
-    Write-Host " Câu lệnh: " -ForegroundColor White -NoNewline
+    Write-SubHeader "EXECUTE COMMAND: $($CommandItem.name)"
+    Write-InfoMessage "Category : $($CommandItem.group)"
+    Write-Host " Description : $($CommandItem.description)" -ForegroundColor Gray
+    Write-Host " Command Line: " -ForegroundColor White -NoNewline
     Write-Host "$($CommandItem.command)" -ForegroundColor Cyan
 
     if ($CommandItem.requiresAdmin -and -not (Test-IsAdmin)) {
-        Write-ErrorMessage "Lệnh này yêu cầu quyền Administrator để thực thi đầy đủ."
-        if (-not (Request-Elevation -Reason "chạy lệnh '$($CommandItem.name)'")) {
+        Write-ErrorMessage "This command requires Administrator privileges."
+        if (-not (Request-Elevation -Reason "execute '$($CommandItem.name)'")) {
             Pause-Screen
             return
         }
     }
 
     Write-Host ""
-    Write-Host "  [1] Chạy lệnh ngay (Run)" -ForegroundColor Cyan
-    Write-Host "  [2] Sao chép câu lệnh vào Clipboard (Copy)" -ForegroundColor Cyan
-    Write-Host "  [0] Bỏ qua" -ForegroundColor Yellow
+    Write-Host "  [1] Execute command now" -ForegroundColor Cyan
+    Write-Host "  [2] Copy command string to Clipboard" -ForegroundColor Cyan
+    Write-Host "  [0] Cancel" -ForegroundColor Yellow
     Write-Divider
 
-    $sel = Read-MenuSelection -PromptText "Chọn thao tác" -Min 0 -Max 2
+    $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 2
     switch ($sel) {
         1 {
-            Write-InfoMessage "Đang thực thi: $($CommandItem.command)..."
+            Write-InfoMessage "Executing: $($CommandItem.command)..."
             Write-Host ""
             if ($CommandItem.type -eq "process") {
                 try {
@@ -3610,24 +3611,23 @@ function Invoke-QuickCommandItem {
                     } else {
                         Start-Process -FilePath $exe
                     }
-                    Write-Success "Đã khởi chạy công cụ: $exe"
+                    Write-Success "Process started: $exe"
                 } catch {
                     Handle-TMException -TaskId $CommandItem.id -TaskName $CommandItem.name -Exception $_.Exception
                 }
             } else {
-                # CLI command
                 & cmd.exe /c $CommandItem.command
-                Write-Success "Lệnh hoàn tất với Exit Code: $LASTEXITCODE"
+                Write-Success "Command completed with Exit Code: $LASTEXITCODE"
             }
-            Write-TMLog -TaskId $CommandItem.id -TaskName $CommandItem.name -Status "Success" -Message "Đã chạy $($CommandItem.command)"
+            Write-TMLog -TaskId $CommandItem.id -TaskName $CommandItem.name -Status "Success" -Message "Executed $($CommandItem.command)"
             Pause-Screen
         }
         2 {
             try {
                 Set-Clipboard -Value $CommandItem.command
-                Write-Success "Đã sao chép câu lệnh vào bộ nhớ tạm (Clipboard)!"
+                Write-Success "Command copied to Clipboard!"
             } catch {
-                Write-WarningMessage "Không thể sao chép tự động: $($_.Exception.Message)"
+                Write-WarningMessage "Could not copy automatically: $($_.Exception.Message)"
             }
             Pause-Screen
         }
@@ -3642,13 +3642,13 @@ function Invoke-QuickCommandItem {
 
 function Show-TMBackupMenu {
     while ($true) {
-        Write-Header -Title "QUẢN LÝ SAO LƯU & HOÀN TÁC (BACKUP & RESTORE)"
+        Write-Header -Title "BACKUP SNAPSHOTS & STATE ROLLBACK"
         $backups = Get-TMBackupList
 
         if (-not $backups -or $backups.Count -eq 0) {
-            Write-InfoMessage "Chưa có bản sao lưu nào được ghi nhận trong thư mục Backups."
+            Write-InfoMessage "No backup snapshots found in Backups directory."
         } else {
-            Write-Host " Danh sách các bản sao lưu đã tạo:" -ForegroundColor Yellow
+            Write-Host " Available State Snapshots:" -ForegroundColor Yellow
             for ($i = 0; $i -lt $backups.Count; $i++) {
                 $b = $backups[$i]
                 $num = ($i + 1).ToString().PadLeft(2)
@@ -3659,11 +3659,10 @@ function Show-TMBackupMenu {
         }
 
         Write-Host ""
-        Write-Host "  [R] Hoàn tác bản sao lưu đã chọn" -ForegroundColor Cyan
-        Write-Host "  [0] Quay lại" -ForegroundColor Yellow
+        Write-Host "  [0] Back" -ForegroundColor Yellow
         Write-Divider
 
-        Write-Host " Lựa chọn của bạn (Nhập số bản sao lưu để xem chi tiết / R để hoàn tác / 0 để quay lại): " -ForegroundColor Cyan -NoNewline
+        Write-Host " Select snapshot number to inspect / rollback (0 to return): " -ForegroundColor Cyan -NoNewline
         $ans = Read-Host
 
         if ($ans -eq "0") { break }
@@ -3680,33 +3679,33 @@ function Show-TMBackupMenu {
 function Show-BackupDetails {
     param ($BackupItem)
 
-    Write-SubHeader "CHI TIẾT BẢN SAO LƯU: $($BackupItem.Id)"
-    Write-Host " Tác vụ gốc: $($BackupItem.TaskId)" -ForegroundColor White
-    Write-Host " Mô tả     : $($BackupItem.Description)" -ForegroundColor White
-    Write-Host " Thời gian : $($BackupItem.CreatedAt)" -ForegroundColor White
-    Write-Host " Thư mục   : $($BackupItem.Path)" -ForegroundColor Gray
+    Write-SubHeader "SNAPSHOT DETAILS: $($BackupItem.Id)"
+    Write-Host " Task ID    : $($BackupItem.TaskId)" -ForegroundColor White
+    Write-Host " Description: $($BackupItem.Description)" -ForegroundColor White
+    Write-Host " Created At : $($BackupItem.CreatedAt)" -ForegroundColor White
+    Write-Host " Directory  : $($BackupItem.Path)" -ForegroundColor Gray
 
     $manifestPath = Join-Path $BackupItem.Path "manifest.json"
     if (Test-Path $manifestPath) {
         $manifest = Get-Content -Path $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($manifest.registry) {
             Write-Host ""
-            Write-Host "  Mục Registry được sao lưu:" -ForegroundColor Yellow
+            Write-Host "  Backed Up Registry Keys:" -ForegroundColor Yellow
             foreach ($r in $manifest.registry) {
-                Write-Host "   - $($r.path)\$($r.name) (Giá trị cũ: $($r.oldValue))" -ForegroundColor Gray
+                Write-Host "   - $($r.path)\$($r.name) (Old Value: $($r.oldValue))" -ForegroundColor Gray
             }
         }
         if ($manifest.services) {
             Write-Host ""
-            Write-Host "  Dịch vụ được sao lưu:" -ForegroundColor Yellow
+            Write-Host "  Backed Up Service States:" -ForegroundColor Yellow
             foreach ($s in $manifest.services) {
-                Write-Host "   - $($s.name) (Khởi động: $($s.startMode))" -ForegroundColor Gray
+                Write-Host "   - $($s.name) (Startup: $($s.startMode))" -ForegroundColor Gray
             }
         }
     }
 
     Write-Host ""
-    Write-Host " Bạn có muốn hoàn tác (Rollback) bản sao lưu này ngay bây giờ không? (Y/N): " -ForegroundColor Cyan -NoNewline
+    Write-Host " Rollback this backup snapshot now? (Y/N): " -ForegroundColor Cyan -NoNewline
     $rb = Read-Host
     if ($rb.Trim().ToUpper() -eq "Y") {
         Invoke-TMRollback -BackupId $BackupItem.Id
@@ -3737,26 +3736,26 @@ function Start-TMApplication {
         Write-Host "                 TM-WINDOWS TOOLKIT                      " -ForegroundColor White
         Write-Host "      Windows Optimization & Maintenance Toolkit         " -ForegroundColor Gray
         Write-Host "=========================================================" -ForegroundColor Cyan
-        Write-Host "  Hệ điều hành: $osStr | Quyền: " -NoNewline -ForegroundColor DarkGray
+        Write-Host "  Operating System: $osStr | Privilege: " -NoNewline -ForegroundColor DarkGray
         Write-Host "$adminBadge" -ForegroundColor $adminColor
         Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
 
-        Write-Host "  [ 1] " -ForegroundColor Cyan -NoNewline; Write-Host "Dashboard / Thông tin hệ thống" -ForegroundColor White
-        Write-Host "  [ 2] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Post-Install" -ForegroundColor White
-        Write-Host "  [ 3] " -ForegroundColor Cyan -NoNewline; Write-Host "Auto Optimize / Custom Optimize" -ForegroundColor White
+        Write-Host "  [ 1] " -ForegroundColor Cyan -NoNewline; Write-Host "Dashboard / System Information" -ForegroundColor White
+        Write-Host "  [ 2] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Post-Install & Activation" -ForegroundColor White
+        Write-Host "  [ 3] " -ForegroundColor Cyan -NoNewline; Write-Host "Auto Optimize / Custom Profiles" -ForegroundColor White
         Write-Host "  [ 4] " -ForegroundColor Cyan -NoNewline; Write-Host "Disk & System Maintenance" -ForegroundColor White
         Write-Host "  [ 5] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Repair (SFC / DISM / CHKDSK)" -ForegroundColor White
         Write-Host "  [ 6] " -ForegroundColor Cyan -NoNewline; Write-Host "Network & LAN Support" -ForegroundColor White
-        Write-Host "  [ 7] " -ForegroundColor Cyan -NoNewline; Write-Host "Printer Support" -ForegroundColor White
-        Write-Host "  [ 8] " -ForegroundColor Cyan -NoNewline; Write-Host "AI & Developer Cleanup" -ForegroundColor White
+        Write-Host "  [ 7] " -ForegroundColor Cyan -NoNewline; Write-Host "Printer & Spooler Support" -ForegroundColor White
+        Write-Host "  [ 8] " -ForegroundColor Cyan -NoNewline; Write-Host "AI & Developer Environment Cleanup" -ForegroundColor White
         Write-Host "  [ 9] " -ForegroundColor Cyan -NoNewline; Write-Host "Privacy, Notifications & Copilot" -ForegroundColor White
-        Write-Host "  [10] " -ForegroundColor Cyan -NoNewline; Write-Host "Tài khoản & quyền truy cập" -ForegroundColor White
-        Write-Host "  [11] " -ForegroundColor Cyan -NoNewline; Write-Host "Quick Commands" -ForegroundColor White
-        Write-Host "  [12] " -ForegroundColor Cyan -NoNewline; Write-Host "Backup & Restore" -ForegroundColor White
-        Write-Host "  [ 0] " -ForegroundColor Yellow -NoNewline; Write-Host "Thoát" -ForegroundColor Yellow
+        Write-Host "  [10] " -ForegroundColor Cyan -NoNewline; Write-Host "Accounts & Access Management" -ForegroundColor White
+        Write-Host "  [11] " -ForegroundColor Cyan -NoNewline; Write-Host "Quick Diagnostic Commands" -ForegroundColor White
+        Write-Host "  [12] " -ForegroundColor Cyan -NoNewline; Write-Host "Backup & State Restore" -ForegroundColor White
+        Write-Host "  [ 0] " -ForegroundColor Yellow -NoNewline; Write-Host "Exit" -ForegroundColor Yellow
         Write-Host "=========================================================" -ForegroundColor Cyan
 
-        $sel = Read-MenuSelection -PromptText "Chọn chức năng" -Min 0 -Max 12
+        $sel = Read-MenuSelection -PromptText "Select an option" -Min 0 -Max 12
         switch ($sel) {
             1  { Show-TMDashboard }
             2  { Show-TMPostInstallMenu }
@@ -3771,8 +3770,8 @@ function Start-TMApplication {
             11 { Show-TMQuickCommandsMenu }
             12 { Show-TMBackupMenu }
             0  {
-                Write-InfoMessage "Cảm ơn bạn đã sử dụng TM-WinCare. Tạm biệt!"
-                Write-TMLog -TaskId "EXIT" -TaskName "Thoát ứng dụng" -Status "Info" -Message "Thoát bình thường"
+                Write-InfoMessage "Thank you for using TM-WinCare. Goodbye!"
+                Write-TMLog -TaskId "EXIT" -TaskName "Exit Application" -Status "Info" -Message "Normal exit"
                 return
             }
         }

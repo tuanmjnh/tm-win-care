@@ -30,11 +30,11 @@ function Assert-FeatureSupported {
     )
     if ($global:TM_OS_INFO) {
         if ($MinBuild -gt 0 -and $global:TM_OS_INFO.Build -lt $MinBuild) {
-            Write-WarningMessage "$FeatureName yêu cầu Windows build tối thiểu $MinBuild (Hiện tại: $($global:TM_OS_INFO.Build))."
+            Write-WarningMessage "$FeatureName requires Windows build $MinBuild or newer (Current: $($global:TM_OS_INFO.Build))."
             return $false
         }
         if ($RequiresPro -and (Test-IsWindowsHome)) {
-            Write-WarningMessage "$FeatureName yêu cầu phiên bản Windows Pro/Enterprise (Phiên bản Home không hỗ trợ chính thức)."
+            Write-WarningMessage "$FeatureName requires Windows Pro or Enterprise edition (Windows Home is not supported)."
             return $false
         }
     }

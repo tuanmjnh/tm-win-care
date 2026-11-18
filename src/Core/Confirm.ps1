@@ -12,8 +12,8 @@ function Test-TaskApproval {
     
     # 1. Elevation check
     if ($RequiresAdmin -and -not (Test-IsAdmin)) {
-        if (-not (Request-Elevation -Reason "thực hiện tác vụ '$TaskName'")) {
-            Write-SkipMessage "Đã bỏ qua tác vụ '$TaskName' do thiếu quyền Administrator."
+        if (-not (Request-Elevation -Reason "execute task '$TaskName'")) {
+            Write-SkipMessage "Task '$TaskName' skipped due to missing Administrator privileges."
             return $false
         }
     }
@@ -21,8 +21,8 @@ function Test-TaskApproval {
     # 2. Risk confirmation
     $approved = Confirm-Action -TaskName $TaskName -ImpactDescription $ImpactDescription -RiskLevel $RiskLevel
     if (-not $approved) {
-        Write-SkipMessage "Người dùng đã từ chối thực hiện tác vụ '$TaskName'."
-        Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Skipped" -Message "Bỏ qua bởi người dùng"
+        Write-SkipMessage "User cancelled task '$TaskName'."
+        Write-TMLog -TaskId $TaskId -TaskName $TaskName -Status "Skipped" -Message "Cancelled by user"
         return $false
     }
 

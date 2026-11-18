@@ -19,7 +19,7 @@ function Sanitize-LogMessage {
 function Write-TMLog {
     param (
         [string]$TaskId = "SYS",
-        [string]$TaskName = "Hệ thống",
+        [string]$TaskName = "System",
         [ValidateSet("Started", "Success", "Failed", "Skipped", "Warning", "Info")]
         [string]$Status = "Info",
         [string]$Message = "",

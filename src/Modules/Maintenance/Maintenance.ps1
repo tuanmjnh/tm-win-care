@@ -3,26 +3,26 @@
 
 function Show-TMMaintenanceMenu {
     $menuItems = @(
-        @{ Label = "Kiểm tra loại ổ đĩa và dung lượng"; Action = { Show-DiskInventory } },
-        @{ Label = "Phân tích / tối ưu HDD hoặc SSD (Optimize-Volume)"; Action = { Invoke-DiskOptimization } },
-        @{ Label = "Mở công cụ Optimize Drives của Windows (dfrgui.exe)"; Action = { Start-Process "dfrgui.exe" } },
-        @{ Label = "CHKDSK - Kiểm tra ổ đĩa (Không sửa)"; Action = { Invoke-ChkdskBasic } },
-        @{ Label = "CHKDSK - Quét online NTFS (/scan)"; Action = { Invoke-ChkdskScan } },
-        @{ Label = "CHKDSK - Sửa lỗi hệ thống file (/f)"; Action = { Invoke-ChkdskFix } },
-        @{ Label = "CHKDSK - Quét sector và phục hồi (/r)"; Action = { Invoke-ChkdskRecovery } },
-        @{ Label = "SFC - Xác minh file hệ thống (/verifyonly)"; Action = { Invoke-SfcVerify } },
-        @{ Label = "SFC - Quét và sửa file hệ thống (/scannow)"; Action = { Invoke-SfcScanNow } },
-        @{ Label = "DISM - Quét Component Store (/ScanHealth)"; Action = { Invoke-DismScan } },
-        @{ Label = "DISM - Khôi phục Component Store (/RestoreHealth)"; Action = { Invoke-DismRestore } },
-        @{ Label = "Chạy quy trình DISM + SFC tuần tự (Windows Repair Wizard)"; Action = { Invoke-RepairPipeline } },
-        @{ Label = "Mở Cài đặt Dọn đĩa (Storage Settings / cleanmgr)"; Action = { Start-Process "cleanmgr.exe" } },
-        @{ Label = "Xuất báo cáo ổ đĩa và bảo trì"; Action = { Export-MaintenanceReport } }
+        @{ Label = "Inspect Disk Media Types & Storage Capacity"; Action = { Show-DiskInventory } },
+        @{ Label = "Optimize Volume / SSD Re-Trim (Optimize-Volume)"; Action = { Invoke-DiskOptimization } },
+        @{ Label = "Open Windows Optimize Drives GUI (dfrgui.exe)"; Action = { Start-Process "dfrgui.exe" } },
+        @{ Label = "CHKDSK - Read-Only Filesystem Check"; Action = { Invoke-ChkdskBasic } },
+        @{ Label = "CHKDSK - Online NTFS Scan (/scan)"; Action = { Invoke-ChkdskScan } },
+        @{ Label = "CHKDSK - Fix Filesystem Errors (/f)"; Action = { Invoke-ChkdskFix } },
+        @{ Label = "CHKDSK - Locate Bad Sectors & Recover Readable Data (/r)"; Action = { Invoke-ChkdskRecovery } },
+        @{ Label = "SFC - Verify System File Integrity (/verifyonly)"; Action = { Invoke-SfcVerify } },
+        @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (/scannow)"; Action = { Invoke-SfcScanNow } },
+        @{ Label = "DISM - Scan Component Store Health (/ScanHealth)"; Action = { Invoke-DismScan } },
+        @{ Label = "DISM - Repair Component Store Corruption (/RestoreHealth)"; Action = { Invoke-DismRestore } },
+        @{ Label = "Run Sequential Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
+        @{ Label = "Open Windows Disk Cleanup (cleanmgr.exe)"; Action = { Start-Process "cleanmgr.exe" } },
+        @{ Label = "Export Disk & Maintenance Report"; Action = { Export-MaintenanceReport } }
     )
-    Show-TMMenu -Title "BẢO TRÌ Ổ ĐĨA & HỆ THỐNG (DISK & MAINTENANCE)" -MenuItems $menuItems -ExitLabel "Quay lại"
+    Show-TMMenu -Title "DISK & SYSTEM MAINTENANCE" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Show-DiskInventory {
-    Write-SubHeader "DANH SÁCH Ổ ĐĨA LƯU TRỮ TRÊN HỆ THỐNG"
+    Write-SubHeader "SYSTEM STORAGE VOLUMES & HEALTH STATUS"
     try {
         $volumes = Get-Volume | Where-Object { $null -ne $_.DriveLetter }
         $list = @()
@@ -32,7 +32,7 @@ function Show-DiskInventory {
             $pctFree = if ($totalGB -gt 0) { [math]::Round(($freeGB / $totalGB) * 100, 0) } else { 0 }
             
             # Detect Media Type if possible
-            $mediaType = "Không rõ"
+            $mediaType = "Unknown"
             try {
                 $part = Get-Partition -DriveLetter $v.DriveLetter -ErrorAction SilentlyContinue
                 if ($part) {
@@ -45,192 +45,192 @@ function Show-DiskInventory {
             } catch {}
 
             $list += [PSCustomObject]@{
-                O = "$($v.DriveLetter):"
-                Nhan = $v.FileSystemLabel
-                DinhDang = $v.FileSystem
-                LoaiMedia = $mediaType
-                DungLuong = "$freeGB GB / $totalGB GB ($pctFree% trống)"
-                TrangThai = $v.HealthStatus
+                Drive = "$($v.DriveLetter):"
+                Label = $v.FileSystemLabel
+                FileSystem = $v.FileSystem
+                MediaType = $mediaType
+                Capacity = "$freeGB GB / $totalGB GB ($pctFree% free)"
+                Health = $v.HealthStatus
             }
         }
-        $headers = @("Ổ", "Nhãn", "Định dạng", "Loại ổ", "Dung lượng trống", "Sức khỏe")
-        $props = @("O", "Nhan", "DinhDang", "LoaiMedia", "DungLuong", "TrangThai")
-        $widths = @(5, 15, 12, 12, 28, 10)
+        $headers = @("Drive", "Label", "File System", "Media Type", "Free Space", "Health")
+        $props = @("Drive", "Label", "FileSystem", "MediaType", "Capacity", "Health")
+        $widths = @(6, 15, 12, 12, 28, 10)
         Show-TableList -Items $list -Headers $headers -PropertyNames $props -Widths $widths
     } catch {
-        Handle-TMException -TaskId "DISK_INV" -TaskName "Kiểm tra ổ đĩa" -Exception $_.Exception
+        Handle-TMException -TaskId "DISK_INV" -TaskName "Inspect Disks" -Exception $_.Exception
     }
     Pause-Screen
 }
 
 function Invoke-DiskOptimization {
-    if (-not (Assert-Admin "tối ưu hóa ổ đĩa")) { Pause-Screen; return }
+    if (-not (Assert-Admin "optimize drive")) { Pause-Screen; return }
 
-    Write-SubHeader "TỐI ƯU HÓA VOLUME / SSD RE-TRIM"
-    Write-Host " Nhập ký tự ổ đĩa cần tối ưu (ví dụ: C): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "OPTIMIZE STORAGE VOLUME / SSD RE-TRIM"
+    Write-Host " Enter drive letter to optimize (e.g. C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if (-not ($dl -match "^[a-zA-Z]$")) {
-        Write-ErrorMessage "Ký tự ổ đĩa không hợp lệ."
+        Write-ErrorMessage "Invalid drive letter."
         Pause-Screen
         return
     }
 
-    $confirmed = Confirm-Action -TaskName "Tối ưu ổ đĩa $dl`:" -ImpactDescription "Chạy Optimize-Volume (tự động chọn TRIM cho SSD hoặc Defrag an toàn cho HDD)." -RiskLevel "low"
+    $confirmed = Confirm-Action -TaskName "Optimize Drive $dl`:" -ImpactDescription "Execute Optimize-Volume (automatically runs TRIM for SSD or safe defragmentation for HDD)." -RiskLevel "low"
     if ($confirmed) {
         try {
-            Write-InfoMessage "Đang chạy Optimize-Volume cho ổ $dl`:..."
+            Write-InfoMessage "Running Optimize-Volume on drive $dl`:..."
             Optimize-Volume -DriveLetter $dl -Verbose
-            Write-Success "Tối ưu hóa ổ $dl`: hoàn tất thành công!"
-            Write-TMLog -TaskId "DISK_OPT" -TaskName "Tối ưu ổ đĩa" -Status "Success" -Message "Ổ $dl`:"
+            Write-Success "Optimization of drive $dl`: completed successfully!"
+            Write-TMLog -TaskId "DISK_OPT" -TaskName "Optimize Drive" -Status "Success" -Message "Drive $dl`:"
         } catch {
-            Handle-TMException -TaskId "DISK_OPT" -TaskName "Tối ưu ổ đĩa" -Exception $_.Exception
+            Handle-TMException -TaskId "DISK_OPT" -TaskName "Optimize Drive" -Exception $_.Exception
         }
     }
     Pause-Screen
 }
 
 function Invoke-ChkdskBasic {
-    Write-SubHeader "CHKDSK - KIỂM TRA Ổ ĐĨA CHẾ ĐỘ READ-ONLY"
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    Write-SubHeader "CHKDSK - READ-ONLY FILESYSTEM CHECK"
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    Write-InfoMessage "Đang chạy chkdsk $dl`: (chỉ đọc, không sửa)..."
+    Write-InfoMessage "Running chkdsk $dl`: (read-only mode)..."
     & chkdsk.exe "$dl`:"
-    Write-TMLog -TaskId "CHKDSK_RO" -TaskName "CHKDSK Read-Only" -Status "Success" -Message "Ổ $dl`:"
+    Write-TMLog -TaskId "CHKDSK_RO" -TaskName "CHKDSK Read-Only" -Status "Success" -Message "Drive $dl`:"
     Pause-Screen
 }
 
 function Invoke-ChkdskScan {
-    if (-not (Assert-Admin "chạy CHKDSK online scan")) { Pause-Screen; return }
-    Write-SubHeader "CHKDSK - QUÉT ONLINE NTFS (/scan)"
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    if (-not (Assert-Admin "run CHKDSK online scan")) { Pause-Screen; return }
+    Write-SubHeader "CHKDSK - ONLINE NTFS SCAN (/scan)"
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    Write-InfoMessage "Đang chạy chkdsk $dl`: /scan..."
+    Write-InfoMessage "Running chkdsk $dl`: /scan..."
     & chkdsk.exe "$dl`:" /scan
-    Write-TMLog -TaskId "CHKDSK_SCAN" -TaskName "CHKDSK Scan" -Status "Success" -Message "Ổ $dl`:"
+    Write-TMLog -TaskId "CHKDSK_SCAN" -TaskName "CHKDSK Scan" -Status "Success" -Message "Drive $dl`:"
     Pause-Screen
 }
 
 function Invoke-ChkdskFix {
-    if (-not (Assert-Admin "sửa lỗi ổ đĩa")) { Pause-Screen; return }
-    Write-SubHeader "CHKDSK - SỬA LỖI HỆ THỐNG FILE (/f)"
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    if (-not (Assert-Admin "fix disk errors")) { Pause-Screen; return }
+    Write-SubHeader "CHKDSK - REPAIR FILESYSTEM ERRORS (/f)"
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    $confirmed = Confirm-Action -TaskName "CHKDSK /f $dl`:" -ImpactDescription "Sửa lỗi logic hệ thống file. Với ổ hệ thống C:, Windows sẽ hỏi lên lịch quét khi khởi động lại máy." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "CHKDSK /f $dl`:" -ImpactDescription "Fixes filesystem logic errors. For system drive C:, Windows will schedule the check upon next reboot." -RiskLevel "medium"
     if ($confirmed) {
-        Write-InfoMessage "Đang thực thi chkdsk $dl`: /f..."
+        Write-InfoMessage "Executing chkdsk $dl`: /f..."
         & chkdsk.exe "$dl`:" /f
-        Write-TMLog -TaskId "CHKDSK_FIX" -TaskName "CHKDSK /f" -Status "Success" -Message "Ổ $dl`:" -RequiresRestart ($dl -eq "C")
+        Write-TMLog -TaskId "CHKDSK_FIX" -TaskName "CHKDSK /f" -Status "Success" -Message "Drive $dl`:" -RequiresRestart ($dl -eq "C")
     }
     Pause-Screen
 }
 
 function Invoke-ChkdskRecovery {
-    if (-not (Assert-Admin "quét phục hồi sector")) { Pause-Screen; return }
-    Write-SubHeader "CHKDSK - QUÉT SECTOR VÀ PHỤC HỒI DỮ LIỆU (/r)"
-    Write-WarningMessage "Lưu ý: Quá trình /r quét toàn bộ bề mặt ổ đĩa có thể mất từ 1 đến vài giờ."
-    Write-Host " Nhập ký tự ổ đĩa (mặc định C): " -ForegroundColor Cyan -NoNewline
+    if (-not (Assert-Admin "scan and recover bad sectors")) { Pause-Screen; return }
+    Write-SubHeader "CHKDSK - BAD SECTOR SCAN & DATA RECOVERY (/r)"
+    Write-WarningMessage "Notice: Scanning every sector on the drive surface may take hours depending on disk capacity."
+    Write-Host " Enter drive letter (default C): " -ForegroundColor Cyan -NoNewline
     $dl = Read-Host
     if ([string]::IsNullOrWhiteSpace($dl)) { $dl = "C" }
     $dl = $dl.Trim().Substring(0, 1).ToUpper()
 
-    $confirmed = Confirm-Action -TaskName "CHKDSK /r $dl`:" -ImpactDescription "Tìm sector lỗi và cố gắng phục hồi dữ liệu đọc được. Thao tác mất nhiều thời gian và yêu cầu khởi động lại nếu là ổ C:." -RiskLevel "high" -RequiresKeyword $true
+    $confirmed = Confirm-Action -TaskName "CHKDSK /r $dl`:" -ImpactDescription "Locates bad sectors and recovers readable information. Demands high disk I/O and requires a restart for drive C:." -RiskLevel "high" -RequiresKeyword $true
     if ($confirmed) {
-        Write-InfoMessage "Đang thực thi chkdsk $dl`: /r..."
+        Write-InfoMessage "Executing chkdsk $dl`: /r..."
         & chkdsk.exe "$dl`:" /r
-        Write-TMLog -TaskId "CHKDSK_R" -TaskName "CHKDSK /r" -Status "Success" -Message "Ổ $dl`:" -RequiresRestart ($dl -eq "C")
+        Write-TMLog -TaskId "CHKDSK_R" -TaskName "CHKDSK /r" -Status "Success" -Message "Drive $dl`:" -RequiresRestart ($dl -eq "C")
     }
     Pause-Screen
 }
 
 function Invoke-SfcVerify {
-    if (-not (Assert-Admin "xác minh file hệ thống")) { Pause-Screen; return }
-    Write-SubHeader "SFC - XÁC MINH FILE HỆ THỐNG (/verifyonly)"
-    Write-InfoMessage "Đang chạy sfc /verifyonly... Vui lòng không đóng cửa sổ."
+    if (-not (Assert-Admin "verify system files")) { Pause-Screen; return }
+    Write-SubHeader "SFC - VERIFY SYSTEM FILE INTEGRITY (/verifyonly)"
+    Write-InfoMessage "Running sfc /verifyonly... Please keep this window open."
     & sfc.exe /verifyonly
-    Write-TMLog -TaskId "SFC_VERIFY" -TaskName "SFC VerifyOnly" -Status "Success" -Message "Hoàn tất kiểm tra"
+    Write-TMLog -TaskId "SFC_VERIFY" -TaskName "SFC VerifyOnly" -Status "Success" -Message "Verification complete"
     Pause-Screen
 }
 
 function Invoke-SfcScanNow {
-    if (-not (Assert-Admin "quét và sửa file hệ thống")) { Pause-Screen; return }
-    Write-SubHeader "SFC - QUÉT VÀ SỬA FILE HỆ THỐNG (/scannow)"
-    Write-InfoMessage "Đang chạy sfc /scannow... Quá trình này mất khoảng vài phút."
+    if (-not (Assert-Admin "scan and repair system files")) { Pause-Screen; return }
+    Write-SubHeader "SFC - SCAN AND REPAIR SYSTEM FILES (/scannow)"
+    Write-InfoMessage "Running sfc /scannow... This process takes several minutes."
     & sfc.exe /scannow
-    Write-TMLog -TaskId "SFC_SCANNOW" -TaskName "SFC ScanNow" -Status "Success" -Message "Hoàn tất quét sửa"
+    Write-TMLog -TaskId "SFC_SCANNOW" -TaskName "SFC ScanNow" -Status "Success" -Message "Scan and repair complete"
     Pause-Screen
 }
 
 function Invoke-DismScan {
-    if (-not (Assert-Admin "quét component store")) { Pause-Screen; return }
-    Write-SubHeader "DISM - QUÉT COMPONENT STORE (/ScanHealth)"
-    Write-InfoMessage "Đang chạy DISM /Online /Cleanup-Image /ScanHealth..."
+    if (-not (Assert-Admin "scan component store")) { Pause-Screen; return }
+    Write-SubHeader "DISM - SCAN COMPONENT STORE (/ScanHealth)"
+    Write-InfoMessage "Running DISM /Online /Cleanup-Image /ScanHealth..."
     & dism.exe /Online /Cleanup-Image /ScanHealth
-    Write-TMLog -TaskId "DISM_SCAN" -TaskName "DISM ScanHealth" -Status "Success" -Message "Hoàn tất"
+    Write-TMLog -TaskId "DISM_SCAN" -TaskName "DISM ScanHealth" -Status "Success" -Message "Scan complete"
     Pause-Screen
 }
 
 function Invoke-DismRestore {
-    if (-not (Assert-Admin "khôi phục component store")) { Pause-Screen; return }
-    Write-SubHeader "DISM - KHÔI PHỤC COMPONENT STORE (/RestoreHealth)"
-    Write-InfoMessage "Đang chạy DISM /Online /Cleanup-Image /RestoreHealth..."
+    if (-not (Assert-Admin "repair component store")) { Pause-Screen; return }
+    Write-SubHeader "DISM - REPAIR COMPONENT STORE (/RestoreHealth)"
+    Write-InfoMessage "Running DISM /Online /Cleanup-Image /RestoreHealth..."
     & dism.exe /Online /Cleanup-Image /RestoreHealth
-    Write-TMLog -TaskId "DISM_RESTORE" -TaskName "DISM RestoreHealth" -Status "Success" -Message "Hoàn tất"
+    Write-TMLog -TaskId "DISM_RESTORE" -TaskName "DISM RestoreHealth" -Status "Success" -Message "Repair complete"
     Pause-Screen
 }
 
 function Invoke-RepairPipeline {
-    if (-not (Assert-Admin "chạy quy trình sửa chữa Windows")) { Pause-Screen; return }
-    Write-Header -Title "QUY TRÌNH SỬA CHỮA WINDOWS TOÀN DIỆN (DISM + SFC)"
-    Write-InfoMessage "Trình tự khuyến nghị chuẩn của Microsoft:"
-    Write-Host "  1. Quét và khôi phục kho linh kiện Windows Component Store (DISM RestoreHealth)" -ForegroundColor Gray
-    Write-Host "  2. Quét và thay thế các file hệ thống được bảo vệ (SFC scannow)" -ForegroundColor Gray
+    if (-not (Assert-Admin "run Windows repair wizard")) { Pause-Screen; return }
+    Write-Header -Title "COMPREHENSIVE WINDOWS REPAIR PIPELINE (DISM + SFC)"
+    Write-InfoMessage "Standard Microsoft-recommended sequence:"
+    Write-Host "  1. Repair Windows Component Store (DISM /Online /Cleanup-Image /RestoreHealth)" -ForegroundColor Gray
+    Write-Host "  2. Scan and replace protected system files (SFC /scannow)" -ForegroundColor Gray
     Write-Host ""
 
-    $confirmed = Confirm-Action -TaskName "Sửa chữa hệ thống DISM + SFC" -ImpactDescription "Tự động chạy DISM RestoreHealth rồi đến SFC Scannow để sửa các file Windows bị hỏng." -RiskLevel "medium"
+    $confirmed = Confirm-Action -TaskName "DISM + SFC Repair Pipeline" -ImpactDescription "Automatically runs DISM RestoreHealth followed by SFC Scannow to fix corrupted OS files." -RiskLevel "medium"
     if ($confirmed) {
-        Write-SubHeader "BƯỚC 1/2: CHẠY DISM RESTOREHEALTH"
+        Write-SubHeader "STEP 1/2: EXECUTING DISM RESTOREHEALTH"
         & dism.exe /Online /Cleanup-Image /RestoreHealth
 
-        Write-SubHeader "BƯỚC 2/2: CHẠY SFC SCANNOW"
+        Write-SubHeader "STEP 2/2: EXECUTING SFC SCANNOW"
         & sfc.exe /scannow
 
-        Write-Success "Quy trình sửa chữa DISM + SFC đã hoàn thành!"
-        Write-TMLog -TaskId "REPAIR_PIPELINE" -TaskName "DISM + SFC Pipeline" -Status "Success" -Message "Hoàn tất quy trình sửa chữa"
+        Write-Success "DISM + SFC Repair Pipeline completed successfully!"
+        Write-TMLog -TaskId "REPAIR_PIPELINE" -TaskName "DISM + SFC Pipeline" -Status "Success" -Message "Repair pipeline finished"
     }
     Pause-Screen
 }
 
 function Export-MaintenanceReport {
-    Write-SubHeader "XUẤT BÁO CÁO Ổ ĐĨA & BẢO TRÌ"
+    Write-SubHeader "EXPORT DISK & MAINTENANCE REPORT"
     $reportDir = Join-Path $PSScriptRoot "../../../Logs"
     $filename = "MaintenanceReport_" + (Get-Date).ToString("yyyyMMdd_HHmmss") + ".txt"
     $fullPath = Join-Path $reportDir $filename
 
     $lines = @()
     $lines += "========================================================="
-    $lines += "         TM-WINCARE - BÁO CÁO BẢO TRÌ & Ổ ĐĨA"
-    $lines += "  Thời gian: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    $lines += "         TM-WINCARE - DISK & MAINTENANCE REPORT"
+    $lines += "  Generated: " + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     $lines += "========================================================="
     try {
         $volumes = Get-Volume | Where-Object { $null -ne $_.DriveLetter }
         foreach ($v in $volumes) {
             $totalGB = [math]::Round($v.Size / 1GB, 1)
             $freeGB = [math]::Round($v.SizeRemaining / 1GB, 1)
-            $lines += "Ổ $($v.DriveLetter): [$($v.FileSystemLabel)] - $freeGB GB trống / $totalGB GB ($($v.FileSystem))"
+            $lines += "Drive $($v.DriveLetter): [$($v.FileSystemLabel)] - $freeGB GB free / $totalGB GB ($($v.FileSystem))"
         }
     } catch {}
     $lines += "========================================================="
 
     Set-Content -Path $fullPath -Value $lines -Encoding UTF8 -Force
-    Write-Success "Đã xuất báo cáo ra: $fullPath"
+    Write-Success "Report exported to: $fullPath"
     Pause-Screen
 }
