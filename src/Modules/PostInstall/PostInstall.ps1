@@ -1,8 +1,11 @@
-# TM-WinCare - Windows Post-Install Configuration
+﻿# TM-WinCare - Windows Post-Install Configuration
 # Adheres to Section 3.2 of TM-WinCare-Architecture-v1.2.md
+
+. (Join-Path $PSScriptRoot "CheckLicense.ps1")
 
 function Show-TMPostInstallMenu {
     $menuItems = @(
+        @{ Label = "Quản lý bản quyền Windows & Office (IT Inventory Full Key)"; Action = { Invoke-LicenseInventoryCheck } },
         @{ Label = "Đổi tên máy tính (Rename Computer)"; Action = { Invoke-RenameComputer } },
         @{ Label = "Bật hiển thị đuôi mở rộng file (.exe, .txt...)"; Action = { Set-ExplorerShowFileExtensions -Enable $true } },
         @{ Label = "Tắt hiển thị đuôi mở rộng file"; Action = { Set-ExplorerShowFileExtensions -Enable $false } },

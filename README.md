@@ -15,18 +15,27 @@ TM-WinCare là bộ công cụ dòng lệnh (Console Toolkit) tiện ích, chạ
 
 ### Cách 1: PowerShell Online One-Liner ❤️ (Khuyến nghị)
 
-Không cần tải về hay giải nén, chỉ cần mở PowerShell và chạy:
+Không cần tải về hay giải nén, chỉ cần mở PowerShell và dán câu lệnh:
 
-1. Bấm phím **Start** (hoặc `Win + X`), gõ **PowerShell** và mở **Windows PowerShell** (khuyến nghị chuột phải chọn *Run as administrator*).
-2. Sao chép và dán câu lệnh sau rồi nhấn **Enter**:
-
+#### 🔹 1. Khởi chạy toàn bộ bộ công cụ TM-WinCare (12 Module):
 ```powershell
 irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | iex
 ```
 
-*Nếu bị chặn bởi DNS hoặc nhà mạng, hãy dùng lệnh bypass DNS an toàn qua Cloudflare 1.1.1.1 sau:*
+*Dự phòng khi bị chặn DNS / ISP:*
 ```powershell
 iex (curl.exe -s --doh-url https://1.1.1.1/dns-query https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/TM-WinCare-AIO.ps1 | Out-String)
+```
+
+#### 🔹 2. Khởi chạy nhanh công cụ Quản lý Bản quyền Windows & Office (IT Inventory Full Key):
+Dành riêng cho kỹ thuật viên muốn kiểm tra nhanh Key bản quyền (Full 25 ký tự), Model/Serial máy và đồng bộ lên Google Sheets/Form:
+```powershell
+irm https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/Check-License.ps1 | iex
+```
+
+*Dự phòng khi bị chặn DNS / ISP:*
+```powershell
+iex (curl.exe -s --doh-url https://1.1.1.1/dns-query https://raw.githubusercontent.com/tuanmjnh/tm-win-care/main/dist/Check-License.ps1 | Out-String)
 ```
 
 ---
