@@ -1,0 +1,75 @@
+[
+  {
+    "id": "CLEAN_USER_TEMP",
+    "name": "User Temp (%TEMP%)",
+    "description": "File tạm sinh ra từ các ứng dụng của người dùng hiện tại",
+    "pathType": "env",
+    "targetPath": "%TEMP%",
+    "requiresAdmin": false,
+    "risk": "low",
+    "safeToDelete": true,
+    "skipLocked": true,
+    "minAgeDays": 0
+  },
+  {
+    "id": "CLEAN_WIN_TEMP",
+    "name": "Windows Temp (%WINDIR%\\Temp)",
+    "description": "File tạm của các dịch vụ hệ thống và bộ cài đặt",
+    "pathType": "env",
+    "targetPath": "%WINDIR%\\Temp",
+    "requiresAdmin": true,
+    "risk": "low",
+    "safeToDelete": true,
+    "skipLocked": true,
+    "minAgeDays": 0
+  },
+  {
+    "id": "CLEAN_RECYCLE_BIN",
+    "name": "Thùng rác (Recycle Bin)",
+    "description": "Dọn sạch các file đã xóa tạm vào thùng rác trên tất cả các ổ đĩa",
+    "pathType": "special",
+    "targetPath": "RecycleBin",
+    "requiresAdmin": false,
+    "risk": "medium",
+    "safeToDelete": true,
+    "skipLocked": false,
+    "minAgeDays": 0
+  },
+  {
+    "id": "CLEAN_WU_CACHE",
+    "name": "Windows Update Download Cache",
+    "description": "Các file cài đặt bản cập nhật đã tải xong trong SoftwareDistribution\\Download",
+    "pathType": "fixed",
+    "targetPath": "%WINDIR%\\SoftwareDistribution\\Download",
+    "requiresAdmin": true,
+    "risk": "low",
+    "safeToDelete": true,
+    "skipLocked": true,
+    "minAgeDays": 1
+  },
+  {
+    "id": "CLEAN_CRASH_DUMPS",
+    "name": "Crash Dumps & Minidumps",
+    "description": "Bản ghi lỗi BSOD (Minidump) và crash bộ nhớ cũ của Windows",
+    "pathType": "fixed",
+    "targetPath": "%WINDIR%\\Minidump",
+    "requiresAdmin": true,
+    "risk": "low",
+    "safeToDelete": true,
+    "skipLocked": true,
+    "minAgeDays": 7
+  },
+  {
+    "id": "CLEAN_THUMB_CACHE",
+    "name": "Thumbnail & Icon Cache",
+    "description": "Bộ nhớ đệm hình thu nhỏ của Windows Explorer",
+    "pathType": "env",
+    "targetPath": "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer",
+    "filter": "thumbcache_*.db",
+    "requiresAdmin": false,
+    "risk": "low",
+    "safeToDelete": true,
+    "skipLocked": true,
+    "minAgeDays": 0
+  }
+]

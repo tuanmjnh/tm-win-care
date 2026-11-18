@@ -1,0 +1,96 @@
+[
+  {
+    "id": "AIDEV_PIP_CACHE",
+    "name": "Python Pip Cache",
+    "category": "Package Cache",
+    "cliCommand": "pip cache purge",
+    "detectCommand": "pip --version",
+    "infoCommand": "pip cache info",
+    "defaultPath": "%LOCALAPPDATA%\\pip\\cache",
+    "description": "Cache các file wheel và source code gói thư viện Python đã tải về",
+    "safeToDelete": true,
+    "preserve": "Virtual environments (.venv), python source projects"
+  },
+  {
+    "id": "AIDEV_UV_CACHE",
+    "name": "Python uv Cache",
+    "category": "Package Cache",
+    "cliCommand": "uv cache clean",
+    "detectCommand": "uv --version",
+    "infoCommand": "uv cache dir",
+    "defaultPath": "%LOCALAPPDATA%\\uv\\cache",
+    "description": "Bộ nhớ đệm siêu nhanh của package manager uv",
+    "safeToDelete": true,
+    "preserve": "Python installed versions, local virtual environments"
+  },
+  {
+    "id": "AIDEV_NPM_CACHE",
+    "name": "Node.js npm Cache",
+    "category": "Package Cache",
+    "cliCommand": "npm cache clean --force",
+    "detectCommand": "npm --version",
+    "infoCommand": "npm cache verify",
+    "defaultPath": "%APPDATA%\\npm-cache",
+    "description": "Cache các file nén tarball tải từ npm registry",
+    "safeToDelete": true,
+    "preserve": "node_modules của các project, credentials, package.json"
+  },
+  {
+    "id": "AIDEV_PNPM_STORE",
+    "name": "Node.js pnpm Store Prune",
+    "category": "Package Cache",
+    "cliCommand": "pnpm store prune",
+    "detectCommand": "pnpm --version",
+    "infoCommand": "pnpm store path",
+    "defaultPath": "%LOCALAPPDATA%\\pnpm\\store",
+    "description": "Dọn dẹp các package mồ côi trong pnpm hard-link content-addressable store",
+    "safeToDelete": true,
+    "preserve": "Các package đang được symlink vào dự án hiện hành"
+  },
+  {
+    "id": "AIDEV_HF_CACHE",
+    "name": "Hugging Face Hub Cache",
+    "category": "AI Cache",
+    "detectCommand": "hf version",
+    "defaultPath": "%USERPROFILE%\\.cache\\huggingface\\hub",
+    "envVar": "HF_HOME",
+    "description": "Bộ nhớ đệm snapshot mô hình AI và dataset tải từ Hugging Face",
+    "safeToDelete": false,
+    "requiresReview": true,
+    "preserve": "Model snapshots cần cho hoạt động offline"
+  },
+  {
+    "id": "AIDEV_OLLAMA",
+    "name": "Ollama Models & Logs",
+    "category": "AI Models",
+    "detectCommand": "ollama --version",
+    "listCommand": "ollama list",
+    "defaultPath": "%USERPROFILE%\\.ollama\\models",
+    "envVar": "OLLAMA_MODELS",
+    "description": "Danh sách các Local LLM models (Llama, DeepSeek, Qwen...) của Ollama",
+    "safeToDelete": false,
+    "requiresReview": true,
+    "preserve": "KHÔNG BAO GIỜ xóa tự động. Chỉ liệt kê dung lượng và dùng lệnh ollama rm <model> có xác nhận"
+  },
+  {
+    "id": "AIDEV_DOCKER_BUILDER",
+    "name": "Docker Builder Cache",
+    "category": "Container",
+    "detectCommand": "docker --version",
+    "cliCommand": "docker builder prune -f",
+    "infoCommand": "docker system df",
+    "description": "BuildKit cache của Docker khi build image",
+    "safeToDelete": true,
+    "preserve": "Docker images đang chạy, Docker volumes, containers"
+  },
+  {
+    "id": "AIDEV_VSCODE_LOGS",
+    "name": "VS Code & Cursor Disposable Cache / Logs",
+    "category": "IDE",
+    "defaultPath": "%APPDATA%\\Code\\logs",
+    "cursorPath": "%APPDATA%\\Cursor\\logs",
+    "description": "Nhật ký phiên làm việc cũ và crash dump tạm thời của VS Code và Cursor",
+    "safeToDelete": true,
+    "preserve": "Extensions, User Settings, Snippets, Keybindings, Conversation history"
+  }
+]

@@ -1,0 +1,61 @@
+[
+  {
+    "id": "audit",
+    "name": "Audit Only (Chỉ kiểm tra & báo cáo)",
+    "description": "Quét toàn bộ cấu hình, dịch vụ, ứng dụng khởi động và gợi ý mà không thay đổi bất kỳ thiết lập nào.",
+    "target": "Mọi loại máy",
+    "actions": [
+      { "id": "AUDIT_STARTUP", "name": "Kiểm tra ứng dụng khởi động (Startup)", "action": "audit" },
+      { "id": "AUDIT_SERVICES", "name": "Kiểm tra dịch vụ tiêu thụ tài nguyên", "action": "audit" },
+      { "id": "AUDIT_TEMP", "name": "Đo dung lượng thư mục rác và file tạm", "action": "audit" },
+      { "id": "AUDIT_DISK", "name": "Kiểm tra dung lượng và loại ổ cứng", "action": "audit" }
+    ]
+  },
+  {
+    "id": "balanced",
+    "name": "Balanced (Khuyến nghị cho máy phổ thông)",
+    "description": "Cân bằng hiệu năng và độ ổn định. Tối ưu hiệu ứng thị giác thừa, dọn dẹp file tạm, tắt startup không thiết yếu. Giữ nguyên toàn bộ dịch vụ bảo mật.",
+    "target": "Máy làm việc văn phòng, cá nhân phổ thông",
+    "actions": [
+      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp Temp người dùng và Windows an toàn", "action": "clean_temp" },
+      { "id": "VISUAL_BALANCED", "name": "Giảm hiệu ứng animation không cần thiết, giữ mịn font chữ", "action": "visual_balanced" },
+      { "id": "AUDIT_STARTUP_RECOMMEND", "name": "Rà soát và đề xuất tắt ứng dụng chạy ngầm không cần thiết", "action": "startup_recommend" },
+      { "id": "TRIM_SSD", "name": "Chạy ReTrim tối ưu SSD nếu có", "action": "trim_ssd" }
+    ]
+  },
+  {
+    "id": "desktop_perf",
+    "name": "Desktop Performance (Máy bàn hiệu năng cao)",
+    "description": "Tối ưu hóa độ phản hồi tối đa cho máy tính để bàn cắm nguồn trực tiếp. Giữ nguyên Defender/Firewall/Windows Update.",
+    "target": "Máy tính bàn (Desktop) ưu tiên phản hồi nhanh",
+    "actions": [
+      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp Temp người dùng và Windows an toàn", "action": "clean_temp" },
+      { "id": "POWER_HIGH_PERF", "name": "Đề xuất chế độ nguồn High Performance (khi cắm điện)", "action": "power_high_perf" },
+      { "id": "VISUAL_PERFORMANCE", "name": "Tối ưu visual effects cho hiệu năng cao", "action": "visual_perf" },
+      { "id": "TRIM_SSD", "name": "Chạy ReTrim tối ưu SSD", "action": "trim_ssd" }
+    ]
+  },
+  {
+    "id": "low_resource_hdd",
+    "name": "Low Resource / HDD (Máy cấu hình thấp hoặc dùng HDD)",
+    "description": "Đo mức sử dụng tài nguyên trước. Giảm tải animation, gợi ý giảm phạm vi Search indexing, dọn dẹp bộ nhớ đệm, tối ưu phân mảnh HDD.",
+    "target": "Máy cũ, RAM dưới 8GB hoặc ổ đĩa cơ HDD",
+    "actions": [
+      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp file tạm an toàn", "action": "clean_temp" },
+      { "id": "VISUAL_MINIMAL", "name": "Chuyển giao diện sang Best Performance (giữ font smoothing)", "action": "visual_minimal" },
+      { "id": "ANALYZE_HDD", "name": "Phân tích tình trạng phân mảnh ổ C: (HDD)", "action": "analyze_hdd" },
+      { "id": "STARTUP_MINIMAL", "name": "Khuyến nghị tắt tối đa startup bên thứ ba", "action": "startup_minimal" }
+    ]
+  },
+  {
+    "id": "laptop_balanced",
+    "name": "Laptop Balanced (Laptop giữ thời lượng pin)",
+    "description": "Cân bằng hiệu năng và pin. Không ép High Performance khi dùng pin. Tối ưu bộ nhớ đệm và dọn rác an toàn.",
+    "target": "Laptop và thiết bị di động",
+    "actions": [
+      { "id": "CLEAN_SAFE_TEMP", "name": "Dọn dẹp Temp an toàn", "action": "clean_temp" },
+      { "id": "VISUAL_BALANCED", "name": "Giảm bớt animation thừa", "action": "visual_balanced" },
+      { "id": "BATTERY_AWARE_POWER", "name": "Giữ Balanced Power Plan", "action": "power_balanced" }
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+# TM-WinCare .gitignore
+Logs/*.log
+Logs/*.jsonl
+Logs/SystemReport_*.txt
+Logs/SystemReport_*.json
+Logs/MaintenanceReport_*.txt
+Logs/PrinterReport_*.txt
+Logs/NetworkReport_*.txt
+Backups/*/
+!Backups/.gitkeep
+dist/*.zip
+dist/*.cmd
+dist/*.ps1
+.vscode/
+.idea/

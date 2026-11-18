@@ -1,0 +1,42 @@
+name: Build and Release TM-WinCare
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Core Unit Tests
+        shell: pwsh
+        run: |
+          ./tests/Unit/CoreTests.ps1
+
+      - name: Run Module Tests
+        shell: pwsh
+        run: |
+          ./tests/Unit/ModuleTests.ps1
+
+      - name: Build All-In-One Packages
+        shell: pwsh
+        run: |
+          ./scripts/build.ps1
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/TM-WinCare-AIO.cmd
+            dist/TM-WinCare-AIO.ps1
+            dist/TM-WinCare-*-Portable.zip
+            get.ps1
+          generate_release_notes: true
+          draft: false
+          prerelease: false

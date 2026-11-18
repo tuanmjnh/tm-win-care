@@ -1,0 +1,37 @@
+{
+  "name": "TM-WinCare",
+  "displayName": "TM Windows Support Toolkit",
+  "version": "1.2.0",
+  "releaseDate": "2026-11-18",
+  "defaultLocale": "vi-VN",
+  "supportedOS": ["10", "11"],
+  "minimumBuild": 19041,
+  "safeByDefault": true,
+  "dryRunDefault": false,
+  "requireAdminForMutations": true,
+  "paths": {
+    "logs": "Logs",
+    "backups": "Backups",
+    "data": "data"
+  },
+  "logging": {
+    "enabled": true,
+    "format": ["log", "jsonl"],
+    "retentionDays": 30,
+    "sanitizeSecrets": true
+  },
+  "features": {
+    "dashboard": true,
+    "postInstall": true,
+    "optimization": true,
+    "maintenance": true,
+    "repair": true,
+    "network": true,
+    "printer": true,
+    "aiDevCleanup": true,
+    "privacy": true,
+    "accounts": true,
+    "quickCommands": true,
+    "backupRestore": true
+  }
+}

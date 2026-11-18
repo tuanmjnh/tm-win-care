@@ -1,0 +1,117 @@
+{
+  "categories": [
+    { "id": "dashboard", "name": "Dashboard", "risk": "none" },
+    { "id": "postInstall", "name": "Windows Post-Install", "risk": "low" },
+    { "id": "optimization", "name": "Auto / Custom Optimize", "risk": "medium" },
+    { "id": "maintenance", "name": "Disk & System Maintenance", "risk": "medium" },
+    { "id": "repair", "name": "Windows Repair", "risk": "medium" },
+    { "id": "network", "name": "Network & LAN Support", "risk": "low" },
+    { "id": "printer", "name": "Printer Support", "risk": "low" },
+    { "id": "aiDevCleanup", "name": "AI & Developer Cleanup", "risk": "medium" },
+    { "id": "privacy", "name": "Privacy, Notifications & Copilot", "risk": "low" },
+    { "id": "accounts", "name": "Accounts & Access", "risk": "medium" },
+    { "id": "quickCommands", "name": "Quick Commands", "risk": "low" },
+    { "id": "backupRestore", "name": "Backup & Restore", "risk": "low" }
+  ],
+  "tasks": [
+    {
+      "id": "SYS_INFO",
+      "category": "dashboard",
+      "name": "Kiểm tra thông tin hệ thống",
+      "requiresAdmin": false,
+      "risk": "none",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "DISK_OPTIMIZE",
+      "category": "maintenance",
+      "name": "Tối ưu hóa Volume / SSD TRIM / HDD Defrag",
+      "requiresAdmin": true,
+      "risk": "low",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "CHKDSK_SCAN",
+      "category": "maintenance",
+      "name": "CHKDSK kiểm tra ổ đĩa",
+      "requiresAdmin": true,
+      "risk": "low",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "CHKDSK_FIX",
+      "category": "maintenance",
+      "name": "CHKDSK sửa lỗi hệ thống file (/f)",
+      "requiresAdmin": true,
+      "risk": "medium",
+      "requiresRestart": true,
+      "reversible": false
+    },
+    {
+      "id": "SFC_SCAN",
+      "category": "repair",
+      "name": "SFC quét và sửa file hệ thống",
+      "requiresAdmin": true,
+      "risk": "medium",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "DISM_RESTORE",
+      "category": "repair",
+      "name": "DISM khôi phục component store",
+      "requiresAdmin": true,
+      "risk": "medium",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "PRINT_RESTART_SPOOLER",
+      "category": "printer",
+      "name": "Khởi động lại Print Spooler",
+      "requiresAdmin": true,
+      "risk": "low",
+      "requiresRestart": false,
+      "reversible": true
+    },
+    {
+      "id": "PRINT_CLEAR_QUEUE",
+      "category": "printer",
+      "name": "Xóa hàng đợi in bị kẹt",
+      "requiresAdmin": true,
+      "risk": "low",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "PRINT_CREATE_SCAN_USER",
+      "category": "printer",
+      "name": "Tạo tài khoản scan máy in",
+      "requiresAdmin": true,
+      "risk": "medium",
+      "requiresRestart": false,
+      "reversible": true
+    },
+    {
+      "id": "CLEANUP_USER_TEMP",
+      "category": "maintenance",
+      "name": "Dọn dẹp thư mục Temp của người dùng",
+      "requiresAdmin": false,
+      "risk": "low",
+      "requiresRestart": false,
+      "reversible": false
+    },
+    {
+      "id": "CLEANUP_WIN_TEMP",
+      "category": "maintenance",
+      "name": "Dọn dẹp thư mục Windows Temp",
+      "requiresAdmin": true,
+      "risk": "low",
+      "requiresRestart": false,
+      "reversible": false
+    }
+  ]
+}
