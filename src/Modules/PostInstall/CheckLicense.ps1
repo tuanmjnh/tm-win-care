@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Windows & Office License Management (IT Inventory)
+# TM-WinCare - Windows & Office License Management (IT Inventory)
 # Decodes Full 25-character Windows Key & Office Key, Mainboard Serial, UUID, Sync to Google Sheets / Form
 
 function Invoke-LicenseInventoryCheck {

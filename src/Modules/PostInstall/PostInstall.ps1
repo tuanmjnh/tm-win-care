@@ -1,4 +1,4 @@
-﻿# TM-WinCare - Windows Post-Install Configuration
+# TM-WinCare - Windows Post-Install Configuration
 # Adheres to Section 3.2 of TM-WinCare-Architecture-v1.2.md
 
 . (Join-Path $PSScriptRoot "CheckLicense.ps1")
