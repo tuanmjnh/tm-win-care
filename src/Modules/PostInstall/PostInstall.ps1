@@ -2,9 +2,13 @@
 # Adheres to Section 3.2 of TM-WinCare-Architecture-v1.2.md
 
 . (Join-Path $PSScriptRoot "CheckLicense.ps1")
+. (Join-Path $PSScriptRoot "Activation.ps1")
 
 function Show-TMPostInstallMenu {
     $menuItems = @(
+        @{ Label = "Activate Windows & Microsoft Office (Product Key Activation)"; Action = { Show-TMActivationMenu } },
+        @{ Label = "Activate Windows with Product Key (slmgr /ipk /ato)"; Action = { Invoke-WindowsKeyActivation } },
+        @{ Label = "Activate Microsoft Office with Product Key (ospp.vbs /act)"; Action = { Invoke-OfficeKeyActivation } },
         @{ Label = "Windows & Office License Management (IT Inventory Full Key)"; Action = { Invoke-LicenseInventoryCheck } },
         @{ Label = "Rename Computer Hostname"; Action = { Invoke-RenameComputer } },
         @{ Label = "Show Known File Extensions (.exe, .txt...)"; Action = { Set-ExplorerShowFileExtensions -Enable $true } },
@@ -18,7 +22,7 @@ function Show-TMPostInstallMenu {
         @{ Label = "Open Startup Folder (shell:startup)"; Action = { Start-Process "explorer.exe" "shell:startup" } },
         @{ Label = "Open Power Options (powercfg.cpl)"; Action = { Start-Process "powercfg.cpl" } }
     )
-    Show-TMMenu -Title "WINDOWS POST-INSTALL CONFIGURATION" -MenuItems $menuItems -ExitLabel "Back"
+    Show-TMMenu -Title "WINDOWS POST-INSTALL & ACTIVATION" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Invoke-RenameComputer {

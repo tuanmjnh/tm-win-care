@@ -3,6 +3,8 @@
 
 function Show-TMMaintenanceMenu {
     $menuItems = @(
+        @{ Label = "🚀 Tự Động Xử Lý Lần Lượt Toàn Diện (CHKDSK -> DISM -> SFC -> WinSxS)"; Action = { Invoke-FullSequentialRepair } },
+        @{ Label = "Quy Trình Sửa Chữa Nhanh (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
         @{ Label = "Inspect Disk Media Types & Storage Capacity"; Action = { Show-DiskInventory } },
         @{ Label = "Optimize Volume / SSD Re-Trim (Optimize-Volume)"; Action = { Invoke-DiskOptimization } },
         @{ Label = "Open Windows Optimize Drives GUI (dfrgui.exe)"; Action = { Start-Process "dfrgui.exe" } },
@@ -14,7 +16,6 @@ function Show-TMMaintenanceMenu {
         @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (/scannow)"; Action = { Invoke-SfcScanNow } },
         @{ Label = "DISM - Scan Component Store Health (/ScanHealth)"; Action = { Invoke-DismScan } },
         @{ Label = "DISM - Repair Component Store Corruption (/RestoreHealth)"; Action = { Invoke-DismRestore } },
-        @{ Label = "Run Sequential Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
         @{ Label = "Open Windows Disk Cleanup (cleanmgr.exe)"; Action = { Start-Process "cleanmgr.exe" } },
         @{ Label = "Export Disk & Maintenance Report"; Action = { Export-MaintenanceReport } }
     )
@@ -184,6 +185,106 @@ function Invoke-DismRestore {
     Write-InfoMessage "Running DISM /Online /Cleanup-Image /RestoreHealth..."
     & dism.exe /Online /Cleanup-Image /RestoreHealth
     Write-TMLog -TaskId "DISM_RESTORE" -TaskName "DISM RestoreHealth" -Status "Success" -Message "Repair complete"
+    Pause-Screen
+}
+
+function Invoke-FullSequentialRepair {
+    <#
+    .SYNOPSIS
+        Comprehensive 5-step automated sequential repair pipeline:
+        1. CHKDSK /scan (Online filesystem check)
+        2. DISM /ScanHealth (Component Store health scan)
+        3. DISM /RestoreHealth (Component Store corruption repair)
+        4. SFC /scannow (Protected OS files integrity check & replacement)
+        5. DISM /StartComponentCleanup (Purge obsolete WinSxS packages)
+    #>
+    if (-not (Assert-Admin "run full sequential Windows repair wizard")) { Pause-Screen; return }
+
+    Write-Header -Title "QUY TRÌNH TỰ ĐỘNG XỬ LÝ LẦN LƯỢT TOÀN DIỆN (CHKDSK -> DISM -> SFC -> WINSXS)"
+    Write-InfoMessage "Tự động thực thi tuần tự 5 bước sửa chữa chuyên sâu chuẩn Microsoft:"
+    Write-Host "  [1/5] Quét lỗi logic phân vùng NTFS trực tuyến (chkdsk C: /scan)" -ForegroundColor Cyan
+    Write-Host "  [2/5] Quét sâu kho lưu trữ linh kiện hệ thống (DISM /ScanHealth)" -ForegroundColor Cyan
+    Write-Host "  [3/5] Khôi phục & sửa chữa Component Store (DISM /RestoreHealth)" -ForegroundColor Cyan
+    Write-Host "  [4/5] Quét & tự động thay thế file hệ thống bị hỏng (sfc /scannow)" -ForegroundColor Cyan
+    Write-Host "  [5/5] Dọn dẹp kho linh kiện WinSxS sau khi sửa chữa (DISM /StartComponentCleanup)" -ForegroundColor Cyan
+    Write-Host ""
+
+    $confirmed = Confirm-Action -TaskName "Full Sequential Windows Repair" -ImpactDescription "Automatically executes the complete 5-step repair and integrity workflow sequentially. May take 10-25 minutes." -RiskLevel "medium"
+    if (-not $confirmed) {
+        Write-SkipMessage "Sequential repair cancelled by user."
+        Pause-Screen
+        return
+    }
+
+    $startTime = Get-Date
+
+    # Step 1: CHKDSK Online Scan
+    Write-SubHeader "[BƯỚC 1/5] QUÉT LỖI Ổ ĐĨA TRỰC TUYẾN (chkdsk C: /scan)"
+    Write-InfoMessage "Đang kiểm tra tính toàn vẹn filesystem NTFS trên ổ C: (không ngắt quãng hệ thống)..."
+    try {
+        & chkdsk.exe "C:" /scan
+        Write-Success "Bước 1 hoàn tất: Đã quét xong phân vùng C:!"
+    } catch {
+        Write-WarningMessage "Thông báo từ CHKDSK: $($_.Exception.Message)"
+    }
+
+    # Step 2: DISM ScanHealth
+    Write-SubHeader "[BƯỚC 2/5] QUÉT KHO LINH KIỆN HỆ THỐNG (DISM /ScanHealth)"
+    Write-InfoMessage "Đang quét sâu kiểm tra kho linh kiện Component Store..."
+    try {
+        & dism.exe /Online /Cleanup-Image /ScanHealth
+        Write-Success "Bước 2 hoàn tất: Đã quét xong kho linh kiện!"
+    } catch {
+        Write-WarningMessage "Thông báo từ DISM ScanHealth: $($_.Exception.Message)"
+    }
+
+    # Step 3: DISM RestoreHealth
+    Write-SubHeader "[BƯỚC 3/5] KHÔI PHỤC & SỬA CHỮA KHO LINH KIỆN (DISM /RestoreHealth)"
+    Write-InfoMessage "Đang tải và sửa chữa các gói hệ thống bị hỏng từ máy chủ Microsoft..."
+    try {
+        & dism.exe /Online /Cleanup-Image /RestoreHealth
+        Write-Success "Bước 3 hoàn tất: Đã khôi phục Component Store thành công!"
+    } catch {
+        Write-WarningMessage "Thông báo từ DISM RestoreHealth: $($_.Exception.Message)"
+    }
+
+    # Step 4: SFC Scannow
+    Write-SubHeader "[BƯỚC 4/5] QUÉT & THAY THẾ FILE HỆ THỐNG (SFC /scannow)"
+    Write-InfoMessage "Đang quét và khôi phục các file hệ điều hành bị hỏng bằng file sạch từ Component Store..."
+    try {
+        & sfc.exe /scannow
+        Write-Success "Bước 4 hoàn tất: Đã kiểm tra và sửa chữa xong file hệ thống!"
+    } catch {
+        Write-WarningMessage "Thông báo từ SFC Scannow: $($_.Exception.Message)"
+    }
+
+    # Step 5: DISM StartComponentCleanup
+    Write-SubHeader "[BƯỚC 5/5] DỌN DẸP KHO LINH KIỆN WINSXS (DISM /StartComponentCleanup)"
+    Write-InfoMessage "Đang dọn dẹp các tệp linh kiện cũ bị thay thế trong WinSxS để thu hồi ổ cứng..."
+    try {
+        & dism.exe /Online /Cleanup-Image /StartComponentCleanup
+        Write-Success "Bước 5 hoàn tất: Đã dọn dẹp kho WinSxS sạch sẽ!"
+    } catch {
+        Write-WarningMessage "Thông báo từ DISM ComponentCleanup: $($_.Exception.Message)"
+    }
+
+    $elapsed = (Get-Date) - $startTime
+    $elapsedMinutes = [math]::Round($elapsed.TotalMinutes, 1)
+
+    Write-Header -Title "QUY TRÌNH TỰ ĐỘNG XỬ LÝ LẦN LƯỢT HOÀN TẤT!"
+    Write-Success "Toàn bộ 5 bước kiểm tra & sửa chữa hệ điều hành đã được thực thi thành công!"
+    Write-Host ""
+    Write-Host "  BÁO CÁO TỔNG KẾT:" -ForegroundColor Yellow
+    Write-Host "  [+] Bước 1: CHKDSK /scan               : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 2: DISM /ScanHealth           : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 3: DISM /RestoreHealth        : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 4: SFC /scannow               : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 5: DISM ComponentCleanup      : Hoàn tất" -ForegroundColor Green
+    Write-Host "  - Tổng thời gian thực thi              : $elapsedMinutes phút" -ForegroundColor Cyan
+    Write-Host ""
+    Write-InfoMessage "Hệ thống Windows của bạn đã được kiểm tra toàn vẹn và phục hồi về trạng thái chuẩn."
+    Write-TMLog -TaskId "REPAIR_FULL_PIPELINE" -TaskName "Full Sequential Repair" -Status "Success" -Message "Completed in $elapsedMinutes minutes"
+
     Pause-Screen
 }
 

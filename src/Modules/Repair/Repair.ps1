@@ -3,7 +3,8 @@
 
 function Show-TMRepairMenu {
     $menuItems = @(
-        @{ Label = "Complete Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
+        @{ Label = "🚀 Tự Động Xử Lý Lần Lượt Toàn Diện (CHKDSK -> DISM -> SFC -> WinSxS)"; Action = { Invoke-FullSequentialRepair } },
+        @{ Label = "Quy Trình Sửa Chữa Nhanh (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
         @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (sfc /scannow)"; Action = { Invoke-SfcScanNow } },
         @{ Label = "DISM - Quick Corruption Check (CheckHealth)"; Action = { Invoke-DismCheckHealth } },
         @{ Label = "DISM - Deep Component Store Health Scan (ScanHealth)"; Action = { Invoke-DismScan } },

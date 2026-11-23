@@ -13,6 +13,9 @@ function Sanitize-LogMessage {
     $sanitized = $Message -replace "(?i)(password|pwd|secret|token|key)\s*[:=]\s*\S+", '$1: [REDACTED]'
     $sanitized = $sanitized -replace '(?i)(net\s+user\s+\S+\s+)"?[^"\s/]+"?', '$1[REDACTED]'
     $sanitized = $sanitized -replace '(?i)/add\s+"[^"]+"', '/add [REDACTED]'
+    $sanitized = $sanitized -replace '(?i)[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}', 'XXXXX-XXXXX-XXXXX-XXXXX-[REDACTED]'
+    $sanitized = $sanitized -replace '(?i)/inpkey:\S+', '/inpkey:[REDACTED]'
+    $sanitized = $sanitized -replace '(?i)/ipk\s+\S+', '/ipk [REDACTED]'
     return $sanitized
 }
 

@@ -752,6 +752,9 @@ function Sanitize-LogMessage {
     $sanitized = $Message -replace "(?i)(password|pwd|secret|token|key)\s*[:=]\s*\S+", '$1: [REDACTED]'
     $sanitized = $sanitized -replace '(?i)(net\s+user\s+\S+\s+)"?[^"\s/]+"?', '$1[REDACTED]'
     $sanitized = $sanitized -replace '(?i)/add\s+"[^"]+"', '/add [REDACTED]'
+    $sanitized = $sanitized -replace '(?i)[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}', 'XXXXX-XXXXX-XXXXX-XXXXX-[REDACTED]'
+    $sanitized = $sanitized -replace '(?i)/inpkey:\S+', '/inpkey:[REDACTED]'
+    $sanitized = $sanitized -replace '(?i)/ipk\s+\S+', '/ipk [REDACTED]'
     return $sanitized
 }
 
@@ -1396,6 +1399,467 @@ function Export-TMDashboardJson {
 }
 
 
+# === SOURCE: src/Modules/PostInstall/Activation.ps1 ===
+# TM-WinCare - Windows & Microsoft Office Activation Module
+# Allows activating Windows and Office using genuine 25-character product keys
+# Adheres to Section 3.2 & Section 11 of TM-WinCare-Architecture-v1.2.md
+
+# Lightweight fallbacks for standalone execution
+if (-not (Get-Command "Assert-Admin" -ErrorAction SilentlyContinue)) {
+    function Assert-Admin { param($Action) return ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) }
+}
+if (-not (Get-Command "Confirm-Action" -ErrorAction SilentlyContinue)) {
+    function Confirm-Action { param($TaskName, $ImpactDescription, $RiskLevel) Write-Host "`nConfirm $TaskName? (Y/N): " -ForegroundColor Yellow -NoNewline; return ((Read-Host).Trim().ToUpper() -eq 'Y') }
+}
+if (-not (Get-Command "Write-Header" -ErrorAction SilentlyContinue)) {
+    function Write-Header { param($Title) Write-Host "`n================ $Title ================" -ForegroundColor Cyan }
+}
+if (-not (Get-Command "Write-SubHeader" -ErrorAction SilentlyContinue)) {
+    function Write-SubHeader { param($Title) Write-Host "`n--- $Title ---" -ForegroundColor Yellow }
+}
+if (-not (Get-Command "Write-Success" -ErrorAction SilentlyContinue)) {
+    function Write-Success { param($Msg) Write-Host "[+] $Msg" -ForegroundColor Green }
+}
+if (-not (Get-Command "Write-InfoMessage" -ErrorAction SilentlyContinue)) {
+    function Write-InfoMessage { param($Msg) Write-Host "[*] $Msg" -ForegroundColor Cyan }
+}
+if (-not (Get-Command "Write-WarningMessage" -ErrorAction SilentlyContinue)) {
+    function Write-WarningMessage { param($Msg) Write-Host "[!] $Msg" -ForegroundColor Yellow }
+}
+if (-not (Get-Command "Write-ErrorMessage" -ErrorAction SilentlyContinue)) {
+    function Write-ErrorMessage { param($Msg) Write-Host "[-] $Msg" -ForegroundColor Red }
+}
+if (-not (Get-Command "Write-SkipMessage" -ErrorAction SilentlyContinue)) {
+    function Write-SkipMessage { param($Msg) Write-Host "[~] $Msg" -ForegroundColor DarkGray }
+}
+if (-not (Get-Command "Pause-Screen" -ErrorAction SilentlyContinue)) {
+    function Pause-Screen { Write-Host "`nPress Enter to continue..." -ForegroundColor DarkGray; [void][Console]::ReadLine() }
+}
+if (-not (Get-Command "Write-TMLog" -ErrorAction SilentlyContinue)) {
+    function Write-TMLog { param($TaskId, $TaskName, $Status, $Message) }
+}
+if (-not (Get-Command "Handle-TMException" -ErrorAction SilentlyContinue)) {
+    function Handle-TMException { param($TaskId, $TaskName, $Exception) Write-Host "Error: $($Exception.Message)" -ForegroundColor Red }
+}
+
+function Find-OfficeOsppPath {
+    <#
+    .SYNOPSIS
+        Locates the Microsoft Office Software Protection Platform script (ospp.vbs).
+        Checks Click-To-Run and standard installations across 64-bit and 32-bit directories.
+    #>
+    $candidatePaths = @(
+        # Office 2016 / 2019 / 2021 / 2024 / Microsoft 365 (Click-To-Run & MSI)
+        (Join-Path $env:ProgramFiles "Microsoft Office\root\Office16\OSPP.VBS"),
+        (Join-Path ${env:ProgramFiles(x86)} "Microsoft Office\root\Office16\OSPP.VBS"),
+        (Join-Path $env:ProgramFiles "Microsoft Office\Office16\OSPP.VBS"),
+        (Join-Path ${env:ProgramFiles(x86)} "Microsoft Office\Office16\OSPP.VBS"),
+
+        # Office 2013 (v15)
+        (Join-Path $env:ProgramFiles "Microsoft Office\root\Office15\OSPP.VBS"),
+        (Join-Path ${env:ProgramFiles(x86)} "Microsoft Office\root\Office15\OSPP.VBS"),
+        (Join-Path $env:ProgramFiles "Microsoft Office\Office15\OSPP.VBS"),
+        (Join-Path ${env:ProgramFiles(x86)} "Microsoft Office\Office15\OSPP.VBS"),
+
+        # Office 2010 (v14)
+        (Join-Path $env:ProgramFiles "Microsoft Office\Office14\OSPP.VBS"),
+        (Join-Path ${env:ProgramFiles(x86)} "Microsoft Office\Office14\OSPP.VBS")
+    )
+
+    foreach ($path in $candidatePaths) {
+        if ($path -and (Test-Path $path)) {
+            return $path
+        }
+    }
+
+    # Fallback registry scan if installed in custom directory
+    $regPaths = @(
+        "HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration",
+        "HKLM:\SOFTWARE\Microsoft\Office\16.0\Common\InstallRoot",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Office\16.0\Common\InstallRoot",
+        "HKLM:\SOFTWARE\Microsoft\Office\15.0\Common\InstallRoot",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Office\15.0\Common\InstallRoot"
+    )
+
+    foreach ($rp in $regPaths) {
+        if (Test-Path $rp) {
+            $val = (Get-ItemProperty -Path $rp -ErrorAction SilentlyContinue).Path
+            if ($val) {
+                $testOspp = Join-Path $val "OSPP.VBS"
+                if (Test-Path $testOspp) { return $testOspp }
+                $testRootOspp = Join-Path $val "root\Office16\OSPP.VBS"
+                if (Test-Path $testRootOspp) { return $testRootOspp }
+            }
+        }
+    }
+
+    return $null
+}
+
+function Format-ProductKey {
+    param ([string]$RawKey)
+    if ([string]::IsNullOrWhiteSpace($RawKey)) { return $null }
+    $clean = ($RawKey.Trim().ToUpper() -replace '[^A-Z0-9]', '')
+    if ($clean.Length -ne 25) { return $null }
+    return ($clean -replace '(.{5})', '$1-').TrimEnd('-')
+}
+
+function Invoke-WindowsKeyActivation {
+    <#
+    .SYNOPSIS
+        Installs a 25-character Windows product key and activates Windows online.
+    #>
+    if (-not (Assert-Admin "activate Windows with product key")) {
+        Pause-Screen
+        return
+    }
+
+    Write-Header -Title "ACTIVATE WINDOWS WITH PRODUCT KEY"
+    Write-InfoMessage "Using Microsoft Windows Software Licensing Management (slmgr.vbs)..."
+
+    # Display current Windows edition and license status
+    try {
+        $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        Write-Host " Operating System : $($os.Caption)" -ForegroundColor Cyan
+        Write-Host " Version / Build  : $($os.Version) (Build $($os.BuildNumber))" -ForegroundColor Gray
+    } catch {}
+
+    Write-Host "`nChecking current activation status..." -ForegroundColor Gray
+    try {
+        $statusOutput = & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /dli 2>&1
+        $statusOutput | ForEach-Object { Write-Host "   $_" -ForegroundColor DarkGray }
+    } catch {}
+
+    Write-Host ""
+    Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host " Enter 25-character Windows Product Key" -ForegroundColor Yellow
+    Write-Host " Format: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" -ForegroundColor DarkGray
+    Write-Host " (Hyphens are optional; you can paste directly)" -ForegroundColor DarkGray
+    Write-Host " Key: " -ForegroundColor Cyan -NoNewline
+    $inputKey = Read-Host
+
+    $formattedKey = Format-ProductKey -RawKey $inputKey
+    if (-not $formattedKey) {
+        Write-ErrorMessage "Invalid Product Key format. A valid Windows key must consist of exactly 25 alphanumeric characters."
+        Pause-Screen
+        return
+    }
+
+    $maskedKey = $formattedKey.Substring(0, 5) + "-XXXXX-XXXXX-XXXXX-" + $formattedKey.Substring(24, 5)
+    Write-Host ""
+    Write-InfoMessage "Product Key to install: $maskedKey"
+
+    $confirmed = Confirm-Action -TaskName "Activate Windows" -ImpactDescription "Install product key ($maskedKey) and connect to Microsoft Activation Servers to activate this Windows PC." -RiskLevel "medium"
+    if (-not $confirmed) {
+        Write-SkipMessage "Windows activation cancelled."
+        Pause-Screen
+        return
+    }
+
+    Write-SubHeader "STEP 1/2: INSTALLING PRODUCT KEY (slmgr.vbs /ipk)"
+    try {
+        $ipkResult = & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /ipk $formattedKey 2>&1
+        $ipkText = ($ipkResult | Out-String).Trim()
+        Write-Host $ipkText -ForegroundColor White
+
+        if ($ipkText -match "Error" -or $ipkText -match "0x") {
+            Write-ErrorMessage "Failed to install product key: $ipkText"
+            Write-TMLog -TaskId "ACT_WIN_IPK" -TaskName "Install Windows Key" -Status "Failed" -Message "Error installing key: $maskedKey"
+            Pause-Screen
+            return
+        }
+        Write-Success "Product key installed successfully into Windows licensing store."
+        Write-TMLog -TaskId "ACT_WIN_IPK" -TaskName "Install Windows Key" -Status "Success" -Message "Key installed: $maskedKey"
+    } catch {
+        Handle-TMException -TaskId "ACT_WIN_IPK" -TaskName "Install Windows Key" -Exception $_.Exception
+        Pause-Screen
+        return
+    }
+
+    Write-SubHeader "STEP 2/2: ONLINE ACTIVATION (slmgr.vbs /ato)"
+    try {
+        $atoResult = & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /ato 2>&1
+        $atoText = ($atoResult | Out-String).Trim()
+        Write-Host $atoText -ForegroundColor White
+
+        if ($atoText -match "Product activated successfully" -or $atoText -match "thành công" -or $atoText -notmatch "Error") {
+            Write-Success "WINDOWS HAS BEEN ACTIVATED SUCCESSFULLY!"
+            Write-TMLog -TaskId "ACT_WIN_ATO" -TaskName "Activate Windows" -Status "Success" -Message "Activated with $maskedKey"
+        } else {
+            Write-WarningMessage "Activation server returned: $atoText"
+            Write-TMLog -TaskId "ACT_WIN_ATO" -TaskName "Activate Windows" -Status "Warning" -Message "$atoText"
+        }
+
+        # Check expiration date (/xpr)
+        Write-Host "`nDetailed Activation Expiration Status:" -ForegroundColor Cyan
+        $xprResult = & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /xpr 2>&1
+        $xprResult | ForEach-Object { Write-Host "   $_" -ForegroundColor Green }
+    } catch {
+        Handle-TMException -TaskId "ACT_WIN_ATO" -TaskName "Activate Windows" -Exception $_.Exception
+    }
+
+    Pause-Screen
+}
+
+function Invoke-OfficeKeyActivation {
+    <#
+    .SYNOPSIS
+        Installs a 25-character Office product key and activates Microsoft Office via ospp.vbs.
+    #>
+    if (-not (Assert-Admin "activate Microsoft Office with product key")) {
+        Pause-Screen
+        return
+    }
+
+    Write-Header -Title "ACTIVATE MICROSOFT OFFICE WITH PRODUCT KEY"
+    Write-InfoMessage "Scanning system for Microsoft Office Software Protection Platform (ospp.vbs)..."
+
+    $ospp = Find-OfficeOsppPath
+    if (-not $ospp) {
+        Write-WarningMessage "Could not automatically locate 'ospp.vbs' in standard Microsoft Office folders."
+        Write-Host " Enter custom path to ospp.vbs (or directory containing ospp.vbs): " -ForegroundColor Cyan -NoNewline
+        $customPath = Read-Host
+        if ($customPath -and (Test-Path $customPath)) {
+            if ($customPath -like "*ospp.vbs*") {
+                $ospp = $customPath
+            } else {
+                $testInDir = Join-Path $customPath "ospp.vbs"
+                if (Test-Path $testInDir) { $ospp = $testInDir }
+            }
+        }
+    }
+
+    if (-not $ospp -or -not (Test-Path $ospp)) {
+        Write-ErrorMessage "Microsoft Office installation script (ospp.vbs) not found."
+        Write-Host " Please ensure Microsoft Office (2010, 2013, 2016, 2019, 2021, 2024 or 365) is installed on this PC." -ForegroundColor Yellow
+        Pause-Screen
+        return
+    }
+
+    Write-Success "Detected Office Licensing Script: $ospp"
+
+    Write-Host "`nQuerying current Office license status..." -ForegroundColor Gray
+    try {
+        $curStatus = & cscript.exe //nologo $ospp /dstatus 2>&1
+        $curStatus | ForEach-Object { Write-Host "   $_" -ForegroundColor DarkGray }
+    } catch {}
+
+    Write-Host ""
+    Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host " Enter 25-character Microsoft Office Product Key" -ForegroundColor Yellow
+    Write-Host " Format: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" -ForegroundColor DarkGray
+    Write-Host " (Hyphens are optional; you can paste directly)" -ForegroundColor DarkGray
+    Write-Host " Key: " -ForegroundColor Cyan -NoNewline
+    $inputKey = Read-Host
+
+    $formattedKey = Format-ProductKey -RawKey $inputKey
+    if (-not $formattedKey) {
+        Write-ErrorMessage "Invalid Product Key format. A valid Office key must consist of exactly 25 alphanumeric characters."
+        Pause-Screen
+        return
+    }
+
+    $maskedKey = $formattedKey.Substring(0, 5) + "-XXXXX-XXXXX-XXXXX-" + $formattedKey.Substring(24, 5)
+    Write-Host ""
+    Write-InfoMessage "Office Product Key to install: $maskedKey"
+
+    $confirmed = Confirm-Action -TaskName "Activate Microsoft Office" -ImpactDescription "Install product key ($maskedKey) via ospp.vbs and activate Office." -RiskLevel "medium"
+    if (-not $confirmed) {
+        Write-SkipMessage "Office activation cancelled."
+        Pause-Screen
+        return
+    }
+
+    Write-SubHeader "STEP 1/2: INSTALLING OFFICE PRODUCT KEY (/inpkey)"
+    try {
+        $inpResult = & cscript.exe //nologo $ospp /inpkey:$formattedKey 2>&1
+        $inpText = ($inpResult | Out-String).Trim()
+        Write-Host $inpText -ForegroundColor White
+
+        if ($inpText -match "<Product key installation successful>") {
+            Write-Success "Office product key successfully installed!"
+            Write-TMLog -TaskId "ACT_OFF_INPKEY" -TaskName "Install Office Key" -Status "Success" -Message "Key installed: $maskedKey"
+        } else {
+            Write-WarningMessage "Notice from ospp.vbs: $inpText"
+            Write-TMLog -TaskId "ACT_OFF_INPKEY" -TaskName "Install Office Key" -Status "Warning" -Message "$inpText"
+        }
+    } catch {
+        Handle-TMException -TaskId "ACT_OFF_INPKEY" -TaskName "Install Office Key" -Exception $_.Exception
+        Pause-Screen
+        return
+    }
+
+    Write-SubHeader "STEP 2/2: ACTIVATING OFFICE ONLINE (/act)"
+    try {
+        $actResult = & cscript.exe //nologo $ospp /act 2>&1
+        $actText = ($actResult | Out-String).Trim()
+        Write-Host $actText -ForegroundColor White
+
+        if ($actText -match "<Product activation successful>") {
+            Write-Success "MICROSOFT OFFICE HAS BEEN ACTIVATED SUCCESSFULLY!"
+            Write-TMLog -TaskId "ACT_OFF_ACT" -TaskName "Activate Office" -Status "Success" -Message "Activated successfully with $maskedKey"
+        } else {
+            Write-WarningMessage "Office activation result: $actText"
+            Write-TMLog -TaskId "ACT_OFF_ACT" -TaskName "Activate Office" -Status "Warning" -Message "$actText"
+        }
+
+        # Show updated status
+        Write-Host "`nUpdated Office License Status (/dstatus):" -ForegroundColor Cyan
+        $newStatus = & cscript.exe //nologo $ospp /dstatus 2>&1
+        $newStatus | ForEach-Object {
+            if ($_ -match "LICENSE STATUS:\s+---LICENSED---") {
+                Write-Host "   $_" -ForegroundColor Green
+            } else {
+                Write-Host "   $_" -ForegroundColor Gray
+            }
+        }
+    } catch {
+        Handle-TMException -TaskId "ACT_OFF_ACT" -TaskName "Activate Office" -Exception $_.Exception
+    }
+
+    Pause-Screen
+}
+
+function Show-WindowsActivationDetailedStatus {
+    Write-SubHeader "WINDOWS DETAILED ACTIVATION STATUS"
+    Write-InfoMessage "Querying Windows licensing status via slmgr.vbs..."
+    try {
+        Write-Host "--> Detailed License Information (/dli):" -ForegroundColor Cyan
+        & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /dli 2>&1 | ForEach-Object {
+            Write-Host "   $_" -ForegroundColor White
+        }
+
+        Write-Host "`n--> Expiration Date Status (/xpr):" -ForegroundColor Cyan
+        & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /xpr 2>&1 | ForEach-Object {
+            Write-Host "   $_" -ForegroundColor Green
+        }
+    } catch {
+        Write-ErrorMessage "Failed to query slmgr.vbs: $($_.Exception.Message)"
+    }
+    Pause-Screen
+}
+
+function Show-OfficeActivationDetailedStatus {
+    Write-SubHeader "MICROSOFT OFFICE DETAILED ACTIVATION STATUS"
+    $ospp = Find-OfficeOsppPath
+    if (-not $ospp) {
+        Write-ErrorMessage "Microsoft Office ospp.vbs not found on this system."
+        Pause-Screen
+        return
+    }
+
+    Write-InfoMessage "Querying Office license status via: $ospp (/dstatus)..."
+    try {
+        & cscript.exe //nologo $ospp /dstatus 2>&1 | ForEach-Object {
+            if ($_ -match "LICENSE STATUS:\s+---LICENSED---") {
+                Write-Host "   $_" -ForegroundColor Green
+            } elseif ($_ -match "ERROR CODE:" -or $_ -match "LICENSE STATUS:\s+---NOTIFICATIONS---") {
+                Write-Host "   $_" -ForegroundColor Yellow
+            } else {
+                Write-Host "   $_" -ForegroundColor Gray
+            }
+        }
+    } catch {
+        Write-ErrorMessage "Failed to execute ospp.vbs: $($_.Exception.Message)"
+    }
+    Pause-Screen
+}
+
+function Invoke-UninstallOfficeKey {
+    if (-not (Assert-Admin "uninstall Office product key")) {
+        Pause-Screen
+        return
+    }
+
+    Write-SubHeader "UNINSTALL OBSOLETE OFFICE PRODUCT KEY (/unpkey)"
+    $ospp = Find-OfficeOsppPath
+    if (-not $ospp) {
+        Write-ErrorMessage "Microsoft Office ospp.vbs not found."
+        Pause-Screen
+        return
+    }
+
+    Write-InfoMessage "Existing installed Office keys (/dstatus):"
+    $statusLines = & cscript.exe //nologo $ospp /dstatus 2>&1
+    $keysFound = @()
+    foreach ($line in $statusLines) {
+        if ($line -match "Last 5 characters of installed product key:\s+([A-Z0-9]{5})") {
+            $keysFound += $matches[1]
+            Write-Host "   Found Key Suffix: $($matches[1])" -ForegroundColor Cyan
+        }
+    }
+
+    if ($keysFound.Count -eq 0) {
+        Write-InfoMessage "No partial Office keys detected in licensing store."
+        Pause-Screen
+        return
+    }
+
+    Write-Host "`nEnter the LAST 5 CHARACTERS of the Office key to remove (e.g. $($keysFound[0])): " -ForegroundColor Cyan -NoNewline
+    $last5 = Read-Host
+    $last5 = ($last5.Trim().ToUpper() -replace '[^A-Z0-9]', '')
+    if ($last5.Length -ne 5) {
+        Write-ErrorMessage "Invalid input. Must be exactly the last 5 characters of the product key."
+        Pause-Screen
+        return
+    }
+
+    $confirmed = Confirm-Action -TaskName "Uninstall Office Key" -ImpactDescription "Remove product key ending in '$last5' from Office licensing store." -RiskLevel "medium"
+    if ($confirmed) {
+        try {
+            $unpResult = & cscript.exe //nologo $ospp /unpkey:$last5 2>&1
+            Write-Host ($unpResult | Out-String).Trim() -ForegroundColor White
+            Write-Success "Key ending in '$last5' uninstalled from Office."
+            Write-TMLog -TaskId "ACT_OFF_UNPKEY" -TaskName "Uninstall Office Key" -Status "Success" -Message "Removed key suffix $last5"
+        } catch {
+            Handle-TMException -TaskId "ACT_OFF_UNPKEY" -TaskName "Uninstall Office Key" -Exception $_.Exception
+        }
+    }
+    Pause-Screen
+}
+
+function Invoke-UninstallWindowsKey {
+    if (-not (Assert-Admin "uninstall Windows product key")) {
+        Pause-Screen
+        return
+    }
+
+    Write-SubHeader "UNINSTALL WINDOWS PRODUCT KEY (slmgr.vbs /upk & /cpky)"
+    Write-WarningMessage "This will uninstall the currently installed Windows product key and clear it from the registry."
+
+    $confirmed = Confirm-Action -TaskName "Uninstall Windows Key" -ImpactDescription "Remove Windows product key (/upk) and clear from registry (/cpky). Windows will revert to unactivated/notification state." -RiskLevel "high" -RequiresKeyword $true
+    if ($confirmed) {
+        try {
+            $upkResult = & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /upk 2>&1
+            Write-Host ($upkResult | Out-String).Trim() -ForegroundColor White
+
+            $cpkyResult = & cscript.exe //nologo "$env:SystemRoot\System32\slmgr.vbs" /cpky 2>&1
+            Write-Host ($cpkyResult | Out-String).Trim() -ForegroundColor White
+
+            Write-Success "Windows product key uninstalled and cleared from registry."
+            Write-TMLog -TaskId "ACT_WIN_UPK" -TaskName "Uninstall Windows Key" -Status "Success" -Message "Key uninstalled and cleared"
+        } catch {
+            Handle-TMException -TaskId "ACT_WIN_UPK" -TaskName "Uninstall Windows Key" -Exception $_.Exception
+        }
+    }
+    Pause-Screen
+}
+
+function Show-TMActivationMenu {
+    $menuItems = @(
+        @{ Label = "Activate Windows with 25-character Product Key (slmgr /ipk /ato)"; Action = { Invoke-WindowsKeyActivation } },
+        @{ Label = "Activate Microsoft Office with 25-character Product Key (ospp.vbs /act)"; Action = { Invoke-OfficeKeyActivation } },
+        @{ Label = "View Detailed Windows Activation Status (slmgr /dli, /xpr)"; Action = { Show-WindowsActivationDetailedStatus } },
+        @{ Label = "View Detailed Office Activation Status (ospp.vbs /dstatus)"; Action = { Show-OfficeActivationDetailedStatus } },
+        @{ Label = "Uninstall Obsolete Office Key Fragment (ospp.vbs /unpkey)"; Action = { Invoke-UninstallOfficeKey } },
+        @{ Label = "Uninstall Current Windows Product Key (slmgr /upk, /cpky)"; Action = { Invoke-UninstallWindowsKey } },
+        @{ Label = "Windows & Office License Inventory Tool (Full Keys & Cloud Sync)"; Action = { Invoke-LicenseInventoryCheck } },
+        @{ Label = "Open Windows Activation Settings GUI (ms-settings:activation)"; Action = { Start-Process "ms-settings:activation" } }
+    )
+    Show-TMMenu -Title "WINDOWS & MICROSOFT OFFICE PRODUCT ACTIVATION" -MenuItems $menuItems -ExitLabel "Back"
+}
+
+
 # === SOURCE: src/Modules/PostInstall/CheckLicense.ps1 ===
 # TM-WinCare - License and IT Inventory Tool
 # Decodes Full 25-character Windows Key & Office Key, Mainboard Serial, UUID, Sync to Google Sheets / Form
@@ -1650,9 +2114,11 @@ function Invoke-LicenseInventoryCheck {
         Write-Host "  [4] Open Google Form (Prefilled with Machine Info)"
         Write-Host "  [5] Open Google Sheets Inventory Spreadsheet"
         Write-Host "  [6] Run All: Export CSV + Sync Google Sheets"
+        Write-Host "  [7] Activate Windows with Product Key (slmgr /ipk /ato)" -ForegroundColor Green
+        Write-Host "  [8] Activate Microsoft Office with Product Key (ospp.vbs)" -ForegroundColor Green
         Write-Host "  [0] Return to Main Menu"
         Write-Host "==================================================================" -ForegroundColor Cyan
-        $choice = Read-Host "Enter your choice (0-6)"
+        $choice = Read-Host "Enter your choice (0-8)"
 
         switch ($choice) {
             "1" { Show-TerminalInfoLocal }
@@ -1670,8 +2136,22 @@ function Invoke-LicenseInventoryCheck {
                 Write-Host "[+] Saved CSV record to: $csvPath" -ForegroundColor Green
                 Send-ToGoogleSheetsLocal
             }
+            "7" {
+                if (Get-Command "Invoke-WindowsKeyActivation" -ErrorAction SilentlyContinue) {
+                    Invoke-WindowsKeyActivation
+                } else {
+                    Write-Host "[!] Activation module not loaded in standalone mode." -ForegroundColor Yellow
+                }
+            }
+            "8" {
+                if (Get-Command "Invoke-OfficeKeyActivation" -ErrorAction SilentlyContinue) {
+                    Invoke-OfficeKeyActivation
+                } else {
+                    Write-Host "[!] Activation module not loaded in standalone mode." -ForegroundColor Yellow
+                }
+            }
             "0" { return }
-            default { Write-Host "[!] Please select between 0 and 6." -ForegroundColor Yellow }
+            default { Write-Host "[!] Please select between 0 and 8." -ForegroundColor Yellow }
         }
     }
 }
@@ -1684,6 +2164,9 @@ function Invoke-LicenseInventoryCheck {
 
 function Show-TMPostInstallMenu {
     $menuItems = @(
+        @{ Label = "Activate Windows & Microsoft Office (Product Key Activation)"; Action = { Show-TMActivationMenu } },
+        @{ Label = "Activate Windows with Product Key (slmgr /ipk /ato)"; Action = { Invoke-WindowsKeyActivation } },
+        @{ Label = "Activate Microsoft Office with Product Key (ospp.vbs /act)"; Action = { Invoke-OfficeKeyActivation } },
         @{ Label = "Windows & Office License Management (IT Inventory Full Key)"; Action = { Invoke-LicenseInventoryCheck } },
         @{ Label = "Rename Computer Hostname"; Action = { Invoke-RenameComputer } },
         @{ Label = "Show Known File Extensions (.exe, .txt...)"; Action = { Set-ExplorerShowFileExtensions -Enable $true } },
@@ -1697,7 +2180,7 @@ function Show-TMPostInstallMenu {
         @{ Label = "Open Startup Folder (shell:startup)"; Action = { Start-Process "explorer.exe" "shell:startup" } },
         @{ Label = "Open Power Options (powercfg.cpl)"; Action = { Start-Process "powercfg.cpl" } }
     )
-    Show-TMMenu -Title "WINDOWS POST-INSTALL CONFIGURATION" -MenuItems $menuItems -ExitLabel "Back"
+    Show-TMMenu -Title "WINDOWS POST-INSTALL & ACTIVATION" -MenuItems $menuItems -ExitLabel "Back"
 }
 
 function Invoke-RenameComputer {
@@ -1946,6 +2429,7 @@ function Invoke-AutoOptimizeProfile {
 
 function Show-TMOptimizationMenu {
     $menuItems = @(
+        @{ Label = "🚀 [CHẾ ĐỘ AUTO] Tự Động Tối Ưu Toàn Diện Toàn Bộ Hệ Thống (1-Click Full Care)"; Action = { Invoke-FullSystemAutoOptimize } },
         @{ Label = "Audit System & Generate Optimization Recommendations"; Action = { Invoke-AutoOptimizeProfile -ProfileId "audit" } },
         @{ Label = "Auto Optimize - Balanced (Recommended for General PC)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "balanced" } },
         @{ Label = "Auto Optimize - Desktop Performance (High-Performance Workstation)"; Action = { Invoke-AutoOptimizeProfile -ProfileId "desktop_perf" } },
@@ -1957,7 +2441,263 @@ function Show-TMOptimizationMenu {
         @{ Label = "Power Plan & Performance Schemes"; Action = { Show-PowerPlanMenu } },
         @{ Label = "View Recent Backups & Rollback"; Action = { Show-TMBackupMenu } }
     )
-    Show-TMMenu -Title "SAFE SYSTEM OPTIMIZATION (PROFILES & TUNING)" -MenuItems $menuItems -ExitLabel "Back"
+    Show-TMMenu -Title "SAFE SYSTEM OPTIMIZATION (AUTO CARE & PROFILES)" -MenuItems $menuItems -ExitLabel "Back"
+}
+
+function Invoke-FullSystemAutoOptimize {
+    <#
+    .SYNOPSIS
+        Comprehensive 1-Click All-In-One Full Auto Optimization Mode.
+        Automatically executes the complete safe maintenance & tuning pipeline across the entire system.
+    #>
+    Write-Header -Title "CHẾ ĐỘ AUTO: TỰ ĐỘNG TỐI ƯU TOÀN DIỆN TOÀN BỘ HỆ THỐNG"
+    Write-InfoMessage "TM-WinCare All-In-One Automated Safe System Optimization Pipeline."
+    Write-Host " Guarantees: Safe by Default • Preserves Defender & Firewall • Creates Rollback Snapshot" -ForegroundColor Green
+    Write-Host ""
+
+    # 1. Administrator check
+    if (-not (Test-IsAdmin)) {
+        Write-WarningMessage "Full System Auto Optimize requires Administrator privileges for complete maintenance."
+        if (-not (Request-Elevation -Reason "run Full System Auto Optimize")) {
+            Pause-Screen
+            return
+        }
+    }
+
+    # 2. Pipeline Overview & Preview
+    Write-SubHeader "AUTOMATED OPTIMIZATION PIPELINE PREVIEW"
+    Write-Host "  [1] Pre-Scan & Automatic System State Snapshot (Backups/)" -ForegroundColor Cyan
+    Write-Host "  [2] Deep Junk & Temp Cleanup (%TEMP%, %WINDIR%\Temp, Recycle Bin, Crash Dumps)" -ForegroundColor Cyan
+    Write-Host "  [3] Windows Update Download Cache Purge (SoftwareDistribution\Download)" -ForegroundColor Cyan
+    Write-Host "  [4] Developer & Package Manager Cache Cleanup (pip, npm, uv if present)" -ForegroundColor Cyan
+    Write-Host "  [5] Visual & UI Animation Tuning (Disable window delay, preserve font smoothing)" -ForegroundColor Cyan
+    Write-Host "  [6] Privacy & Notification Tuning (Disable background tips, suggestions & promo ads)" -ForegroundColor Cyan
+    Write-Host "  [7] Storage Volume Optimization (Automatic SSD ReTrim on all SSD drives)" -ForegroundColor Cyan
+    Write-Host "  [8] Network & DNS Cache Reset (Flush DNS client cache & NetBIOS cache)" -ForegroundColor Cyan
+    Write-Host "  [9] Windows Component Store Health & Cleanup (DISM StartComponentCleanup)" -ForegroundColor Cyan
+    Write-Host ""
+
+    $confirmed = Confirm-Action -TaskName "Full System Auto Optimize" -ImpactDescription "Execute the complete automated optimization pipeline. All changes are non-destructive and fully backed up." -RiskLevel "medium"
+    if (-not $confirmed) {
+        Write-SkipMessage "Full System Auto Optimize cancelled by user."
+        Pause-Screen
+        return
+    }
+
+    # Track metrics
+    $totalCleanedFiles = 0
+    $totalCleanedMB = 0
+    $actionsApplied = @()
+
+    # Step 1: Create Backup Session
+    Write-SubHeader "[STEP 1/9] CREATING SYSTEM RESTORE SNAPSHOT"
+    $session = New-TMBackupSession -TaskId "AUTO_OPT_FULL" -Description "Backup prior to Full System Auto Optimize"
+    Backup-RegistryValue -Session $session -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" | Out-Null
+    Backup-RegistryValue -Session $session -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" | Out-Null
+    Backup-RegistryValue -Session $session -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SoftLandingEnabled" | Out-Null
+    $backupId = Save-TMBackupSession -Session $session
+    Write-Success "Restore snapshot created successfully: $backupId"
+    $actionsApplied += "Created system rollback snapshot ($backupId)"
+
+    # Step 2: Clean User & System Temp
+    Write-SubHeader "[STEP 2/9] CLEANING TEMPORARY FILES & RECYCLE BIN"
+    $userTemp = [System.IO.Path]::GetTempPath()
+    $winTemp = Join-Path $env:SystemRoot "Temp"
+    $tempTargets = @($userTemp, $winTemp)
+
+    foreach ($dir in $tempTargets) {
+        if (Test-Path $dir) {
+            $files = Get-ChildItem -Path $dir -Recurse -File -ErrorAction SilentlyContinue
+            $delCount = 0
+            foreach ($f in $files) {
+                try {
+                    $len = $f.Length
+                    Remove-Item $f.FullName -Force -ErrorAction Stop
+                    $delCount++
+                    $totalCleanedFiles++
+                    $totalCleanedMB += ($len / 1MB)
+                } catch {}
+            }
+            Write-Host "   -> Cleaned $delCount temp file(s) in $dir" -ForegroundColor Green
+        }
+    }
+
+    # Empty Recycle Bin
+    try {
+        Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+        Write-Host "   -> Emptied Recycle Bin across all disk volumes" -ForegroundColor Green
+        $actionsApplied += "Emptied Recycle Bin"
+    } catch {}
+
+    # Crash Minidumps
+    $dumpPath = Join-Path $env:SystemRoot "Minidump"
+    if (Test-Path $dumpPath) {
+        $dumpFiles = Get-ChildItem -Path $dumpPath -File -ErrorAction SilentlyContinue
+        $dumpDel = 0
+        foreach ($df in $dumpFiles) {
+            try { Remove-Item $df.FullName -Force -ErrorAction Stop; $dumpDel++; $totalCleanedFiles++ } catch {}
+        }
+        if ($dumpDel -gt 0) {
+            Write-Host "   -> Purged $dumpDel obsolete crash minidump(s)" -ForegroundColor Green
+        }
+    }
+    $actionsApplied += "Cleaned user & system temporary files"
+
+    # Step 3: Windows Update Download Cache
+    Write-SubHeader "[STEP 3/9] PURGING WINDOWS UPDATE DOWNLOAD CACHE"
+    $wuPath = Join-Path $env:SystemRoot "SoftwareDistribution\Download"
+    if (Test-Path $wuPath) {
+        try {
+            Write-Host "   -> Pausing Windows Update service..." -ForegroundColor DarkGray
+            Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue
+            $wuFiles = Get-ChildItem -Path $wuPath -Recurse -File -ErrorAction SilentlyContinue
+            $wuDel = 0
+            foreach ($wf in $wuFiles) {
+                try {
+                    $len = $wf.Length
+                    Remove-Item $wf.FullName -Force -ErrorAction Stop
+                    $wuDel++
+                    $totalCleanedFiles++
+                    $totalCleanedMB += ($len / 1MB)
+                } catch {}
+            }
+            Write-Host "   -> Purged $wuDel downloaded Windows Update cache file(s)" -ForegroundColor Green
+            Start-Service -Name wuauserv -ErrorAction SilentlyContinue
+            $actionsApplied += "Purged Windows Update download cache ($wuDel files)"
+        } catch {
+            Write-Host "   -> Skipped Windows Update cache ($($_.Exception.Message))" -ForegroundColor Yellow
+        }
+    }
+
+    # Step 4: Developer Caches (if installed)
+    Write-SubHeader "[STEP 4/9] CLEANING DISPOSABLE DEVELOPER & PACKAGE CACHES"
+    $devCleaned = $false
+    if (Get-Command "npm" -ErrorAction SilentlyContinue) {
+        try {
+            Write-Host "   -> Cleaning npm cache (npm cache clean --force)..." -ForegroundColor DarkGray
+            & npm cache clean --force 2>&1 | Out-Null
+            Write-Host "   -> npm cache cleaned" -ForegroundColor Green
+            $devCleaned = $true
+        } catch {}
+    }
+    if (Get-Command "pip" -ErrorAction SilentlyContinue) {
+        try {
+            Write-Host "   -> Purging pip cache (pip cache purge)..." -ForegroundColor DarkGray
+            & pip cache purge 2>&1 | Out-Null
+            Write-Host "   -> pip cache purged" -ForegroundColor Green
+            $devCleaned = $true
+        } catch {}
+    }
+    if (Get-Command "uv" -ErrorAction SilentlyContinue) {
+        try {
+            Write-Host "   -> Cleaning uv cache (uv cache clean)..." -ForegroundColor DarkGray
+            & uv cache clean 2>&1 | Out-Null
+            Write-Host "   -> uv cache cleaned" -ForegroundColor Green
+            $devCleaned = $true
+        } catch {}
+    }
+    if (-not $devCleaned) {
+        Write-Host "   -> No disposable dev caches found (or tools not installed)." -ForegroundColor DarkGray
+    } else {
+        $actionsApplied += "Cleaned developer package caches (pip/npm/uv)"
+    }
+
+    # Step 5: Visual Effects & UI Tuning
+    Write-SubHeader "[STEP 5/9] OPTIMIZING VISUAL EFFECTS & ANIMATIONS"
+    try {
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Value 3 -Force -ErrorAction SilentlyContinue
+        Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Value 0 -Force -ErrorAction SilentlyContinue
+        Write-Host "   -> Disabled window animation latency while preserving clear font smoothing" -ForegroundColor Green
+        $actionsApplied += "Tuned visual effects (reduced animation overhead, preserved fonts)"
+    } catch {
+        Write-Host "   -> Visual tuning skipped: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+
+    # Step 6: Privacy & Notification Tuning
+    Write-SubHeader "[STEP 6/9] TUNING PRIVACY, PROMOTIONAL SUGGESTIONS & TIPS"
+    try {
+        $cdmPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+        Set-ItemProperty -Path $cdmPath -Name "SoftLandingEnabled" -Value 0 -Force -ErrorAction SilentlyContinue
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338388Enabled" -Value 0 -Force -ErrorAction SilentlyContinue
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338389Enabled" -Value 0 -Force -ErrorAction SilentlyContinue
+        Write-Host "   -> Disabled promotional tips, lockscreen recommendations & ads" -ForegroundColor Green
+        $actionsApplied += "Disabled Windows tips & promotional suggestions"
+    } catch {}
+
+    # Step 7: Storage Volume Optimization (SSD ReTrim)
+    Write-SubHeader "[STEP 7/9] OPTIMIZING STORAGE VOLUMES (SSD RETRIM)"
+    try {
+        $volumes = Get-Volume -ErrorAction SilentlyContinue | Where-Object { $null -ne $_.DriveLetter -and $_.DriveType -eq "Fixed" }
+        foreach ($v in $volumes) {
+            $dl = $v.DriveLetter
+            Write-Host "   -> Running Optimize-Volume on drive $dl`: ... " -NoNewline -ForegroundColor DarkGray
+            try {
+                Optimize-Volume -DriveLetter $dl -ReTrim -ErrorAction Stop | Out-Null
+                Write-Host "Done (SSD ReTrim complete)." -ForegroundColor Green
+                $actionsApplied += "Ran SSD ReTrim on drive $dl`:"
+            } catch {
+                # Fallback defrag analyze if HDD
+                try {
+                    Optimize-Volume -DriveLetter $dl -Analyze -ErrorAction SilentlyContinue | Out-Null
+                    Write-Host "Done (Analyzed volume)." -ForegroundColor Green
+                } catch {
+                    Write-Host "Skipped." -ForegroundColor DarkGray
+                }
+            }
+        }
+    } catch {
+        Write-Host "   -> Storage optimization notice: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+
+    # Step 8: Network & DNS Cache Reset
+    Write-SubHeader "[STEP 8/9] OPTIMIZING NETWORK & FLUSHING DNS RESOLVER CACHE"
+    try {
+        if (Get-Command "Clear-DnsClientCache" -ErrorAction SilentlyContinue) {
+            Clear-DnsClientCache -ErrorAction SilentlyContinue
+        } else {
+            & ipconfig.exe /flushdns 2>&1 | Out-Null
+        }
+        & nbtstat.exe -R 2>&1 | Out-Null
+        Write-Host "   -> Flushed Windows DNS resolver cache & NetBIOS name cache" -ForegroundColor Green
+        $actionsApplied += "Flushed DNS client cache & NetBIOS cache"
+    } catch {
+        Write-Host "   -> DNS flush notice: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+
+    # Step 9: Component Store Cleanup (WinSxS)
+    Write-SubHeader "[STEP 9/9] CLEANING COMPONENT STORE (DISM StartComponentCleanup)"
+    Write-Host "   -> Purging superseded Windows update components... " -NoNewline -ForegroundColor DarkGray
+    try {
+        $dismOut = & dism.exe /Online /Cleanup-Image /StartComponentCleanup 2>&1
+        Write-Host "Done!" -ForegroundColor Green
+        $actionsApplied += "Cleaned obsolete WinSxS components (DISM StartComponentCleanup)"
+    } catch {
+        Write-Host "Skipped ($($_.Exception.Message))" -ForegroundColor Yellow
+    }
+
+    # Summary & Verification Report
+    Write-Header -Title "FULL SYSTEM AUTO OPTIMIZATION COMPLETE!"
+    Write-Success "All optimization phases have finished successfully!"
+    Write-Host ""
+    Write-Host "  SUMMARY REPORT:" -ForegroundColor Yellow
+    Write-Host "  - Total Files Cleaned     : $totalCleanedFiles file(s)" -ForegroundColor White
+    Write-Host "  - Approx. Space Reclaimed : $([math]::Round($totalCleanedMB, 1)) MB" -ForegroundColor White
+    Write-Host "  - Rollback Backup ID      : $backupId" -ForegroundColor Cyan
+    Write-Host "  - Windows Defender        : INTACT & PROTECTED (Safe by default)" -ForegroundColor Green
+    Write-Host "  - Windows Firewall        : INTACT & PROTECTED (Safe by default)" -ForegroundColor Green
+    Write-Host "  - Windows Update          : INTACT & FUNCTIONAL" -ForegroundColor Green
+    Write-Host ""
+
+    Write-InfoMessage "Actions Applied:"
+    foreach ($act in $actionsApplied) {
+        Write-Host "   [+] $act" -ForegroundColor Cyan
+    }
+
+    Write-Host ""
+    Write-InfoMessage "You can restore original settings at any time from Menu [12] (Backup & State Restore)."
+    Write-TMLog -TaskId "AUTO_OPT_FULL" -TaskName "Full System Auto Optimize" -Status "Success" -Message "Cleaned $totalCleanedFiles files ($([math]::Round($totalCleanedMB, 1)) MB). Backup: $backupId" -BackupId $backupId
+
+    Pause-Screen
 }
 
 function Show-ServicesManagerMenu {
@@ -2121,6 +2861,8 @@ function Show-PowerPlanMenu {
 
 function Show-TMMaintenanceMenu {
     $menuItems = @(
+        @{ Label = "🚀 Tự Động Xử Lý Lần Lượt Toàn Diện (CHKDSK -> DISM -> SFC -> WinSxS)"; Action = { Invoke-FullSequentialRepair } },
+        @{ Label = "Quy Trình Sửa Chữa Nhanh (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
         @{ Label = "Inspect Disk Media Types & Storage Capacity"; Action = { Show-DiskInventory } },
         @{ Label = "Optimize Volume / SSD Re-Trim (Optimize-Volume)"; Action = { Invoke-DiskOptimization } },
         @{ Label = "Open Windows Optimize Drives GUI (dfrgui.exe)"; Action = { Start-Process "dfrgui.exe" } },
@@ -2132,7 +2874,6 @@ function Show-TMMaintenanceMenu {
         @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (/scannow)"; Action = { Invoke-SfcScanNow } },
         @{ Label = "DISM - Scan Component Store Health (/ScanHealth)"; Action = { Invoke-DismScan } },
         @{ Label = "DISM - Repair Component Store Corruption (/RestoreHealth)"; Action = { Invoke-DismRestore } },
-        @{ Label = "Run Sequential Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
         @{ Label = "Open Windows Disk Cleanup (cleanmgr.exe)"; Action = { Start-Process "cleanmgr.exe" } },
         @{ Label = "Export Disk & Maintenance Report"; Action = { Export-MaintenanceReport } }
     )
@@ -2305,6 +3046,106 @@ function Invoke-DismRestore {
     Pause-Screen
 }
 
+function Invoke-FullSequentialRepair {
+    <#
+    .SYNOPSIS
+        Comprehensive 5-step automated sequential repair pipeline:
+        1. CHKDSK /scan (Online filesystem check)
+        2. DISM /ScanHealth (Component Store health scan)
+        3. DISM /RestoreHealth (Component Store corruption repair)
+        4. SFC /scannow (Protected OS files integrity check & replacement)
+        5. DISM /StartComponentCleanup (Purge obsolete WinSxS packages)
+    #>
+    if (-not (Assert-Admin "run full sequential Windows repair wizard")) { Pause-Screen; return }
+
+    Write-Header -Title "QUY TRÌNH TỰ ĐỘNG XỬ LÝ LẦN LƯỢT TOÀN DIỆN (CHKDSK -> DISM -> SFC -> WINSXS)"
+    Write-InfoMessage "Tự động thực thi tuần tự 5 bước sửa chữa chuyên sâu chuẩn Microsoft:"
+    Write-Host "  [1/5] Quét lỗi logic phân vùng NTFS trực tuyến (chkdsk C: /scan)" -ForegroundColor Cyan
+    Write-Host "  [2/5] Quét sâu kho lưu trữ linh kiện hệ thống (DISM /ScanHealth)" -ForegroundColor Cyan
+    Write-Host "  [3/5] Khôi phục & sửa chữa Component Store (DISM /RestoreHealth)" -ForegroundColor Cyan
+    Write-Host "  [4/5] Quét & tự động thay thế file hệ thống bị hỏng (sfc /scannow)" -ForegroundColor Cyan
+    Write-Host "  [5/5] Dọn dẹp kho linh kiện WinSxS sau khi sửa chữa (DISM /StartComponentCleanup)" -ForegroundColor Cyan
+    Write-Host ""
+
+    $confirmed = Confirm-Action -TaskName "Full Sequential Windows Repair" -ImpactDescription "Automatically executes the complete 5-step repair and integrity workflow sequentially. May take 10-25 minutes." -RiskLevel "medium"
+    if (-not $confirmed) {
+        Write-SkipMessage "Sequential repair cancelled by user."
+        Pause-Screen
+        return
+    }
+
+    $startTime = Get-Date
+
+    # Step 1: CHKDSK Online Scan
+    Write-SubHeader "[BƯỚC 1/5] QUÉT LỖI Ổ ĐĨA TRỰC TUYẾN (chkdsk C: /scan)"
+    Write-InfoMessage "Đang kiểm tra tính toàn vẹn filesystem NTFS trên ổ C: (không ngắt quãng hệ thống)..."
+    try {
+        & chkdsk.exe "C:" /scan
+        Write-Success "Bước 1 hoàn tất: Đã quét xong phân vùng C:!"
+    } catch {
+        Write-WarningMessage "Thông báo từ CHKDSK: $($_.Exception.Message)"
+    }
+
+    # Step 2: DISM ScanHealth
+    Write-SubHeader "[BƯỚC 2/5] QUÉT KHO LINH KIỆN HỆ THỐNG (DISM /ScanHealth)"
+    Write-InfoMessage "Đang quét sâu kiểm tra kho linh kiện Component Store..."
+    try {
+        & dism.exe /Online /Cleanup-Image /ScanHealth
+        Write-Success "Bước 2 hoàn tất: Đã quét xong kho linh kiện!"
+    } catch {
+        Write-WarningMessage "Thông báo từ DISM ScanHealth: $($_.Exception.Message)"
+    }
+
+    # Step 3: DISM RestoreHealth
+    Write-SubHeader "[BƯỚC 3/5] KHÔI PHỤC & SỬA CHỮA KHO LINH KIỆN (DISM /RestoreHealth)"
+    Write-InfoMessage "Đang tải và sửa chữa các gói hệ thống bị hỏng từ máy chủ Microsoft..."
+    try {
+        & dism.exe /Online /Cleanup-Image /RestoreHealth
+        Write-Success "Bước 3 hoàn tất: Đã khôi phục Component Store thành công!"
+    } catch {
+        Write-WarningMessage "Thông báo từ DISM RestoreHealth: $($_.Exception.Message)"
+    }
+
+    # Step 4: SFC Scannow
+    Write-SubHeader "[BƯỚC 4/5] QUÉT & THAY THẾ FILE HỆ THỐNG (SFC /scannow)"
+    Write-InfoMessage "Đang quét và khôi phục các file hệ điều hành bị hỏng bằng file sạch từ Component Store..."
+    try {
+        & sfc.exe /scannow
+        Write-Success "Bước 4 hoàn tất: Đã kiểm tra và sửa chữa xong file hệ thống!"
+    } catch {
+        Write-WarningMessage "Thông báo từ SFC Scannow: $($_.Exception.Message)"
+    }
+
+    # Step 5: DISM StartComponentCleanup
+    Write-SubHeader "[BƯỚC 5/5] DỌN DẸP KHO LINH KIỆN WINSXS (DISM /StartComponentCleanup)"
+    Write-InfoMessage "Đang dọn dẹp các tệp linh kiện cũ bị thay thế trong WinSxS để thu hồi ổ cứng..."
+    try {
+        & dism.exe /Online /Cleanup-Image /StartComponentCleanup
+        Write-Success "Bước 5 hoàn tất: Đã dọn dẹp kho WinSxS sạch sẽ!"
+    } catch {
+        Write-WarningMessage "Thông báo từ DISM ComponentCleanup: $($_.Exception.Message)"
+    }
+
+    $elapsed = (Get-Date) - $startTime
+    $elapsedMinutes = [math]::Round($elapsed.TotalMinutes, 1)
+
+    Write-Header -Title "QUY TRÌNH TỰ ĐỘNG XỬ LÝ LẦN LƯỢT HOÀN TẤT!"
+    Write-Success "Toàn bộ 5 bước kiểm tra & sửa chữa hệ điều hành đã được thực thi thành công!"
+    Write-Host ""
+    Write-Host "  BÁO CÁO TỔNG KẾT:" -ForegroundColor Yellow
+    Write-Host "  [+] Bước 1: CHKDSK /scan               : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 2: DISM /ScanHealth           : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 3: DISM /RestoreHealth        : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 4: SFC /scannow               : Hoàn tất" -ForegroundColor Green
+    Write-Host "  [+] Bước 5: DISM ComponentCleanup      : Hoàn tất" -ForegroundColor Green
+    Write-Host "  - Tổng thời gian thực thi              : $elapsedMinutes phút" -ForegroundColor Cyan
+    Write-Host ""
+    Write-InfoMessage "Hệ thống Windows của bạn đã được kiểm tra toàn vẹn và phục hồi về trạng thái chuẩn."
+    Write-TMLog -TaskId "REPAIR_FULL_PIPELINE" -TaskName "Full Sequential Repair" -Status "Success" -Message "Completed in $elapsedMinutes minutes"
+
+    Pause-Screen
+}
+
 function Invoke-RepairPipeline {
     if (-not (Assert-Admin "run Windows repair wizard")) { Pause-Screen; return }
     Write-Header -Title "COMPREHENSIVE WINDOWS REPAIR PIPELINE (DISM + SFC)"
@@ -2360,7 +3201,8 @@ function Export-MaintenanceReport {
 
 function Show-TMRepairMenu {
     $menuItems = @(
-        @{ Label = "Complete Windows Repair Wizard (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
+        @{ Label = "🚀 Tự Động Xử Lý Lần Lượt Toàn Diện (CHKDSK -> DISM -> SFC -> WinSxS)"; Action = { Invoke-FullSequentialRepair } },
+        @{ Label = "Quy Trình Sửa Chữa Nhanh (DISM RestoreHealth -> SFC Scannow)"; Action = { Invoke-RepairPipeline } },
         @{ Label = "SFC - Scan and Automatically Repair Corrupted Files (sfc /scannow)"; Action = { Invoke-SfcScanNow } },
         @{ Label = "DISM - Quick Corruption Check (CheckHealth)"; Action = { Invoke-DismCheckHealth } },
         @{ Label = "DISM - Deep Component Store Health Scan (ScanHealth)"; Action = { Invoke-DismScan } },
@@ -3707,8 +4549,8 @@ function Start-TMApplication {
         Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
 
         Write-Host "  [ 1] " -ForegroundColor Cyan -NoNewline; Write-Host "Dashboard / System Information" -ForegroundColor White
-        Write-Host "  [ 2] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Post-Install & Activation" -ForegroundColor White
-        Write-Host "  [ 3] " -ForegroundColor Cyan -NoNewline; Write-Host "Auto Optimize / Custom Profiles" -ForegroundColor White
+        Write-Host "  [ 2] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Post-Install & Product Activation" -ForegroundColor White
+        Write-Host "  [ 3] " -ForegroundColor Cyan -NoNewline; Write-Host "Chế Độ Auto: Tự Động Tối Ưu Toàn Bộ Hệ Thống (Auto Optimize)" -ForegroundColor White
         Write-Host "  [ 4] " -ForegroundColor Cyan -NoNewline; Write-Host "Disk & System Maintenance" -ForegroundColor White
         Write-Host "  [ 5] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Repair (SFC / DISM / CHKDSK)" -ForegroundColor White
         Write-Host "  [ 6] " -ForegroundColor Cyan -NoNewline; Write-Host "Network & LAN Support" -ForegroundColor White

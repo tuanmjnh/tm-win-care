@@ -90,8 +90,8 @@ cd tm-win-care
   Operating System: Windows 11 Build 26100 | Privilege: [ADMIN]
 ---------------------------------------------------------
   [ 1] Dashboard / System Information
-  [ 2] Windows Post-Install & Activation
-  [ 3] Auto Optimize / Custom Profiles
+  [ 2] Windows Post-Install & Product Activation
+  [ 3] Chế Độ Auto: Tự Động Tối Ưu Toàn Bộ Hệ Thống (Auto Optimize)
   [ 4] Disk & System Maintenance
   [ 5] Windows Repair (SFC / DISM / CHKDSK)
   [ 6] Network & LAN Support
@@ -107,8 +107,8 @@ cd tm-win-care
 
 ### Module Highlights:
 1. **Dashboard**: Complete hardware and OS inspection (CPU, RAM, storage, IP, Spooler, Defender).
-2. **Post-Install**: Hostname renaming, File Explorer view options, missing driver diagnostics, and license management.
-3. **Auto Optimize**: Balanced, Desktop Performance, Low Resource/HDD, and Laptop Balanced profiles.
+2. **Post-Install & Activation**: Hostname renaming, File Explorer view options, missing driver diagnostics, genuine Windows & Office 25-character Product Key activation (`slmgr.vbs` & `ospp.vbs`), and IT inventory management.
+3. **Auto Optimize (Full Auto Care)**: 1-Click All-In-One Full System Auto Optimization pipeline (Temp & junk cleanup, Windows Update cache purge, dev caches, visual responsiveness tuning, lockscreen tips disable, SSD ReTrim, DNS flush, WinSxS component cleanup) plus custom profiles (Balanced, Desktop Performance, Low Resource/HDD, Laptop).
 4. **Disk Maintenance**: Logical volumes, SSD Re-Trim, and CHKDSK modes (`/scan`, `/f`, `/r`).
 5. **System Repair**: Sequential DISM Component Store repair (`/RestoreHealth`) followed by SFC (`/scannow`).
 6. **Network Support**: IP overview, DNS flushing, DHCP renew, TCP port testing (SMB 445, RAW 9100), and SMB configuration review.

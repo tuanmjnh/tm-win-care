@@ -83,8 +83,8 @@ cd tm-win-care
   Hệ điều hành: Windows 11 Build 26100 | Quyền: [ADMIN]
 ---------------------------------------------------------
   [ 1] Dashboard / Thông tin hệ thống
-  [ 2] Windows Post-Install
-  [ 3] Auto Optimize / Custom Optimize
+  [ 2] Windows Post-Install & Kích hoạt bản quyền
+  [ 3] Chế Độ Auto: Tự Động Tối Ưu Toàn Bộ Hệ Thống (Auto Care)
   [ 4] Disk & System Maintenance
   [ 5] Windows Repair (SFC / DISM / CHKDSK)
   [ 6] Network & LAN Support
@@ -99,8 +99,9 @@ cd tm-win-care
 ```
 
 1. **Dashboard / Thông tin hệ thống**: Đọc thời gian thực thông tin CPU, RAM, dung lượng phân vùng ổ đĩa, card mạng, IP, trạng thái Microsoft Defender, Print Spooler và số lượng máy in đã cài. Hỗ trợ xuất báo cáo ra file TXT / JSON.
-2. **Windows Post-Install**: Đổi tên máy tính (Rename Computer), bật/tắt đuôi mở rộng file (`.exe`, `.txt`), hiện file ẩn, kiểm tra phần cứng thiếu driver (`Win32_PnPEntity`), mở nhanh các công cụ thiết lập Ngày giờ, Kích hoạt Windows, Startup và Nguồn điện.
-3. **Auto Optimize / Custom Optimize**:
+2. **Windows Post-Install & Kích hoạt bản quyền**: Kích hoạt Windows và Microsoft Office bằng Product Key 25 ký tự (`slmgr.vbs /ipk /ato` và `ospp.vbs /inpkey /act`), đổi tên máy tính (Rename Computer), bật/tắt đuôi mở rộng file (`.exe`, `.txt`), hiện file ẩn, kiểm tra phần cứng thiếu driver (`Win32_PnPEntity`), tra cứu full key bản quyền và đồng bộ Google Sheets/Form.
+3. **Chế Độ Auto: Tự Động Tối Ưu Toàn Bộ Hệ Thống (Auto Care & Profiles)**:
+   - *1-Click Full System Auto Optimize*: Chế độ tự động chạy trọn gói quy trình dọn dẹp và tối ưu toàn diện toàn bộ máy tính (dọn %TEMP%, Windows Temp, thùng rác, crash minidump, cache Windows Update, cache pip/npm/uv, tối ưu độ mượt hiệu ứng hình ảnh, tắt quảng cáo & gợi ý ngầm, SSD ReTrim, flush DNS resolver cache, dọn sạch WinSxS) kèm sao lưu khôi phục tự động.
    - *Audit Only*: Chỉ quét và phân tích tình trạng mà không thay đổi hệ thống.
    - *Balanced*: Tối ưu hiệu ứng thị giác thừa, dọn dẹp file tạm, SSD ReTrim, giữ nguyên toàn bộ dịch vụ bảo mật.
    - *Desktop Performance*: Tối ưu phản hồi cho máy tính bàn cắm điện.

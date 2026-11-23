@@ -38,8 +38,8 @@ function Start-TMApplication {
         Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
 
         Write-Host "  [ 1] " -ForegroundColor Cyan -NoNewline; Write-Host "Dashboard / System Information" -ForegroundColor White
-        Write-Host "  [ 2] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Post-Install & Activation" -ForegroundColor White
-        Write-Host "  [ 3] " -ForegroundColor Cyan -NoNewline; Write-Host "Auto Optimize / Custom Profiles" -ForegroundColor White
+        Write-Host "  [ 2] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Post-Install & Product Activation" -ForegroundColor White
+        Write-Host "  [ 3] " -ForegroundColor Cyan -NoNewline; Write-Host "Chế Độ Auto: Tự Động Tối Ưu Toàn Bộ Hệ Thống (Auto Optimize)" -ForegroundColor White
         Write-Host "  [ 4] " -ForegroundColor Cyan -NoNewline; Write-Host "Disk & System Maintenance" -ForegroundColor White
         Write-Host "  [ 5] " -ForegroundColor Cyan -NoNewline; Write-Host "Windows Repair (SFC / DISM / CHKDSK)" -ForegroundColor White
         Write-Host "  [ 6] " -ForegroundColor Cyan -NoNewline; Write-Host "Network & LAN Support" -ForegroundColor White

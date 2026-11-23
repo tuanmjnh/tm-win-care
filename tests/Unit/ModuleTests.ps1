@@ -80,6 +80,34 @@ Assert-ModuleTest -Name "Inspect Print Spooler Service Status" -TestBlock {
     return ($null -ne $spooler)
 }
 
+# 6. Test Product Key Normalization & Formatting
+Assert-ModuleTest -Name "Validate Product Key Formatting Logic" -TestBlock {
+    $raw1 = "w269n-wfg6x-yvc9b-4j6c9-t83gx"
+    $raw2 = "w269nwfg6xyvc9b4j6c9t83gx"
+    $f1 = Format-ProductKey -RawKey $raw1
+    $f2 = Format-ProductKey -RawKey $raw2
+    $fBad = Format-ProductKey -RawKey "INVALID-KEY-123"
+    return ($f1 -eq "W269N-WFG6X-YVC9B-4J6C9-T83GX" -and $f2 -eq "W269N-WFG6X-YVC9B-4J6C9-T83GX" -and $null -eq $fBad)
+}
+
+# 7. Test Activation Functions Availability
+Assert-ModuleTest -Name "Verify Windows & Office Activation Handlers" -TestBlock {
+    $hasWinAct = [bool](Get-Command "Invoke-WindowsKeyActivation" -ErrorAction SilentlyContinue)
+    $hasOffAct = [bool](Get-Command "Invoke-OfficeKeyActivation" -ErrorAction SilentlyContinue)
+    $hasOsppFinder = [bool](Get-Command "Find-OfficeOsppPath" -ErrorAction SilentlyContinue)
+    return ($hasWinAct -and $hasOffAct -and $hasOsppFinder)
+}
+
+# 8. Test Full System Auto Optimize Function Availability
+Assert-ModuleTest -Name "Verify Full System Auto Optimize Handler" -TestBlock {
+    return [bool](Get-Command "Invoke-FullSystemAutoOptimize" -ErrorAction SilentlyContinue)
+}
+
+# 9. Test Full Sequential Repair Pipeline Handler
+Assert-ModuleTest -Name "Verify Full Sequential Repair Pipeline Handler" -TestBlock {
+    return [bool](Get-Command "Invoke-FullSequentialRepair" -ErrorAction SilentlyContinue)
+}
+
 Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
 Write-Host " Results: $passed passed, $failed failed." -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Red" })
 Write-Host "=========================================================" -ForegroundColor Cyan

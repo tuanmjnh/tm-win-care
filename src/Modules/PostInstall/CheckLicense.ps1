@@ -251,9 +251,11 @@ function Invoke-LicenseInventoryCheck {
         Write-Host "  [4] Open Google Form (Prefilled with Machine Info)"
         Write-Host "  [5] Open Google Sheets Inventory Spreadsheet"
         Write-Host "  [6] Run All: Export CSV + Sync Google Sheets"
+        Write-Host "  [7] Activate Windows with Product Key (slmgr /ipk /ato)" -ForegroundColor Green
+        Write-Host "  [8] Activate Microsoft Office with Product Key (ospp.vbs)" -ForegroundColor Green
         Write-Host "  [0] Return to Main Menu"
         Write-Host "==================================================================" -ForegroundColor Cyan
-        $choice = Read-Host "Enter your choice (0-6)"
+        $choice = Read-Host "Enter your choice (0-8)"
 
         switch ($choice) {
             "1" { Show-TerminalInfoLocal }
@@ -271,8 +273,22 @@ function Invoke-LicenseInventoryCheck {
                 Write-Host "[+] Saved CSV record to: $csvPath" -ForegroundColor Green
                 Send-ToGoogleSheetsLocal
             }
+            "7" {
+                if (Get-Command "Invoke-WindowsKeyActivation" -ErrorAction SilentlyContinue) {
+                    Invoke-WindowsKeyActivation
+                } else {
+                    Write-Host "[!] Activation module not loaded in standalone mode." -ForegroundColor Yellow
+                }
+            }
+            "8" {
+                if (Get-Command "Invoke-OfficeKeyActivation" -ErrorAction SilentlyContinue) {
+                    Invoke-OfficeKeyActivation
+                } else {
+                    Write-Host "[!] Activation module not loaded in standalone mode." -ForegroundColor Yellow
+                }
+            }
             "0" { return }
-            default { Write-Host "[!] Please select between 0 and 6." -ForegroundColor Yellow }
+            default { Write-Host "[!] Please select between 0 and 8." -ForegroundColor Yellow }
         }
     }
 }

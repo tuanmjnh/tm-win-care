@@ -44,6 +44,7 @@ $sourceFiles = @(
     "src/Core/ErrorHandler.ps1",
     "src/Core/Menu.ps1",
     "src/Modules/Dashboard/Dashboard.ps1",
+    "src/Modules/PostInstall/Activation.ps1",
     "src/Modules/PostInstall/CheckLicense.ps1",
     "src/Modules/PostInstall/PostInstall.ps1",
     "src/Modules/Optimization/Profiles.ps1",
@@ -153,7 +154,8 @@ Write-Host " [OK] Đã tạo thành công: $aioCmdPath" -ForegroundColor Green
 # 5. Generate Standalone Check-License.ps1 and Check-License.cmd
 Write-Host "-> Đang tạo công cụ chạy nhanh Check-License..." -ForegroundColor Yellow
 $checkLicSrc = Get-Content (Join-Path $rootDir "src/Modules/PostInstall/CheckLicense.ps1") -Raw -Encoding UTF8
-$checkLicPs1Content = "# TM-WinCare - License and IT Inventory Tool`r`n" + $checkLicSrc + "`r`nInvoke-LicenseInventoryCheck`r`n"
+$actSrc = Get-Content (Join-Path $rootDir "src/Modules/PostInstall/Activation.ps1") -Raw -Encoding UTF8
+$checkLicPs1Content = "# TM-WinCare - License and IT Inventory Tool`r`n" + $actSrc + "`r`n" + $checkLicSrc + "`r`nInvoke-LicenseInventoryCheck`r`n"
 $checkLicPs1Path = Join-Path $distDir "Check-License.ps1"
 [System.IO.File]::WriteAllText($checkLicPs1Path, $checkLicPs1Content, $utf8NoBom)
 
